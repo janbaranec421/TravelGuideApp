@@ -1,0 +1,122 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.Default.props" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.Default.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <ProjectGuid>{0671A2A5-B7DB-47A8-B3A1-6D8B7E4498FF}</ProjectGuid>
+    <ProjectTypeGuids>{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
+    <OutputType>Library</OutputType>
+    <OutputPath>bin</OutputPath>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+    <TypeScriptToolsVersion>1.6</TypeScriptToolsVersion>
+    <UseIISExpress>true</UseIISExpress>
+    <IISExpressSSLPort />
+    <IISExpressAnonymousAuthentication />
+    <IISExpressWindowsAuthentication />
+    <IISExpressUseClassicPipelineMode />
+    <UseGlobalApplicationHostFile />
+  </PropertyGroup>
+  <ItemGroup>
+    <Service Include="{4A0DDDB5-7A95-4FBF-97CC-616D07737A77}" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="CSS\CSS.css" />
+    <Content Include="font-awesome-4.5.0\css\font-awesome.css" />
+    <Content Include="font-awesome-4.5.0\css\font-awesome.min.css" />
+    <Content Include="font-awesome-4.5.0\fonts\fontawesome-webfont.svg" />
+    <Content Include="font-awesome-4.5.0\HELP-US-OUT.txt" />
+    <Content Include="index.html" />
+    <Content Include="Resources\avatar.jpg" />
+    <Content Include="packages.config" />
+    <None Include="Scripts\jquery-2.2.3.intellisense.js" />
+    <Content Include="Scripts\jquery-2.2.3.js" />
+    <Content Include="Scripts\jquery-2.2.3.min.js" />
+    <Content Include="web.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <TypeScriptCompile Include="Scripts\typings\jquery\jquery.d.ts" />
+    <TypeScriptCompile Include="TS\app.ts" />
+    <TypeScriptCompile Include="TS\Map.ts" />
+    <TypeScriptCompile Include="TS\SideMenu.ts" />
+    <TypeScriptCompile Include="TS\TopMenu.ts" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="font-awesome-4.5.0\fonts\fontawesome-webfont.eot" />
+    <Content Include="font-awesome-4.5.0\fonts\fontawesome-webfont.ttf" />
+    <Content Include="font-awesome-4.5.0\fonts\fontawesome-webfont.woff" />
+    <Content Include="font-awesome-4.5.0\fonts\fontawesome-webfont.woff2" />
+    <Content Include="font-awesome-4.5.0\fonts\FontAwesome.otf" />
+    <Content Include="font-awesome-4.5.0\less\animated.less" />
+    <Content Include="font-awesome-4.5.0\less\bordered-pulled.less" />
+    <Content Include="font-awesome-4.5.0\less\core.less" />
+    <Content Include="font-awesome-4.5.0\less\fixed-width.less" />
+    <Content Include="font-awesome-4.5.0\less\font-awesome.less" />
+    <Content Include="font-awesome-4.5.0\less\icons.less" />
+    <Content Include="font-awesome-4.5.0\less\larger.less" />
+    <Content Include="font-awesome-4.5.0\less\list.less" />
+    <Content Include="font-awesome-4.5.0\less\mixins.less" />
+    <Content Include="font-awesome-4.5.0\less\path.less" />
+    <Content Include="font-awesome-4.5.0\less\rotated-flipped.less" />
+    <Content Include="font-awesome-4.5.0\less\stacked.less" />
+    <Content Include="font-awesome-4.5.0\less\variables.less" />
+    <Content Include="font-awesome-4.5.0\scss\font-awesome.scss" />
+    <Content Include="font-awesome-4.5.0\scss\_animated.scss" />
+    <Content Include="font-awesome-4.5.0\scss\_bordered-pulled.scss" />
+    <Content Include="font-awesome-4.5.0\scss\_core.scss" />
+    <Content Include="font-awesome-4.5.0\scss\_fixed-width.scss" />
+    <Content Include="font-awesome-4.5.0\scss\_icons.scss" />
+    <Content Include="font-awesome-4.5.0\scss\_larger.scss" />
+    <Content Include="font-awesome-4.5.0\scss\_list.scss" />
+    <Content Include="font-awesome-4.5.0\scss\_mixins.scss" />
+    <Content Include="font-awesome-4.5.0\scss\_path.scss" />
+    <Content Include="font-awesome-4.5.0\scss\_rotated-flipped.scss" />
+    <Content Include="font-awesome-4.5.0\scss\_stacked.scss" />
+    <Content Include="font-awesome-4.5.0\scss\_variables.scss" />
+    <Content Include="SideMenu.js.map" />
+    <Content Include="Scripts\jquery-2.2.3.min.map" />
+    <None Include="web.Debug.config">
+      <DependentUpon>web.config</DependentUpon>
+    </None>
+    <None Include="web.Release.config">
+      <DependentUpon>web.config</DependentUpon>
+    </None>
+  </ItemGroup>
+  <ItemGroup />
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">12.0</VisualStudioVersion>
+  </PropertyGroup>
+  <PropertyGroup>
+    <RootNamespace>TravelGuideApplication</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\WebApplications\Microsoft.WebApplication.targets" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\WebApplications\Microsoft.WebApplication.targets')" />
+  <ProjectExtensions>
+    <VisualStudio>
+      <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
+        <WebProjectProperties>
+          <UseIIS>True</UseIIS>
+          <AutoAssignPort>True</AutoAssignPort>
+          <DevelopmentServerPort>49853</DevelopmentServerPort>
+          <DevelopmentServerVPath>/</DevelopmentServerVPath>
+          <IISUrl>http://localhost:49853/</IISUrl>
+          <NTLMAuthentication>False</NTLMAuthentication>
+          <UseCustomServer>False</UseCustomServer>
+          <CustomServerUrl>
+          </CustomServerUrl>
+          <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
+        </WebProjectProperties>
+      </FlavorProperties>
+    </VisualStudio>
+  </ProjectExtensions>
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+    <TypeScriptRemoveComments>false</TypeScriptRemoveComments>
+    <TypeScriptSourceMap>true</TypeScriptSourceMap>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <TypeScriptRemoveComments>true</TypeScriptRemoveComments>
+    <TypeScriptSourceMap>false</TypeScriptSourceMap>
+  </PropertyGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets')" />
+</Project>
