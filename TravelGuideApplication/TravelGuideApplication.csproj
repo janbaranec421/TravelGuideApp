@@ -38,6 +38,7 @@
   <ItemGroup>
     <TypeScriptCompile Include="Scripts\typings\jquery\jquery.d.ts" />
     <TypeScriptCompile Include="TS\app.ts" />
+    <TypeScriptCompile Include="TS\Layer.ts" />
     <TypeScriptCompile Include="TS\Map.ts" />
     <TypeScriptCompile Include="TS\SideMenu.ts" />
     <TypeScriptCompile Include="TS\TopMenu.ts" />
