@@ -18,8 +18,11 @@ window.onload = () => {
     document.addEventListener('touchmove', HandleTouchMove, false);
     document.addEventListener('touchstart', HandleTouchStart, false);
     document.addEventListener('touchend', HandleTouchEnd, false);
-   
 
+    //console.log(map.long2tileX(17.838396, 18));
+    //console.log(map.lat2tileY(48.552492, 18));
+
+    map.display(17.843809, 48.588737, 10, Layer.Boundaries);
 };
 
 function createTopMenu()

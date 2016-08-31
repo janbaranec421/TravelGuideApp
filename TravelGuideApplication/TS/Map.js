@@ -1,6 +1,5 @@
 var Map = (function () {
     function Map(parent, tileWidth, tileHeight, mapWidth, mapHeight) {
-        var _this = this;
         if (tileWidth === void 0) { tileWidth = 150; }
         if (tileHeight === void 0) { tileHeight = 150; }
         if (mapWidth === void 0) { mapWidth = 500; }
@@ -21,57 +20,65 @@ var Map = (function () {
         this.mapHeight = mapHeight;
         this.tileWidth = tileWidth;
         this.tileHeight = tileHeight;
+    }
+    Map.prototype.display = function (longitude, latitude, zoom, layers) {
+        var _this = this;
+        // [X,Y] Position in map tiles scope
+        this.currentTileX = this.long2tileX(longitude, zoom);
+        this.currentTileY = this.lat2tileY(latitude, zoom);
+        this.currentLongitude = longitude;
+        this.currentLatitude = latitude;
+        this.currentZoom = zoom;
+        // [X,Y] Position on canvas element
         var centerX = (this.mapWidth / 2) - (this.tileWidth / 2);
         var centerY = (this.mapHeight / 2) - (this.tileWidth / 2);
-        console.log(this.lat2tileY(48.588712, 15));
-        console.log(this.long2tileX(17.838396, 15));
         // CENTER tile
-        this.fetchTile(15, this.long2tileX(17.838396, 15), this.lat2tileY(48.588712, 15), function (data) {
+        this.fetchTile(this.currentTileX, this.currentTileY, zoom, function (data) {
             console.log(_this._mapData);
-            _this.DrawTile(_this._mapData, centerX, centerY, Layer.Buildings | Layer.Landuse | Layer.Places | Layer.Pois | Layer.Water);
+            _this.DrawTile(_this._mapData, centerX, centerY, layers);
         });
         // RIGHT 
-        this.fetchTile(15, 18008, 11310, function (data) {
+        this.fetchTile(this.currentTileX + 1, this.currentTileY, zoom, function (data) {
             console.log(_this._mapData);
-            _this.DrawTile(_this._mapData, centerX + _this.tileWidth, centerY, Layer.Buildings | Layer.Landuse | Layer.Places | Layer.Pois | Layer.Water);
+            _this.DrawTile(_this._mapData, centerX + _this.tileWidth, centerY, layers);
         });
         // LEFT
-        this.fetchTile(15, 18006, 11310, function (data) {
+        this.fetchTile(this.currentTileX - 1, this.currentTileY, zoom, function (data) {
             console.log(_this._mapData);
-            _this.DrawTile(_this._mapData, centerX - _this.tileWidth, centerY, Layer.Buildings | Layer.Landuse | Layer.Places | Layer.Pois | Layer.Water);
+            _this.DrawTile(_this._mapData, centerX - _this.tileWidth, centerY, layers);
         });
         // BOTTOM
-        this.fetchTile(15, 18007, 11311, function (data) {
+        this.fetchTile(this.currentTileX, this.currentTileY + 1, zoom, function (data) {
             console.log(_this._mapData);
-            _this.DrawTile(_this._mapData, centerX, centerY + _this.tileHeight, Layer.Buildings | Layer.Landuse | Layer.Places | Layer.Pois | Layer.Water);
+            _this.DrawTile(_this._mapData, centerX, centerY + _this.tileHeight, layers);
         });
         // BOTTOM RIGHT
-        this.fetchTile(15, 18008, 11311, function (data) {
+        this.fetchTile(this.currentTileX + 1, this.currentTileY + 1, zoom, function (data) {
             console.log(_this._mapData);
-            _this.DrawTile(_this._mapData, centerX + _this.tileWidth, centerY + _this.tileHeight, Layer.Buildings | Layer.Landuse | Layer.Places | Layer.Pois | Layer.Water);
+            _this.DrawTile(_this._mapData, centerX + _this.tileWidth, centerY + _this.tileHeight, layers);
         });
         // BOTTOM LEFT
-        this.fetchTile(15, 18006, 11311, function (data) {
+        this.fetchTile(this.currentTileX - 1, this.currentTileY + 1, zoom, function (data) {
             console.log(_this._mapData);
-            _this.DrawTile(_this._mapData, centerX - _this.tileWidth, centerY + _this.tileHeight, Layer.Buildings | Layer.Landuse | Layer.Places | Layer.Pois | Layer.Water);
+            _this.DrawTile(_this._mapData, centerX - _this.tileWidth, centerY + _this.tileHeight, layers);
         });
         // TOP 
-        this.fetchTile(15, 18007, 11309, function (data) {
+        this.fetchTile(this.currentTileX, this.currentTileY - 1, zoom, function (data) {
             console.log(_this._mapData);
-            _this.DrawTile(_this._mapData, centerX, centerY - _this.tileHeight, Layer.Buildings | Layer.Landuse | Layer.Places | Layer.Pois | Layer.Water);
+            _this.DrawTile(_this._mapData, centerX, centerY - _this.tileHeight, layers);
         });
         // TOP LEFT
-        this.fetchTile(15, 18006, 11309, function (data) {
+        this.fetchTile(this.currentTileX - 1, this.currentTileY - 1, zoom, function (data) {
             console.log(_this._mapData);
-            _this.DrawTile(_this._mapData, centerX - _this.tileWidth, centerY - _this.tileHeight, Layer.Buildings | Layer.Landuse | Layer.Places | Layer.Pois | Layer.Water);
+            _this.DrawTile(_this._mapData, centerX - _this.tileWidth, centerY - _this.tileHeight, layers);
         });
         // TOP RIGHT
-        this.fetchTile(15, 18008, 11309, function (data) {
+        this.fetchTile(this.currentTileX + 1, this.currentTileY - 1, zoom, function (data) {
             console.log(_this._mapData);
-            _this.DrawTile(_this._mapData, centerX + _this.tileWidth, centerY - _this.tileHeight, Layer.Buildings | Layer.Landuse | Layer.Places | Layer.Pois | Layer.Water);
+            _this.DrawTile(_this._mapData, centerX + _this.tileWidth, centerY - _this.tileHeight, layers);
         });
-    }
-    Map.prototype.fetchTile = function (z, x, y, callback) {
+    };
+    Map.prototype.fetchTile = function (x, y, z, callback) {
         var _this = this;
         var fetchURL = "https://vector.mapzen.com/osm/all/" + z + "/" + x + "/" + y + ".json?api_key=vector-tiles-fd9uHhC";
         $.getJSON(fetchURL)
@@ -201,14 +208,14 @@ var Map = (function () {
         var context, bounds, point, latitude, longitude, xScale, yScale, scale;
         var canvas = $("#mapCanvas")[0];
         context = canvas.getContext('2d');
-        context.strokeStyle = '#636363';
+        context.strokeStyle = '#333333';
         bounds = this.getBoundingBox(data);
         // Determine how much to scale our coordinates by
         xScale = this.tileWidth / Math.abs(bounds.xMax - bounds.xMin);
         yScale = this.tileHeight / Math.abs(bounds.yMax - bounds.yMin);
         scale = xScale < yScale ? xScale : yScale;
         if (typeof data == 'undefined' || data === null)
-            console.log("`function DrawLayer: parameter 'data' not undefined or null");
+            console.log("function DrawLayer: parameter 'data' not undefined or null");
         data = data.features;
         for (var i = 0; i < data.length; i++) {
             for (var j = 0; j < data[i].geometry.coordinates.length; j++) {
@@ -235,9 +242,9 @@ var Map = (function () {
                             context.lineTo(point.x, point.y);
                         }
                     }
-                    context.strokeStyle = '#636363';
+                    //context.fillStyle = '#808080';
+                    //context.fill();
                     context.stroke();
-                    context.strokeStyle = '#636363';
                     continue;
                 }
                 else if (data[i].geometry.type == "MultiPolygon") {
@@ -264,37 +271,47 @@ var Map = (function () {
                                 context.lineTo(point.x, point.y);
                             }
                         }
-                        context.strokeStyle = '#636363';
+                        context.fillStyle = '#808080';
+                        context.fill();
                         context.stroke();
-                        context.strokeStyle = '#636363';
                     }
                     continue;
                 }
                 else if (data[i].geometry.type == "LineString" || data[i].geometry.type == "MultiPoint") {
                     longitude = data[i].geometry.coordinates[j][0];
                     latitude = data[i].geometry.coordinates[j][1];
+                    point = this.MercatorProjection(longitude, latitude);
+                    // Scale the points of the coordinate
+                    // to fit inside bounding box
+                    point = {
+                        x: (longitude - bounds.xMin) * xScale,
+                        y: (bounds.yMax - latitude) * yScale
+                    };
+                    // shifts tile relative to others
+                    point.x += shiftX;
+                    point.y += shiftY;
+                    // If this is the first coordinate in a shape, start a new path
+                    if (j === 0) {
+                        context.beginPath();
+                        context.moveTo(point.x, point.y);
+                    }
+                    else {
+                        context.lineTo(point.x, point.y);
+                    }
                 }
                 else if (data[i].geometry.type == "Point") {
                     longitude = data[i].geometry.coordinates[0];
                     latitude = data[i].geometry.coordinates[1];
-                }
-                point = this.MercatorProjection(longitude, latitude);
-                // Scale the points of the coordinate
-                // to fit inside bounding box
-                point = {
-                    x: (longitude - bounds.xMin) * xScale,
-                    y: (bounds.yMax - latitude) * yScale
-                };
-                // shifts tile relative to others
-                point.x += shiftX;
-                point.y += shiftY;
-                // If this is the first coordinate in a shape, start a new path
-                if (j === 0) {
-                    context.beginPath();
-                    context.moveTo(point.x, point.y);
-                }
-                else {
-                    context.lineTo(point.x, point.y);
+                    point = this.MercatorProjection(longitude, latitude);
+                    // Scale the points of the coordinate
+                    // to fit inside bounding box
+                    point = {
+                        x: (longitude - bounds.xMin) * xScale,
+                        y: (bounds.yMax - latitude) * yScale
+                    };
+                    // shifts tile relative to others
+                    point.x += shiftX;
+                    point.y += shiftY;
                 }
             }
             context.stroke();
@@ -308,6 +325,8 @@ var Map = (function () {
         context.lineTo(0 + shiftX, 0 + shiftY);
         context.stroke();
         console.log("Layer draw");
+    };
+    Map.prototype.strokePolygon = function () {
     };
     Map.prototype.MercatorProjection = function (longitude, latitude) {
         var radius = 6378137;

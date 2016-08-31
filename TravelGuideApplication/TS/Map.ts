@@ -1,111 +1,127 @@
 ﻿class Map {
     private root: HTMLElement;
     private canvas: HTMLElement;
-    private _mapData: any;
+
+    private _mapData: any[];
+
     private tileWidth: number;
     private tileHeight: number;
     private mapWidth: number;
     private mapHeight: number;
 
-    constructor(parent: HTMLElement, tileWidth: number = 150, tileHeight: number = 150, mapWidth: number = 500 , mapHeight = 500) {
+    private currentLatitude: number;
+    private currentLongitude: number;
+    private currentTileX: number;
+    private currentTileY: number;
+    private currentZoom: number;
+
+
+    constructor(parent: HTMLElement, tileWidth: number = 150, tileHeight: number = 150, mapWidth: number = 500, mapHeight = 500) {
         this.root = parent;
 
         // width and height MUST be set through attribute 
         // AND NOT BY css property n order to stop streching canvas incorrectly
         $(this.root)
-        .append($("<canvas>")
-            .attr("id", "mapCanvas")
-            .attr("width", mapWidth + "px")
-            .attr("height", mapHeight + "px")
-            .css("top", "250px")
-            .css("left", "250px")
-            .css("border", "solid black 2px")
-            .css("position", "absolute")
-        );
+            .append($("<canvas>")
+                .attr("id", "mapCanvas")
+                .attr("width", mapWidth + "px")
+                .attr("height", mapHeight + "px")
+                .css("top", "250px")
+                .css("left", "250px")
+                .css("border", "solid black 2px")
+                .css("position", "absolute")
+            );
 
         this.mapWidth = mapWidth;
         this.mapHeight = mapHeight;
         this.tileWidth = tileWidth;
         this.tileHeight = tileHeight;
+    }
 
+    public display(longitude: number, latitude: number, zoom: number, layers: Layer) {
+        // [X,Y] Position in map tiles scope
+        this.currentTileX = this.long2tileX(longitude, zoom);
+        this.currentTileY = this.lat2tileY(latitude, zoom);
+
+        this.currentLongitude = longitude;
+        this.currentLatitude = latitude;
+        this.currentZoom = zoom;
+
+        // [X,Y] Position on canvas element
         var centerX = (this.mapWidth / 2) - (this.tileWidth / 2);
         var centerY = (this.mapHeight / 2) - (this.tileWidth / 2);
 
 
-        console.log(this.lat2tileY(48.588712, 15));
-        console.log(this.long2tileX(17.838396, 15));
-       
         // CENTER tile
-        this.fetchTile(15, this.long2tileX(17.838396, 15), this.lat2tileY(48.588712, 15), (data) => {
+        this.fetchTile(this.currentTileX, this.currentTileY, zoom, (data) => {
             console.log(this._mapData);
-            this.DrawTile(this._mapData, centerX, centerY, Layer.Buildings | Layer.Landuse | Layer.Places | Layer.Pois | Layer.Water);
+            this.DrawTile(this._mapData, centerX, centerY, layers);
         });
         
         // RIGHT 
-        this.fetchTile(15, 18008, 11310, (data) => {
+        this.fetchTile(this.currentTileX + 1, this.currentTileY, zoom, (data) => {
             console.log(this._mapData);
-            this.DrawTile(this._mapData, centerX + this.tileWidth, centerY, Layer.Buildings | Layer.Landuse | Layer.Places | Layer.Pois | Layer.Water)
+            this.DrawTile(this._mapData, centerX + this.tileWidth, centerY, layers)
         });
         // LEFT
-        this.fetchTile(15, 18006, 11310, (data) => {
+        this.fetchTile(this.currentTileX - 1, this.currentTileY, zoom, (data) => {
             console.log(this._mapData);
-            this.DrawTile(this._mapData, centerX - this.tileWidth, centerY, Layer.Buildings | Layer.Landuse | Layer.Places | Layer.Pois | Layer.Water)
+            this.DrawTile(this._mapData, centerX - this.tileWidth, centerY, layers)
         });
         // BOTTOM
-        this.fetchTile(15, 18007, 11311, (data) => {
+        this.fetchTile(this.currentTileX, this.currentTileY + 1, zoom, (data) => {
             console.log(this._mapData);
-            this.DrawTile(this._mapData, centerX, centerY + this.tileHeight, Layer.Buildings | Layer.Landuse | Layer.Places | Layer.Pois | Layer.Water)
+            this.DrawTile(this._mapData, centerX, centerY + this.tileHeight, layers)
         });
         // BOTTOM RIGHT
-        this.fetchTile(15, 18008, 11311, (data) => {
+        this.fetchTile(this.currentTileX + 1, this.currentTileY + 1, zoom, (data) => {
             console.log(this._mapData);
-            this.DrawTile(this._mapData, centerX + this.tileWidth, centerY + this.tileHeight, Layer.Buildings | Layer.Landuse | Layer.Places | Layer.Pois | Layer.Water)
+            this.DrawTile(this._mapData, centerX + this.tileWidth, centerY + this.tileHeight, layers)
         });
         // BOTTOM LEFT
-        this.fetchTile(15, 18006, 11311, (data) => {
+        this.fetchTile(this.currentTileX - 1, this.currentTileY + 1, zoom, (data) => {
             console.log(this._mapData);
-            this.DrawTile(this._mapData, centerX - this.tileWidth, centerY + this.tileHeight, Layer.Buildings | Layer.Landuse | Layer.Places | Layer.Pois | Layer.Water)
+            this.DrawTile(this._mapData, centerX - this.tileWidth, centerY + this.tileHeight, layers)
         });
         // TOP 
-        this.fetchTile(15, 18007, 11309, (data) => {
+        this.fetchTile(this.currentTileX, this.currentTileY - 1, zoom, (data) => {
             console.log(this._mapData);
-            this.DrawTile(this._mapData, centerX, centerY - this.tileHeight, Layer.Buildings | Layer.Landuse | Layer.Places | Layer.Pois | Layer.Water)
+            this.DrawTile(this._mapData, centerX, centerY - this.tileHeight, layers)
         });
         // TOP LEFT
-        this.fetchTile(15, 18006, 11309, (data) => {
+        this.fetchTile(this.currentTileX - 1, this.currentTileY - 1, zoom, (data) => {
             console.log(this._mapData);
-            this.DrawTile(this._mapData, centerX - this.tileWidth, centerY - this.tileHeight, Layer.Buildings | Layer.Landuse | Layer.Places | Layer.Pois | Layer.Water)
+            this.DrawTile(this._mapData, centerX - this.tileWidth, centerY - this.tileHeight, layers)
         });
         // TOP RIGHT
-        this.fetchTile(15, 18008, 11309, (data) => {
+        this.fetchTile(this.currentTileX + 1, this.currentTileY - 1, zoom, (data) => {
             console.log(this._mapData);
-            this.DrawTile(this._mapData, centerX + this.tileWidth, centerY - this.tileHeight, Layer.Buildings | Layer.Landuse | Layer.Places | Layer.Pois | Layer.Water)
+            this.DrawTile(this._mapData, centerX + this.tileWidth, centerY - this.tileHeight, layers)
         });
-        
     }
 
-    public fetchTile(z: number, x: number, y: number, callback: Function) {
+    private fetchTile(x: number, y: number, z: number, callback: Function) {
         var fetchURL = "https://vector.mapzen.com/osm/all/" + z + "/" + x + "/" + y + ".json?api_key=vector-tiles-fd9uHhC";
 
         $.getJSON(fetchURL)
             .done((data) => {
                 this._mapData = data;
-            callback(data);
-         })
+                callback(data);
+            })
             .fail(function () {
                 console.log("Download failed")
             })
 
     }
 
-    public printGeometryTypes(data) {
+    private printGeometryTypes(data) {
         for (var i = 0; i < data.features.length; i++) {
             if (data.features[i].geometry.type == "MultiPoint" || data.features[i].geometry.type == "Point")
                 console.log("Geometry:     " + data.features[i].geometry.type);
         }
     }
     // [longitude, latitude] bounding box of data 
-    public getBoundingBox(data) {
+    private getBoundingBox(data) {
         var point, latitude, longitude;
         var bounds = { xMin: 0, xMax: 0, yMin: 0, yMax: 0 };
 
@@ -135,7 +151,7 @@
                         }
                     }
                 }
-                else if (data[i].geometry.type == "MultiPoint" || data[i].geometry.type == "LineString"){
+                else if (data[i].geometry.type == "MultiPoint" || data[i].geometry.type == "LineString") {
                     longitude = data[i].geometry.coordinates[j][0];
                     latitude = data[i].geometry.coordinates[j][1];
 
@@ -156,8 +172,7 @@
         return bounds;
     }
 
-    private compareBoundingData(latitude: number, longitude: number, bounds)
-    {
+    private compareBoundingData(latitude: number, longitude: number, bounds) {
         if (bounds.xMax == 0 || bounds.xMin == 0) {
             bounds.xMax = longitude;
             bounds.xMin = longitude;
@@ -175,8 +190,7 @@
         return bounds
     }
 
-    public DrawTile(data, shiftX: number, shiftY: number, layers: Layer)
-    {
+    private DrawTile(data, shiftX: number, shiftY: number, layers: Layer) {
         if (layers & Layer.Boundaries) {
             console.log("-------------   Boundaries geometry -------------");
             this.printGeometryTypes(data.boundaries);
@@ -229,13 +243,12 @@
 
     }
 
-    public DrawLayer(data, shiftX: number, shiftY: number)
-    {
+    private DrawLayer(data, shiftX: number, shiftY: number) {
         var context, bounds, point, latitude, longitude, xScale, yScale, scale;
 
         var canvas = <HTMLCanvasElement>$("#mapCanvas")[0];
         context = canvas.getContext('2d');
-        context.strokeStyle = '#636363';
+        context.strokeStyle = '#333333';
 
         bounds = this.getBoundingBox(data);
 
@@ -245,21 +258,48 @@
         scale = xScale < yScale ? xScale : yScale;
 
         if (typeof data == 'undefined' || data === null)
-            console.log("`function DrawLayer: parameter 'data' not undefined or null")
+            console.log("function DrawLayer: parameter 'data' not undefined or null")
 
         data = data.features;
 
-        for (var i = 0; i < data.length; i++)
-        {
-            for (var j = 0; j < data[i].geometry.coordinates.length; j++)
-            {
+        for (var i = 0; i < data.length; i++) {
+            for (var j = 0; j < data[i].geometry.coordinates.length; j++) {
+                if (data[i].geometry.type == "Polygon" || data[i].geometry.type == "MultiLineString") {
+                    for (var k = 0; k < data[i].geometry.coordinates[j].length; k++) {
 
-                    if (data[i].geometry.type == "Polygon" || data[i].geometry.type == "MultiLineString")
-                    {
-                        for (var k = 0; k < data[i].geometry.coordinates[j].length; k++) {
+                        longitude = data[i].geometry.coordinates[j][k][0];
+                        latitude = data[i].geometry.coordinates[j][k][1];
 
-                            longitude = data[i].geometry.coordinates[j][k][0];
-                            latitude = data[i].geometry.coordinates[j][k][1];
+                        point = this.MercatorProjection(longitude, latitude);
+                        // Scale the points of the coordinate
+                        // to fit inside bounding box
+                        point = {
+                            x: (longitude - bounds.xMin) * xScale,
+                            y: (bounds.yMax - latitude) * yScale
+                        };
+                        // shifts tile relative to others
+                        point.x += shiftX;
+                        point.y += shiftY;
+                        // If this is the first coordinate in a shape, start a new path
+                        if (k === 0) {
+                            context.beginPath();
+                            context.moveTo(point.x, point.y);
+                        }
+                        else {
+                            context.lineTo(point.x, point.y);
+                        }
+                    }
+                    //context.fillStyle = '#808080';
+                    //context.fill();
+                    context.stroke();
+                    continue;
+                }
+                else if (data[i].geometry.type == "MultiPolygon") {
+                    for (var k = 0; k < data[i].geometry.coordinates[j].length; k++) {
+
+                        for (var l = 0; l < data[i].geometry.coordinates[j][k].length; l++) {
+                            longitude = data[i].geometry.coordinates[j][k][l][0];
+                            latitude = data[i].geometry.coordinates[j][k][l][1];
 
                             point = this.MercatorProjection(longitude, latitude);
                             // Scale the points of the coordinate
@@ -272,7 +312,7 @@
                             point.x += shiftX;
                             point.y += shiftY;
                             // If this is the first coordinate in a shape, start a new path
-                            if (k === 0) {
+                            if (l === 0) {
                                 context.beginPath();
                                 context.moveTo(point.x, point.y);
                             }
@@ -280,54 +320,15 @@
                                 context.lineTo(point.x, point.y);
                             }
                         }
-                        context.strokeStyle = '#636363';
+                        context.fillStyle = '#808080';
+                        context.fill();
                         context.stroke();
-                        context.strokeStyle = '#636363';
-                        continue;
                     }
-                    else if (data[i].geometry.type == "MultiPolygon")
-                    {
-                        for (var k = 0; k < data[i].geometry.coordinates[j].length; k++) {
-
-                            for (var l = 0; l < data[i].geometry.coordinates[j][k].length; l++) {
-                                longitude = data[i].geometry.coordinates[j][k][l][0];
-                                latitude = data[i].geometry.coordinates[j][k][l][1];
-
-                                point = this.MercatorProjection(longitude, latitude);
-                                // Scale the points of the coordinate
-                                // to fit inside bounding box
-                                point = {
-                                    x: (longitude - bounds.xMin) * xScale,
-                                    y: (bounds.yMax - latitude) * yScale
-                                };
-                                // shifts tile relative to others
-                                point.x += shiftX;
-                                point.y += shiftY;
-                                // If this is the first coordinate in a shape, start a new path
-                                if (l === 0) {
-                                    context.beginPath();
-                                    context.moveTo(point.x, point.y);
-                                }
-                                else {
-                                    context.lineTo(point.x, point.y);
-                                }
-                            }
-                            context.strokeStyle = '#636363';
-                            context.stroke();
-                            context.strokeStyle = '#636363';
-                        }
-                        continue;
-                    }
-                    else if (data[i].geometry.type == "LineString" || data[i].geometry.type == "MultiPoint")
-                    {
-                        longitude = data[i].geometry.coordinates[j][0];
-                        latitude = data[i].geometry.coordinates[j][1];
-                    }
-                    else if (data[i].geometry.type == "Point")
-                    {
-                        longitude = data[i].geometry.coordinates[0];
-                        latitude = data[i].geometry.coordinates[1];
-                    }
+                    continue;
+                }
+                else if (data[i].geometry.type == "LineString" || data[i].geometry.type == "MultiPoint") {
+                    longitude = data[i].geometry.coordinates[j][0];
+                    latitude = data[i].geometry.coordinates[j][1];
 
                     point = this.MercatorProjection(longitude, latitude);
                     // Scale the points of the coordinate
@@ -351,6 +352,29 @@
                     else {
                         context.lineTo(point.x, point.y);
                     }
+                }
+                else if (data[i].geometry.type == "Point") {
+                    longitude = data[i].geometry.coordinates[0];
+                    latitude = data[i].geometry.coordinates[1];
+
+                    point = this.MercatorProjection(longitude, latitude);
+                    // Scale the points of the coordinate
+                    // to fit inside bounding box
+                    point = {
+                        x: (longitude - bounds.xMin) * xScale,
+                        y: (bounds.yMax - latitude) * yScale
+                    };
+
+                    // shifts tile relative to others
+                    point.x += shiftX;
+                    point.y += shiftY;
+
+                    //context.fillStyle = '#b30000';
+                    //context.textAlign = "center";
+                    //context.fillText(data[i].properties.addr_street, point.x, point.y);
+                }
+
+
             }
             context.stroke();
         }
@@ -363,9 +387,15 @@
         context.lineTo(0 + shiftX, this.tileHeight + shiftY);
         context.lineTo(0 + shiftX, 0 + shiftY);
         context.stroke();
-        
+
         console.log("Layer draw");
     }
+
+    private strokePolygon()
+    {
+
+    }
+
 
     private MercatorProjection(longitude, latitude) {
         var radius = 6378137;
