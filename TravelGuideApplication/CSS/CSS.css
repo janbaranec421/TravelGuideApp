@@ -7,17 +7,25 @@ div#topMenu {
     left: 0;
     min-width: 100%;
     max-width: 100%;
+    border-bottom: 1px solid black;
+    box-shadow: 0px -6px 40px 0px #404040;
 }
 
 ul#topMenuList {
-    display: -webkit-inline-box;
+    display: flex;
     list-style-type: none;
+    margin: 0px;
 }
 
-li.topMenuButton {
-    padding-left:3%;
-    padding-right:3%;
-    width: 100px;
+.topMenuButton {
+    padding-left: 3%;
+    padding-right: 3%;
+    width: 20%;
+    height: 50px;
+}
+
+.topMenuButton:hover {
+    background-color: #bbbbbb;
 }
 
 div#sideMenu {

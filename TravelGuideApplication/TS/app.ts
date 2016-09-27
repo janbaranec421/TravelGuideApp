@@ -8,6 +8,8 @@ var touchYstart;
 var data;
 var Bbox;
 
+var zoomLvl = 2;
+
 window.onload = () => {
 
     // Sidemenu needs to be created before TopMenu, due to TopMenu usage of function sideMenu.show by buttons
@@ -19,10 +21,26 @@ window.onload = () => {
     document.addEventListener('touchstart', HandleTouchStart, false);
     document.addEventListener('touchend', HandleTouchEnd, false);
 
+    var canvas = document.getElementById("mapCanvas");
+    canvas.addEventListener('wheel', (e) => {
+        if (e.deltaY > 0) {
+            //scroll down
+            map.clear();
+            map.display(18.314466, 49.866538, --zoomLvl, Layer.Earth);
+        }else {
+            //scroll up
+            map.clear();
+            map.display(18.314466, 49.866538, ++zoomLvl, Layer.Earth);
+        }
+
+        //prevent page fom scrolling
+        return false;
+    });
+
     //console.log(map.long2tileX(17.838396, 18));
     //console.log(map.lat2tileY(48.552492, 18));
 
-    map.display(18.314466, 49.866538, 4, Layer.Earth);
+    map.display(18.314466, 49.866538, zoomLvl, Layer.Earth);
 };
 
 function createTopMenu()
@@ -35,7 +53,7 @@ function createTopMenu()
 
     for (var i = 0; i < 5; i++) {   
         // Create item for list
-        var item = document.createElement("li");
+        var item = document.createElement("button");
         item.setAttribute("class", "topMenuButton");
         item.innerHTML = "Button N." + i.toString();
         item.addEventListener('click', () => {
