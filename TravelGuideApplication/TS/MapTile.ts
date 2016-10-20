@@ -6,7 +6,7 @@
     public yScale: number;
     public layers: Layer;
 
-    public fullSortedLayers: any [] = [];
+    public sortedData: any [] = [];
 
     private tileX: number;
     private tileY: number;
@@ -34,25 +34,58 @@
         this.xScale = this.tileWidth / Math.abs(this.boundingBox.xMax - this.boundingBox.xMin);
         this.yScale = this.tileHeight / Math.abs(this.boundingBox.yMax - this.boundingBox.yMin);
         this.scale = this.xScale < this.yScale ? this.xScale : this.yScale;
+
+        //this.data.boundaries.features = this.sortBySortKey(this.data.boundaries.features);
+        //this.data.buildings = this.sortBySortKey(this.data.buildings.features);
+        this.data.earth.features = this.sortBySortKey(this.data.earth.features);
+        //this.data.landuse = this.sortBySortKey(this.data.landuse.features);
+        //this.data.roads = this.sortBySortKey(this.data.roads.features);
+        //this.data.transit = this.sortBySortKey(this.data.transit.features);
+        this.data.water.features = this.sortBySortKey(this.data.water.features);
+
+        console.log("--------------");
+        this.print(this.data.water.features);
+        //this.print(this.data.buildings);
+        console.log("--------------");
+        this.print(this.data.earth.features);
+        //this.print(this.data.landuse);
+        //this.print(this.data.roads);
+        //this.print(this.data.transit);
+        //this.print(this.data.boundaries);
         
-        this.data.boundaries = this.sortBySortKey(this.data.boundaries.features);
-        this.data.buildings = this.sortBySortKey(this.data.buildings.features);
-        this.data.earth = this.sortBySortKey(this.data.earth.features);
-        this.data.landuse = this.sortBySortKey(this.data.landuse.features);
-        this.data.roads = this.sortBySortKey(this.data.roads.features);
-        this.data.transit = this.sortBySortKey(this.data.transit.features);
-        this.data.water = this.sortBySortKey(this.data.water.features);
 
-        this.print(this.data.boundaries);
-        this.print(this.data.buildings);
-        this.print(this.data.earth);
-        this.print(this.data.landuse);
-        this.print(this.data.roads);
-        this.print(this.data.transit);
-        this.print(this.data.water);
+        console.log(this.prepareData(this.data, this.layers));
+    }
 
-        this.fullSortedLayers = this.fullSortedLayers.concat(this.data.boundaries, this.data.buildings, this.data.earth, this.data.landuse, this.data.roads, this.data.transit, this.data.water);
-        this.fullSortedLayers = this.sortBySortKey(this.fullSortedLayers);
+    private prepareData(data: any, layers: Layer) : any[]
+    {
+        let array: any[] = [];
+        let sorted: any[] = [];
+
+        // Compose layers which have sort_key attribute
+        if (layers & Layer.Water)           array = array.concat(data.water.features);
+        if (layers & Layer.Earth)           array = array.concat(data.earth.features);
+        if (layers & Layer.Landuse)         array = array.concat(data.landuse.features);
+        if (layers & Layer.Buildings)       array = array.concat(data.buildings.features);
+        if (layers & Layer.Roads)           array = array.concat(data.roads.features);
+        if (layers & Layer.Transit)         array = array.concat(data.transit.features);
+        if (layers & Layer.Boundaries)      array = array.concat(data.boundaries.features);
+        //Sort them
+
+        console.log("--------------");
+        this.print(this.sortBySortKey(array));
+        console.log("--------------");
+        this.print(this.sortBySortKey(array));
+        sorted = this.sortBySortKey(array);
+        console.log("--------------");
+        this.print(sorted);
+
+        //Put rest without sort_key at end of array
+        if (layers & Layer.Places)          array = array.concat(data.places.features);
+        if (layers & Layer.Pois)            array = array.concat(data.pois.features);
+        if (layers & Layer.Landuse_Labels)  array = array.concat(data.landuse_labels.features);
+
+        return array;
     }
 
     private print(data) {
@@ -61,10 +94,10 @@
     }
 
     private sortBySortKey(array) {
-        return array.sort((a, b) => {
-            var x = a.properties.sort_key;
-            var y = b.properties.sort_key;
-            return ((x < y) ? -1 : ((x > y) ? 1 : 0));
+        return array.sort(function(a,b) {
+            let x = a.properties.sort_key;
+            let y = b.properties.sort_key;
+            return x - y;
         });
     }
 

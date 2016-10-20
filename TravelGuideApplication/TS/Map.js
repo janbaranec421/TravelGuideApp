@@ -42,7 +42,6 @@ var Map = (function () {
             var MapTileData = new MapTile(data, _this.currentTileX, _this.currentTileY, zoom, layers, _this.tileWidth, _this.tileHeight);
             _this._mapData.push(MapTileData);
             console.log(_this._mapData);
-            console.log(MapTileData);
             _this.DrawTile(MapTileData, centerX, centerY);
         });
     };

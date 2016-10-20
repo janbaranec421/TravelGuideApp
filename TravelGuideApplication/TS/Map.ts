@@ -64,7 +64,6 @@
             var MapTileData = new MapTile(data, this.currentTileX, this.currentTileY, zoom, layers, this.tileWidth, this.tileHeight);
             this._mapData.push(MapTileData);
             console.log(this._mapData);
-            console.log(MapTileData);
             this.DrawTile(MapTileData, centerX, centerY);
         });     
         
