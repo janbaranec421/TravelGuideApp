@@ -1,15 +1,14 @@
-var SideMenu = (function () {
-    function SideMenu(root, items) {
+var TopMenu = (function () {
+    function TopMenu(root, items) {
         this.root = root;
         this.items = items;
         var list = document.createElement("ul");
-        list.style.listStyleType = "none";
-        list.style.color = "mintcream";
+        list.setAttribute("id", "topMenuList");
         for (var i = 0; i < items.length; i++) {
             list.appendChild(items[i]);
         }
         root.appendChild(list);
     }
-    return SideMenu;
+    return TopMenu;
 })();
-//# sourceMappingURL=SideMenu.js.map
+//# sourceMappingURL=TopMenu.js.map

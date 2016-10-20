@@ -5,7 +5,7 @@ var touchXstart;
 var touchYstart;
 var data;
 var Bbox;
-var zoomLvl = 2;
+var zoomLvl = 0;
 window.onload = function () {
     // Sidemenu needs to be created before TopMenu, due to TopMenu usage of function sideMenu.show by buttons
     createSideMenu();
@@ -17,21 +17,21 @@ window.onload = function () {
     var canvas = document.getElementById("mapCanvas");
     canvas.addEventListener('wheel', function (e) {
         if (e.deltaY > 0) {
-            //scroll down
+            //scroll down 
             map.clear();
-            map.display(18.314466, 49.866538, --zoomLvl, Layer.Earth);
+            map.display(18.173270, 49.828526, --zoomLvl, Layer.Water | Layer.Earth);
         }
         else {
             //scroll up
             map.clear();
-            map.display(18.314466, 49.866538, ++zoomLvl, Layer.Earth);
+            map.display(18.173270, 49.828526, ++zoomLvl, Layer.Water | Layer.Earth);
         }
-        //prevent page fom scrolling
+        //prevent page from scrolling
         return false;
     });
     //console.log(map.long2tileX(17.838396, 18));
     //console.log(map.lat2tileY(48.552492, 18));
-    map.display(18.314466, 49.866538, zoomLvl, Layer.Earth);
+    map.display(18.173270, 49.828526, zoomLvl, Layer.Water | Layer.Earth);
 };
 function createTopMenu() {
     var root = document.getElementById("topMenu");
@@ -102,7 +102,8 @@ function HandleTouchMove(evt) {
     }
     var touchXend = evt.touches[0].clientX;
     var touchYend = evt.touches[0].clientY;
-    console.log("touch move X: " + Math.round(touchXend) + " , Y: " + Math.round(touchYend));
+    console.log(evt.touches);
+    //console.log("touch move X0: " + Math.round(evt.touches[0].clientX) + " , Y0: " + Math.round(evt.touches[0].clientY) + "touch move X0: " + Math.round(evt.touches[1].clientX) + ", Y0: " + Math.round(evt.touches[1].clientY));
     var xDiff = touchXend - touchXstart;
     var yDiff = touchYend - touchYstart;
     // Swipe is touchmove more than 100 points long

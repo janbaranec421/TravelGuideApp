@@ -40,6 +40,7 @@
     <TypeScriptCompile Include="TS\app.ts" />
     <TypeScriptCompile Include="TS\Layer.ts" />
     <TypeScriptCompile Include="TS\Map.ts" />
+    <TypeScriptCompile Include="TS\MapTile.ts" />
     <TypeScriptCompile Include="TS\SideMenu.ts" />
     <TypeScriptCompile Include="TS\TopMenu.ts" />
   </ItemGroup>
@@ -75,8 +76,8 @@
     <Content Include="font-awesome-4.5.0\scss\_rotated-flipped.scss" />
     <Content Include="font-awesome-4.5.0\scss\_stacked.scss" />
     <Content Include="font-awesome-4.5.0\scss\_variables.scss" />
-    <Content Include="SideMenu.js.map" />
     <Content Include="Scripts\jquery-2.2.3.min.map" />
+    <None Include="TravelGuideApp.pubxml" />
     <None Include="web.Debug.config">
       <DependentUpon>web.config</DependentUpon>
     </None>
