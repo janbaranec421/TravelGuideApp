@@ -33,57 +33,73 @@
 
         this.xScale = this.tileWidth / Math.abs(this.boundingBox.xMax - this.boundingBox.xMin);
         this.yScale = this.tileHeight / Math.abs(this.boundingBox.yMax - this.boundingBox.yMin);
-        this.scale = this.xScale < this.yScale ? this.xScale : this.yScale;
+        this.scale = this.xScale < this.yScale ? this.xScale : this.yScale;    
 
-        //this.data.boundaries.features = this.sortBySortKey(this.data.boundaries.features);
-        //this.data.buildings = this.sortBySortKey(this.data.buildings.features);
-        this.data.earth.features = this.sortBySortKey(this.data.earth.features);
-        //this.data.landuse = this.sortBySortKey(this.data.landuse.features);
-        //this.data.roads = this.sortBySortKey(this.data.roads.features);
-        //this.data.transit = this.sortBySortKey(this.data.transit.features);
-        this.data.water.features = this.sortBySortKey(this.data.water.features);
-
-        console.log("--------------");
-        this.print(this.data.water.features);
-        //this.print(this.data.buildings);
-        console.log("--------------");
-        this.print(this.data.earth.features);
-        //this.print(this.data.landuse);
-        //this.print(this.data.roads);
-        //this.print(this.data.transit);
-        //this.print(this.data.boundaries);
-        
-
-        console.log(this.prepareData(this.data, this.layers));
+        this.sortedData = this.prepareData(this.data, this.layers);
     }
 
-    private prepareData(data: any, layers: Layer) : any[]
+    private prepareData(data: any, layers: Layer): any[]
     {
         let array: any[] = [];
-        let sorted: any[] = [];
+        let holder: any[] = [];
 
         // Compose layers which have sort_key attribute
-        if (layers & Layer.Water)           array = array.concat(data.water.features);
-        if (layers & Layer.Earth)           array = array.concat(data.earth.features);
-        if (layers & Layer.Landuse)         array = array.concat(data.landuse.features);
-        if (layers & Layer.Buildings)       array = array.concat(data.buildings.features);
-        if (layers & Layer.Roads)           array = array.concat(data.roads.features);
-        if (layers & Layer.Transit)         array = array.concat(data.transit.features);
-        if (layers & Layer.Boundaries)      array = array.concat(data.boundaries.features);
+        if (layers & Layer.Water) {
+            holder = data.water.features;
+            holder.forEach(function (obj) { obj.properties.layer = Layer.Water });
+            array = array.concat(holder);
+        }
+        if (layers & Layer.Earth) {
+            holder = data.earth.features;
+            holder.forEach(function (obj) { obj.properties.layer = Layer.Earth });
+            array = array.concat(holder);
+        }
+        if (layers & Layer.Landuse) {
+            holder = data.landuse.features;
+            holder.forEach(function (obj) { obj.properties.layer = Layer.Landuse });
+            array = array.concat(holder);
+        }
+        if (layers & Layer.Buildings) {
+            holder = data.buildings.features;
+            holder.forEach(function (obj) { obj.properties.layer = Layer.Buildings });
+            array = array.concat(holder);
+        }
+        if (layers & Layer.Roads) {
+            holder = data.roads.features;
+            holder.forEach(function (obj) { obj.properties.layer = Layer.Roads });
+            array = array.concat(holder);
+        }
+        if (layers & Layer.Transit) {
+            holder = data.transit.features;
+            holder.forEach(function (obj) { obj.properties.layer = Layer.Transit });
+            array = array.concat(holder);
+        }
+        if (layers & Layer.Boundaries) {
+            holder = data.boundaries.features;
+            holder.forEach(function (obj) { obj.properties.layer = Layer.Boundaries });
+            array = array.concat(holder);
+        }
         //Sort them
-
-        console.log("--------------");
-        this.print(this.sortBySortKey(array));
-        console.log("--------------");
-        this.print(this.sortBySortKey(array));
-        sorted = this.sortBySortKey(array);
-        console.log("--------------");
-        this.print(sorted);
+        //Sort works after only after first call, really dont know why
+        this.sortBySortKey(array);
+        array = this.sortBySortKey(array);
 
         //Put rest without sort_key at end of array
-        if (layers & Layer.Places)          array = array.concat(data.places.features);
-        if (layers & Layer.Pois)            array = array.concat(data.pois.features);
-        if (layers & Layer.Landuse_Labels)  array = array.concat(data.landuse_labels.features);
+        if (layers & Layer.Places) {
+            holder = data.places.features;
+            holder.forEach(function (obj) { obj.properties.layer = Layer.Places });
+            array = array.concat(holder);
+        }
+        if (layers & Layer.Pois) {
+            holder = data.pois.features;
+            holder.forEach(function (obj) { obj.properties.layer = Layer.Pois });
+            array = array.concat(holder);
+        }
+        if (layers & Layer.Landuse_Labels) {
+            holder = data.landuse_labels.features;
+            holder.forEach(function (obj) { obj.properties.layer = Layer.Landuse_Labels });
+            array = array.concat(holder);
+        }
 
         return array;
     }

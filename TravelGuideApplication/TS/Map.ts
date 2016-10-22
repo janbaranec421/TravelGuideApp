@@ -93,6 +93,8 @@
 
     private DrawTile(mapTile: MapTile, shiftX: number, shiftY: number): void
     {
+        this.DrawLayer(mapTile, shiftX, shiftY);
+        /*
         if (mapTile.layers & Layer.Water) {
             console.log("-------------  Water geometry     -------------");
             //this.printGeometryTypes(mapTile.data.water);
@@ -143,42 +145,41 @@
             //this.printGeometryTypes(mapTile.data.boundaries);
             this.DrawLayer(mapTile, mapTile.data.boundaries, Layer.Boundaries, shiftX, shiftY);
         }
+        */
     }
 
-    private DrawLayer(mapTile: MapTile, data: any, layer: Layer, shiftX: number, shiftY: number): void
+    private DrawLayer(mapTile: MapTile, shiftX: number, shiftY: number): void
     {
         var canvas = <HTMLCanvasElement>$("#mapCanvas")[0];
         var context = canvas.getContext('2d');
         context.strokeStyle = '#333333';
         
-        if (typeof data == 'undefined' || data === null)
-            console.log("func DrawLayer: parameter 'data' not undefined or null")
-
-        for (var i = 0; i < data.length; i++) {
-            if (data[i].geometry.type == "Point") {
-                this.strokePoint(data[i], mapTile, context, layer, shiftX, shiftY);
+        for (var i = 0; i < mapTile.sortedData.length; i++) {
+            console.log("Sort key: " + mapTile.sortedData[i].properties.sort_key + ", Layer: " + mapTile.sortedData[i].properties.layer);
+            if (mapTile.sortedData[i].geometry.type == "Point") {
+                this.strokePoint(mapTile.sortedData[i], mapTile, context, shiftX, shiftY);
             }
-            if (data[i].geometry.type == "MultiPoint") {
-                this.strokeMultiPoint(data[i], mapTile, context, layer, shiftX, shiftY);
+            if (mapTile.sortedData[i].geometry.type == "MultiPoint") {
+                this.strokeMultiPoint(mapTile.sortedData[i], mapTile, context, shiftX, shiftY);
             }
-            if (data[i].geometry.type == "LineString") {
-                this.strokeLineString(data[i], mapTile, context, layer, shiftX, shiftY);
+            if (mapTile.sortedData[i].geometry.type == "LineString") {
+                this.strokeLineString(mapTile.sortedData[i], mapTile, context, shiftX, shiftY);
             }
-            if (data[i].geometry.type == "MultiLineString") {
-                this.strokeMultiLineString(data[i], mapTile, context, layer, shiftX, shiftY);
+            if (mapTile.sortedData[i].geometry.type == "MultiLineString") {
+                this.strokeMultiLineString(mapTile.sortedData[i], mapTile, context, shiftX, shiftY);
             }
-            if (data[i].geometry.type == "Polygon") {
-                this.strokePolygon(data[i], mapTile, context, layer, shiftX, shiftY);
+            if (mapTile.sortedData[i].geometry.type == "Polygon") {
+                this.strokePolygon(mapTile.sortedData[i], mapTile, context, shiftX, shiftY);
             }
-            if (data[i].geometry.type == "MultiPolygon") {
-                this.strokeMultiPolygon(data[i], mapTile, context, layer, shiftX, shiftY);
+            if (mapTile.sortedData[i].geometry.type == "MultiPolygon") {
+                this.strokeMultiPolygon(mapTile.sortedData[i], mapTile, context, shiftX, shiftY);
             }
         }
         console.log("Layer draw");
     }
 
 
-    private strokeLineString(shape: any, mapTile: MapTile, context: any, layer: Layer, shiftX: number, shiftY: number): void
+    private strokeLineString(shape: any, mapTile: MapTile, context: any, shiftX: number, shiftY: number): void
     {
         var longitude, latitude, point;
 
@@ -209,19 +210,19 @@
                 context.lineTo(point.x, point.y);
             }
         }
-        if (layer == Layer.Water) {
+        if (shape.properties.layer & Layer.Water) {
             this.styleWaterContext(shape, context);
         }
-        if (layer == Layer.Earth) {
+        if (shape.properties.layer & Layer.Earth) {
             this.styleEarthContext(shape, context);
         }
-        if (layer == Layer.Boundaries) {
+        if (shape.properties.layer & Layer.Boundaries) {
             this.styleBoundariesContext(shape, context);
         }
         context.stroke();
     }
 
-    private strokeMultiLineString(shape: any, mapTile: MapTile, context: any, layer: Layer, shiftX: number, shiftY: number): void
+    private strokeMultiLineString(shape: any, mapTile: MapTile, context: any, shiftX: number, shiftY: number): void
     {
         var longitude, latitude, point;
 
@@ -251,20 +252,20 @@
                     context.lineTo(point.x, point.y);
                 }
             }
-            if (layer == Layer.Water) {
+            if (shape.properties.layer & Layer.Water) {
                 this.styleWaterContext(shape, context);
             }
-            if (layer == Layer.Earth) {
+            if (shape.properties.layer & Layer.Earth) {
                 this.styleEarthContext(shape, context);
             }
-            if (layer == Layer.Boundaries) {
+            if (shape.properties.layer & Layer.Boundaries) {
                 this.styleBoundariesContext(shape, context);
             }
             context.stroke();
         }
     }
 
-    private strokePoint(shape: any, mapTile: MapTile, context: any, layer: Layer, shiftX: number, shiftY: number): void 
+    private strokePoint(shape: any, mapTile: MapTile, context: any, shiftX: number, shiftY: number): void 
     {
         var longitude, latitude, point;
 
@@ -284,21 +285,21 @@
         point.y += shiftY;
         
         // Names of continents
-        if (this.currentZoom <= 5 && layer == Layer.Boundaries) {
+        if (this.currentZoom <= 5 && (shape.properties.layer & Layer.Boundaries)) {
             context.fillStyle = '#ff0000';
             context.textAlign = "center";
             context.fillText(shape.properties.name, point.x, point.y);
-        }
-        if (layer == Layer.Water) {
+        }/*
+        if (shape.properties.layer & Layer.Water) {
             context.fillStyle = 'black';
             context.textAlign = "center";
             context.fillText(shape.properties.name, point.x, point.y);
-        }
+        }*/
         
         context.stroke();
     }
 
-    private strokeMultiPoint(shape: any, mapTile: MapTile, context: any, layer: Layer, shiftX: number, shiftY: number): void
+    private strokeMultiPoint(shape: any, mapTile: MapTile, context: any, shiftX: number, shiftY: number): void
     {
         var longitude, latitude, point;
 
@@ -332,7 +333,7 @@
         context.stroke();
     }
 
-    private strokePolygon(shape: any, mapTile: MapTile, context: any, layer: Layer, shiftX: number, shiftY: number): void
+    private strokePolygon(shape: any, mapTile: MapTile, context: any, shiftX: number, shiftY: number): void
     {
         var longitude, latitude, point;
 
@@ -360,23 +361,23 @@
                     context.lineTo(point.x, point.y);
                 }
             }
-            if (layer == Layer.Water) {
+            if (shape.properties.layer & Layer.Water) {
                 this.styleWaterContext(shape, context);
             }
-            if (layer == Layer.Earth) {
+            if (shape.properties.layer & Layer.Earth) {
                 this.styleEarthContext(shape, context);
             }
-            if (layer == Layer.Landuse) {
+            if (shape.properties.layer & Layer.Landuse) {
                 this.styleLanduseContext(shape, context);
             }
-            if (layer == Layer.Buildings) {
+            if (shape.properties.layer & Layer.Buildings) {
                 this.styleBuildingContext(shape, context);
             }
             context.stroke();
         }
     }
 
-    private strokeMultiPolygon(shape: any, mapTile: MapTile, context: any, layer: Layer, shiftX: number, shiftY: number): void
+    private strokeMultiPolygon(shape: any, mapTile: MapTile, context: any, shiftX: number, shiftY: number): void
     {
         var longitude, latitude, point;
 
@@ -408,16 +409,16 @@
                         context.lineTo(point.x, point.y);
                     }
                 }
-                if (layer == Layer.Water) {
+                if (shape.properties.layer & Layer.Water) {
                     this.styleWaterContext(shape, context);
                 }
-                if (layer == Layer.Earth) {
+                if (shape.properties.layer & Layer.Earth) {
                     this.styleEarthContext(shape, context);
                 }
-                if (layer == Layer.Landuse) {
+                if (shape.properties.layer & Layer.Landuse) {
                     this.styleLanduseContext(shape, context);
                 }
-                if (layer == Layer.Buildings) {
+                if (shape.properties.layer & Layer.Buildings) {
                     this.styleBuildingContext(shape, context);
                 }
                 context.stroke();
