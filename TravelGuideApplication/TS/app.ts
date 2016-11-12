@@ -8,7 +8,7 @@ var touchYstart;
 var data;
 var Bbox;
 
-var zoomLvl = 0;
+var zoomLvl = 14;
 
 window.onload = () => {
     // Sidemenu needs to be created before TopMenu, due to TopMenu usage of function sideMenu.show by buttons
@@ -25,11 +25,11 @@ window.onload = () => {
         if (e.deltaY > 0) {
             //scroll down 
             map.clear();
-            map.display(18.173270, 49.828526, --zoomLvl, Layer.Water | Layer.Earth);
+            map.display(18.173270, 49.828526, --zoomLvl, Layer.Water | Layer.Earth | Layer.Boundaries | Layer.Buildings | Layer.Landuse | Layer.Roads | Layer.Pois | Layer.Places);
         }else {
             //scroll up
             map.clear();
-            map.display(18.173270, 49.828526, ++zoomLvl, Layer.Water | Layer.Earth);
+            map.display(18.173270, 49.828526, ++zoomLvl, Layer.Water | Layer.Earth | Layer.Boundaries | Layer.Buildings | Layer.Landuse | Layer.Roads | Layer.Pois | Layer.Places);
         }
         //prevent page from scrolling
         return false;
@@ -38,7 +38,7 @@ window.onload = () => {
     //console.log(map.long2tileX(17.838396, 18));
     //console.log(map.lat2tileY(48.552492, 18));
 
-    map.display(18.173270, 49.828526, zoomLvl, Layer.Water | Layer.Earth);
+    map.display(18.173270, 49.828526, zoomLvl, Layer.Water | Layer.Earth | Layer.Boundaries | Layer.Buildings | Layer.Landuse | Layer.Roads | Layer.Pois | Layer.Places);
 };
 
 function createTopMenu()

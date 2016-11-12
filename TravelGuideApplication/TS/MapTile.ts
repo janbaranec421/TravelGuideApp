@@ -80,10 +80,16 @@
             array = array.concat(holder);
         }
         //Sort them
-        //Sort works after only after first call, really dont know why
-        this.sortBySortKey(array);
         array = this.sortBySortKey(array);
-
+        /*
+        for (var i = 0; i < array.length; i++) {
+            if (array[i].properties.boundary != undefined) {
+                var obj = array[i];
+                array.splice(i, 1);
+                array.unshift(obj);
+            }
+        }
+        */
         //Put rest without sort_key at end of array
         if (layers & Layer.Places) {
             holder = data.places.features;
@@ -113,6 +119,9 @@
         return array.sort(function(a,b) {
             let x = a.properties.sort_key;
             let y = b.properties.sort_key;
+            if (x == null) { x = 0; }
+            if (y == null) { y = 0; }
+
             return x - y;
         });
     }

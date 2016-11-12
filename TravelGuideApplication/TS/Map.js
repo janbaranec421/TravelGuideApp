@@ -1,9 +1,9 @@
 var Map = (function () {
     function Map(parent, tileWidth, tileHeight, mapWidth, mapHeight) {
-        if (tileWidth === void 0) { tileWidth = 500; }
-        if (tileHeight === void 0) { tileHeight = 500; }
-        if (mapWidth === void 0) { mapWidth = 500; }
-        if (mapHeight === void 0) { mapHeight = 500; }
+        if (tileWidth === void 0) { tileWidth = 650; }
+        if (tileHeight === void 0) { tileHeight = 650; }
+        if (mapWidth === void 0) { mapWidth = 650; }
+        if (mapHeight === void 0) { mapHeight = 650; }
         this._mapData = [];
         this.root = parent;
         // width and height MUST be set through attribute 
@@ -121,7 +121,6 @@ var Map = (function () {
         var context = canvas.getContext('2d');
         context.strokeStyle = '#333333';
         for (var i = 0; i < mapTile.sortedData.length; i++) {
-            console.log("Sort key: " + mapTile.sortedData[i].properties.sort_key + ", Layer: " + mapTile.sortedData[i].properties.layer);
             if (mapTile.sortedData[i].geometry.type == "Point") {
                 this.strokePoint(mapTile.sortedData[i], mapTile, context, shiftX, shiftY);
             }
@@ -158,7 +157,6 @@ var Map = (function () {
             // shifts tile relative to others
             point.x += shiftX;
             point.y += shiftY;
-            // If this is the first coordinate in a shape, start a new path
             if (j === 0) {
                 context.beginPath();
                 context.moveTo(point.x, point.y);
@@ -175,6 +173,9 @@ var Map = (function () {
         }
         if (shape.properties.layer & Layer.Boundaries) {
             this.styleBoundariesContext(shape, context);
+        }
+        if (shape.properties.layer & Layer.Roads) {
+            this.styleRoadsContext(shape, context);
         }
         context.stroke();
     };
@@ -212,6 +213,9 @@ var Map = (function () {
             if (shape.properties.layer & Layer.Boundaries) {
                 this.styleBoundariesContext(shape, context);
             }
+            if (shape.properties.layer & Layer.Roads) {
+                this.styleRoadsContext(shape, context);
+            }
             context.stroke();
         }
     };
@@ -229,21 +233,36 @@ var Map = (function () {
         // shifts tile relative to others
         point.x += shiftX;
         point.y += shiftY;
+        context.beginPath();
         // Names of continents
         if (this.currentZoom <= 5 && (shape.properties.layer & Layer.Boundaries)) {
-            context.fillStyle = '#ff0000';
-            context.textAlign = "center";
-            context.fillText(shape.properties.name, point.x, point.y);
-        } /*
-        if (shape.properties.layer & Layer.Water) {
             context.fillStyle = 'black';
             context.textAlign = "center";
             context.fillText(shape.properties.name, point.x, point.y);
-        }*/
+        }
+        if (shape.properties.layer & Layer.Pois && shape.properties.name != undefined) {
+            context.fillStyle = 'black';
+            context.textAlign = "center";
+            context.fillRect(point.x, point.y + 2, 3, 3);
+            context.fillText(shape.properties.name, point.x, point.y);
+        }
+        if (shape.properties.layer & Layer.Places && shape.properties.name != undefined) {
+            context.fillStyle = 'black';
+            context.textAlign = "center";
+            context.fillRect(point.x, point.y + 2, 3, 3);
+            context.fillText(shape.properties.name, point.x, point.y);
+        }
+        if (shape.properties.layer & Layer.Pois) {
+            this.stylePoisContext(shape, context);
+        }
+        if (shape.properties.layer & Layer.Places) {
+            this.stylePlacesContext(shape, context);
+        }
         context.stroke();
     };
     Map.prototype.strokeMultiPoint = function (shape, mapTile, context, shiftX, shiftY) {
         var longitude, latitude, point;
+        context.beginPath();
         for (var j = 0; j < shape.geometry.coordinates.length; j++) {
             longitude = shape.geometry.coordinates[j][0];
             latitude = shape.geometry.coordinates[j][1];
@@ -257,19 +276,23 @@ var Map = (function () {
             // shifts tile relative to others
             point.x += shiftX;
             point.y += shiftY;
-            // If this is the first coordinate in a shape, start a new path
-            if (j === 0) {
-                context.beginPath();
-                context.moveTo(point.x, point.y);
-            }
-            else {
-                context.lineTo(point.x, point.y);
+            /*
+            context.fillStyle = '#ff0000';
+            context.textAlign = "center";
+            context.fillText(shape.properties.name, point.x, point.y);
+            */
+            if (shape.properties.layer & Layer.Pois && shape.properties.name != undefined) {
+                context.fillStyle = 'black';
+                context.textAlign = "center";
+                context.fillRect(point.x, point.y + 2, 3, 3);
+                context.fillText(shape.properties.name, point.x, point.y);
             }
         }
         context.stroke();
     };
     Map.prototype.strokePolygon = function (shape, mapTile, context, shiftX, shiftY) {
         var longitude, latitude, point;
+        context.beginPath();
         for (var j = 0; j < shape.geometry.coordinates.length; j++) {
             for (var k = 0; k < shape.geometry.coordinates[j].length; k++) {
                 longitude = shape.geometry.coordinates[j][k][0];
@@ -285,12 +308,53 @@ var Map = (function () {
                 point.x += shiftX;
                 point.y += shiftY;
                 // If this is the first coordinate in a shape, start a new path
-                if (k === 0) {
-                    context.beginPath();
+                if (k === 0 && j !== 0) {
+                    context.closePath();
                     context.moveTo(point.x, point.y);
                 }
-                else {
-                    context.lineTo(point.x, point.y);
+                context.lineTo(point.x, point.y);
+            }
+        }
+        if (shape.properties.layer & Layer.Water) {
+            this.styleWaterContext(shape, context);
+        }
+        if (shape.properties.layer & Layer.Earth) {
+            this.styleEarthContext(shape, context);
+        }
+        if (shape.properties.layer & Layer.Landuse) {
+            this.styleLanduseContext(shape, context);
+        }
+        if (shape.properties.layer & Layer.Buildings) {
+            this.styleBuildingContext(shape, context);
+        }
+        context.stroke();
+    };
+    Map.prototype.strokeMultiPolygon = function (shape, mapTile, context, shiftX, shiftY) {
+        var longitude, latitude, point;
+        for (var j = 0; j < shape.geometry.coordinates.length; j++) {
+            context.beginPath();
+            for (var k = 0; k < shape.geometry.coordinates[j].length; k++) {
+                for (var l = 0; l < shape.geometry.coordinates[j][k].length; l++) {
+                    longitude = shape.geometry.coordinates[j][k][l][0];
+                    latitude = shape.geometry.coordinates[j][k][l][1];
+                    point = this.MercatorProjection(longitude, latitude);
+                    // Scale the points of the coordinate
+                    // to fit inside bounding box
+                    point = {
+                        x: (longitude - mapTile.boundingBox.xMin) * mapTile.xScale,
+                        y: (mapTile.boundingBox.yMax - latitude) * mapTile.yScale
+                    };
+                    // shifts tile relative to others
+                    point.x += shiftX;
+                    point.y += shiftY;
+                    // If this is the first coordinate in a shape, start a new path
+                    if (l === 0 && k !== 0) {
+                        context.closePath();
+                        context.moveTo(point.x, point.y);
+                    }
+                    else {
+                        context.lineTo(point.x, point.y);
+                    }
                 }
             }
             if (shape.properties.layer & Layer.Water) {
@@ -308,47 +372,306 @@ var Map = (function () {
             context.stroke();
         }
     };
-    Map.prototype.strokeMultiPolygon = function (shape, mapTile, context, shiftX, shiftY) {
-        var longitude, latitude, point;
-        for (var j = 0; j < shape.geometry.coordinates.length; j++) {
-            for (var k = 0; k < shape.geometry.coordinates[j].length; k++) {
-                for (var l = 0; l < shape.geometry.coordinates[j][k].length; l++) {
-                    longitude = shape.geometry.coordinates[j][k][l][0];
-                    latitude = shape.geometry.coordinates[j][k][l][1];
-                    point = this.MercatorProjection(longitude, latitude);
-                    // Scale the points of the coordinate
-                    // to fit inside bounding box
-                    point = {
-                        x: (longitude - mapTile.boundingBox.xMin) * mapTile.xScale,
-                        y: (mapTile.boundingBox.yMax - latitude) * mapTile.yScale
-                    };
-                    // shifts tile relative to others
-                    point.x += shiftX;
-                    point.y += shiftY;
-                    // If this is the first coordinate in a shape, start a new path
-                    if (l === 0) {
-                        context.beginPath();
-                        context.moveTo(point.x, point.y);
-                    }
-                    else {
-                        context.lineTo(point.x, point.y);
-                    }
-                }
-                if (shape.properties.layer & Layer.Water) {
-                    this.styleWaterContext(shape, context);
-                }
-                if (shape.properties.layer & Layer.Earth) {
-                    this.styleEarthContext(shape, context);
-                }
-                if (shape.properties.layer & Layer.Landuse) {
-                    this.styleLanduseContext(shape, context);
-                }
-                if (shape.properties.layer & Layer.Buildings) {
-                    this.styleBuildingContext(shape, context);
-                }
-                context.stroke();
-            }
+    Map.prototype.styleBoundariesContext = function (shape, context) {
+        if (shape.properties.kind == "country") {
+            context.strokeStyle = "#8e8e8e";
+            context.lineWidth = 1.4;
         }
+        if (shape.properties.kind == "state") {
+            context.strokeStyle = "#8e8e8e";
+            context.lineWidth = 0.8;
+        }
+        if (shape.properties.kind == "macroregion") {
+            context.strokeStyle = "#8e8e8e";
+            context.lineWidth = 0.8;
+        }
+    };
+    Map.prototype.styleRoadsContext = function (shape, context) {
+        context.lineWidth = 1.5;
+        context.strokeStyle = "#ffffff";
+        switch (shape.properties.kind) {
+            case "highway":
+                {
+                    context.strokeStyle = "#fffde8";
+                    context.lineWidth = 3;
+                    break;
+                }
+                ;
+            case "major_road":
+                {
+                    context.strokeStyle = "white";
+                    context.lineWidth = 1.75;
+                    break;
+                }
+                ;
+            case "minor_road":
+                {
+                    context.strokeStyle = "white";
+                    context.lineWidth = 1.5;
+                    break;
+                }
+                ;
+            case "rail":
+                {
+                    context.strokeStyle = "#b2b2ae";
+                    context.lineWidth = 1.75;
+                    break;
+                }
+                ;
+            case "path":
+                {
+                    context.strokeStyle = "#c6c6c6";
+                    context.lineWidth = 1;
+                    break;
+                }
+                ;
+            case "ferry":
+                {
+                    context.strokeStyle = "#ffffff";
+                    break;
+                }
+                ;
+            case "piste":
+                {
+                    context.strokeStyle = "#ffffff";
+                    break;
+                }
+                ;
+            case "aerialway":
+                {
+                    context.strokeStyle = "#ffffff";
+                    break;
+                }
+                ;
+            case "aeroway":
+                {
+                    context.strokeStyle = "#ffffff";
+                    break;
+                }
+                ;
+            case "racetrack":
+                {
+                    context.strokeStyle = "#ffffff";
+                    break;
+                }
+                ;
+            case "portage_way":
+                {
+                    context.strokeStyle = "#ffffff";
+                    break;
+                }
+                ;
+        }
+        var holdColor = context.strokeStyle;
+        context.lineWidth = context.lineWidth + 1;
+        context.strokeStyle = "#7c7c7c";
+        context.stroke();
+        context.lineWidth = context.lineWidth - 1;
+        context.strokeStyle = holdColor;
+        context.stroke();
+    };
+    Map.prototype.styleBuildingContext = function (shape, context) {
+        context.strokeStyle = "#8e8e8e";
+        context.lineWidth = 0.2;
+        context.fillStyle = "#e7deca";
+        context.fill();
+    };
+    Map.prototype.styleEarthContext = function (shape, context) {
+        context.fillStyle = '#eaeaea';
+        context.lineWidth = 0.6;
+        context.fill();
+    };
+    Map.prototype.styleLanduseContext = function (shape, context) {
+        context.fillStyle = '#e0d0a6';
+        context.strokeStyle = "#8e8e8e";
+        context.lineWidth = 0.01;
+        switch (shape.properties.kind) {
+            case "forest":
+                {
+                    context.fillStyle = "#d0e5b7";
+                    break;
+                }
+                ;
+            case "garden":
+                {
+                    context.fillStyle = "#d0e5b7";
+                    break;
+                }
+                ;
+            case "grass":
+                {
+                    context.fillStyle = "#d0e5b7";
+                    break;
+                }
+                ;
+            case "park":
+                {
+                    context.fillStyle = "#d0e5b7";
+                    break;
+                }
+                ;
+            case "national_park":
+                {
+                    context.fillStyle = "#d0e5b7";
+                    break;
+                }
+                ;
+            case "nature_reserve":
+                {
+                    context.fillStyle = "#d0e5b7";
+                    break;
+                }
+                ;
+            case "natural_forest":
+                {
+                    context.fillStyle = "#d0e5b7";
+                    break;
+                }
+                ;
+            case "natural_park":
+                {
+                    context.fillStyle = "#d0e5b7";
+                    break;
+                }
+                ;
+            case "natural_wood":
+                {
+                    context.fillStyle = "#d0e5b7";
+                    break;
+                }
+                ;
+            case "dog_park":
+                {
+                    context.fillStyle = "#d0e5b7";
+                    break;
+                }
+                ;
+            case "golf_course":
+                {
+                    context.fillStyle = "#d0e5b7";
+                    break;
+                }
+                ;
+            case "meadow":
+                {
+                    context.fillStyle = "#d0e5b7";
+                    break;
+                }
+                ;
+            case "petting_zoo":
+                {
+                    context.fillStyle = "#d0e5b7";
+                    break;
+                }
+                ;
+            case "picnic_site":
+                {
+                    context.fillStyle = "#d0e5b7";
+                    break;
+                }
+                ;
+            case "plant":
+                {
+                    context.fillStyle = "#d0e5b7";
+                    break;
+                }
+                ;
+            case "rural":
+                {
+                    context.fillStyle = "#d0e5b7";
+                    break;
+                }
+                ;
+            case "scrub":
+                {
+                    context.fillStyle = "#d0e5b7";
+                    break;
+                }
+                ;
+            case "stadium":
+                {
+                    context.fillStyle = "#d0e5b7";
+                    break;
+                }
+                ;
+            case "theme_park":
+                {
+                    context.fillStyle = "#d0e5b7";
+                    break;
+                }
+                ;
+            case "village_green":
+                {
+                    context.fillStyle = "#d0e5b7";
+                    break;
+                }
+                ;
+            case "wildlife_park":
+                {
+                    context.fillStyle = "#d0e5b7";
+                    break;
+                }
+                ;
+            case "wood":
+                {
+                    context.fillStyle = "#d0e5b7";
+                    break;
+                }
+                ;
+            case "zoo":
+                {
+                    context.fillStyle = "#d0e5b7";
+                    break;
+                }
+                ;
+            case "wetlands":
+                {
+                    context.fillStyle = "#b1c797";
+                    break;
+                }
+                ;
+            case "beach":
+                {
+                    context.fillStyle = "#faf2c7";
+                    break;
+                }
+                ;
+            case "residential":
+                {
+                    context.fillStyle = "#e0d0a6";
+                    break;
+                }
+                ;
+            case "farmland":
+                {
+                    context.fillStyle = "#f2f1e1";
+                    break;
+                }
+                ;
+            case "hospital":
+                {
+                    context.fillStyle = "#e0d0a6";
+                    break;
+                }
+                ;
+        }
+        context.fill();
+    };
+    Map.prototype.styleWaterContext = function (shape, context) {
+        context.fillStyle = '#9cc3df';
+        context.lineWidth = 0.6;
+        if (shape.geometry.type == "LineString" || shape.geometry.type == "MultiLineString") {
+            context.strokeStyle = '#9cc3df';
+            context.lineWidth = 0.6;
+        }
+        if (shape.geometry.type == "Polygon" || shape.geometry.type == "MultiPolygon") {
+            context.strokeStyle = '#6d6d6d';
+            context.fill();
+        }
+    };
+    Map.prototype.stylePoisContext = function (shape, context) {
+    };
+    Map.prototype.stylePlacesContext = function (shape, context) {
     };
     Map.prototype.MercatorProjection = function (longitude, latitude) {
         var radius = 6378137;
@@ -386,106 +709,6 @@ var Map = (function () {
         var context = canvas.getContext('2d');
         context.clearRect(0, 0, canvas.width, canvas.height);
     };
-    Map.prototype.styleBoundariesContext = function (shape, context) {
-        if (shape.properties.kind == "country") {
-            context.strokeStyle = "#333333";
-            context.lineWidth = 1.6;
-        }
-        if (shape.properties.kind == "state") {
-            context.strokeStyle = "#333333";
-            context.lineWidth = 0.6;
-        }
-        if (shape.properties.kind == "macroregion") {
-            context.strokeStyle = "#00ff00";
-            context.lineWidth = 0.6;
-        }
-    };
-    Map.prototype.styleBuildingContext = function (shape, context) {
-        context.fillStyle = "#808080";
-        context.fill();
-    };
-    Map.prototype.styleEarthContext = function (shape, context) {
-        context.fillStyle = '#a2a2a2';
-        context.lineWidth = 0.6;
-        context.fill();
-    };
-    Map.prototype.styleLanduseContext = function (shape, context) {
-        context.fillStyle = '#bfbfbf';
-        context.lineWidth = 0.6;
-        context.fill();
-    };
-    Map.prototype.styleWaterContext = function (shape, context) {
-        context.fillStyle = '#9cc3df';
-        context.lineWidth = 0.6;
-        context.fill();
-    };
     return Map;
 })();
-/*
-        // RIGHT
-        this.fetchTile(this.currentTileX + 1, this.currentTileY, zoom, (data) => {
-            console.log("\nRIGHT");
-            var MapTileData = new MapTile(data, this.currentTileX + 1, this.currentTileY, zoom, layers, this.tileWidth, this.tileHeight);
-            this._mapData.push(MapTileData);
-            console.log(this._mapData);
-            this.DrawTile(MapTileData, centerX + this.tileWidth, centerY)
-        });
-        // LEFT
-        this.fetchTile(this.currentTileX - 1, this.currentTileY, zoom, (data) => {
-            console.log("\nLEFT");
-            var MapTileData = new MapTile(data, this.currentTileX - 1, this.currentTileY, zoom, layers, this.tileWidth, this.tileHeight);
-            this._mapData.push(MapTileData);
-            console.log(this._mapData);
-            this.DrawTile(MapTileData, centerX - this.tileWidth, centerY)
-        });
-         
-        // BOTTOM
-        this.fetchTile(this.currentTileX, this.currentTileY + 1, zoom, (data) => {
-            console.log("\nBOTTOM");
-            var MapTileData = new MapTile(data, this.currentTileX, this.currentTileY + 1, zoom, layers, this.tileWidth, this.tileHeight);
-            this._mapData.push(MapTileData);
-            console.log(this._mapData);
-            this.DrawTile(MapTileData, centerX, centerY + this.tileHeight)
-        });
-        // BOTTOM RIGHT
-        this.fetchTile(this.currentTileX + 1, this.currentTileY + 1, zoom, (data) => {
-            console.log("\nBOTTOM RIGHT");
-            var MapTileData = new MapTile(data, this.currentTileX + 1, this.currentTileY + 1, zoom, layers, this.tileWidth, this.tileHeight);
-            this._mapData.push(MapTileData);
-            console.log(this._mapData);
-            this.DrawTile(MapTileData, centerX + this.tileWidth, centerY + this.tileHeight)
-        });
-        // BOTTOM LEFT
-        this.fetchTile(this.currentTileX - 1, this.currentTileY + 1, zoom, (data) => {
-            console.log("\nBOTTOM LEFT");
-            var MapTileData = new MapTile(data, this.currentTileX - 1, this.currentTileY + 1, zoom, layers, this.tileWidth, this.tileHeight);
-            this._mapData.push(MapTileData);
-            console.log(this._mapData);
-            this.DrawTile(MapTileData, centerX - this.tileWidth, centerY + this.tileHeight)
-        });
-        
-        // TOP
-        this.fetchTile(this.currentTileX, this.currentTileY - 1, zoom, (data) => {
-            console.log("\nTOP");
-            var MapTileData = new MapTile(data, this.currentTileX, this.currentTileY - 1, zoom, layers, this.tileWidth, this.tileHeight);
-            this._mapData.push(MapTileData);
-            console.log(this._mapData);
-            this.DrawTile(MapTileData, centerX, centerY - this.tileHeight)
-        });
-        // TOP LEFT
-        this.fetchTile(this.currentTileX - 1, this.currentTileY - 1, zoom, (data) => {
-            console.log("\nTOP LEFT");
-            var MapTileData = new MapTile(data, this.currentTileX - 1, this.currentTileY - 1, zoom, layers, this.tileWidth, this.tileHeight);
-            this._mapData.push(MapTileData);
-            console.log(this._mapData);
-            this.DrawTile(MapTileData, centerX - this.tileWidth, centerY - this.tileHeight)
-        });
-        // TOP RIGHT
-        this.fetchTile(this.currentTileX + 1, this.currentTileY - 1, zoom, (data) => {
-            console.log("\nTOP RIGHT");
-            var MapTileData = new MapTile(data, this.currentTileX + 1, this.currentTileY - 1, zoom, layers, this.tileWidth, this.tileHeight);
-            this._mapData.push(MapTileData);
-            console.log(this._mapData);
-            this.DrawTile(MapTileData, centerX + this.tileWidth, centerY - this.tileHeight)
-        });*/
 //# sourceMappingURL=Map.js.map
