@@ -3,11 +3,12 @@ var sideMenu;
 var map;
 var touchXstart;
 var touchYstart;
+var touchXstart_second;
+var touchYstart_second;
 var data;
 var Bbox;
 var zoomLvl = 14;
 window.onload = function () {
-    // Sidemenu needs to be created before TopMenu, due to TopMenu usage of function sideMenu.show by buttons
     createSideMenu();
     createTopMenu();
     createMap();
@@ -18,20 +19,14 @@ window.onload = function () {
     canvas.addEventListener('wheel', function (e) {
         if (e.deltaY > 0) {
             //scroll down 
-            map.clear();
-            map.display(18.173270, 49.828526, --zoomLvl, Layer.Water | Layer.Earth | Layer.Boundaries | Layer.Buildings | Layer.Landuse | Layer.Roads | Layer.Pois | Layer.Places);
+            map.display(18.173270, 49.828526, --zoomLvl, Layer.Water | Layer.Earth | Layer.Boundaries | Layer.Buildings | Layer.Landuse | Layer.Roads | Layer.Transit);
         }
         else {
             //scroll up
-            map.clear();
-            map.display(18.173270, 49.828526, ++zoomLvl, Layer.Water | Layer.Earth | Layer.Boundaries | Layer.Buildings | Layer.Landuse | Layer.Roads | Layer.Pois | Layer.Places);
+            map.display(18.173270, 49.828526, ++zoomLvl, Layer.Water | Layer.Earth | Layer.Boundaries | Layer.Buildings | Layer.Landuse | Layer.Roads | Layer.Transit);
         }
-        //prevent page from scrolling
-        return false;
     });
-    //console.log(map.long2tileX(17.838396, 18));
-    //console.log(map.lat2tileY(48.552492, 18));
-    map.display(18.173270, 49.828526, zoomLvl, Layer.Water | Layer.Earth | Layer.Boundaries | Layer.Buildings | Layer.Landuse | Layer.Roads | Layer.Pois | Layer.Places);
+    map.display(18.173270, 49.828526, zoomLvl, Layer.Water | Layer.Earth | Layer.Boundaries | Layer.Buildings | Layer.Landuse | Layer.Roads | Layer.Transit);
 };
 function createTopMenu() {
     var root = document.getElementById("topMenu");
@@ -96,18 +91,48 @@ function createMap() {
     map = new Map(root);
 }
 function HandleTouchMove(evt) {
-    var rectangle = document.getElementById("sideMenu").getBoundingClientRect();
     if (!touchXstart || !touchYstart) {
         return;
     }
-    var touchXend = evt.touches[0].clientX;
-    var touchYend = evt.touches[0].clientY;
-    console.log(evt.touches);
-    //console.log("touch move X0: " + Math.round(evt.touches[0].clientX) + " , Y0: " + Math.round(evt.touches[0].clientY) + "touch move X0: " + Math.round(evt.touches[1].clientX) + ", Y0: " + Math.round(evt.touches[1].clientY));
-    var xDiff = touchXend - touchXstart;
-    var yDiff = touchYend - touchYstart;
-    // Swipe is touchmove more than 100 points long
-    if ((Math.abs(xDiff) > 100) || (Math.abs(yDiff) > 100)) {
+    var xDiff = evt.touches[0].clientX - touchXstart;
+    var yDiff = evt.touches[0].clientY - touchYstart;
+    // checks if doubleswipe 
+    if (evt.touches.length > 1) {
+        var xDiff_second = evt.touches[1].clientX - touchXstart_second;
+        var yDiff_second = evt.touches[1].clientY - touchYstart_second;
+        // Horizontal double swipe
+        if (Math.abs(xDiff) > Math.abs(yDiff) && Math.abs(xDiff_second) > Math.abs(yDiff_second)) {
+            // Checks if swipes are more than 50px long
+            if (xDiff > 25 && xDiff_second < -25 && touchXstart < touchXstart_second) {
+                map.display(18.173270, 49.828526, ++zoomLvl, Layer.Water | Layer.Earth | Layer.Boundaries | Layer.Buildings | Layer.Landuse | Layer.Roads | Layer.Transit);
+            }
+            if (xDiff < -25 && xDiff_second > 25 && touchXstart > touchXstart_second) {
+                map.display(18.173270, 49.828526, ++zoomLvl, Layer.Water | Layer.Earth | Layer.Boundaries | Layer.Buildings | Layer.Landuse | Layer.Roads | Layer.Transit);
+            }
+            if (xDiff < -25 && xDiff_second > 25 && touchXstart < touchXstart_second) {
+                map.display(18.173270, 49.828526, --zoomLvl, Layer.Water | Layer.Earth | Layer.Boundaries | Layer.Buildings | Layer.Landuse | Layer.Roads | Layer.Transit);
+            }
+            if (xDiff > 25 && xDiff_second < -25 && touchXstart > touchXstart_second) {
+                map.display(18.173270, 49.828526, --zoomLvl, Layer.Water | Layer.Earth | Layer.Boundaries | Layer.Buildings | Layer.Landuse | Layer.Roads | Layer.Transit);
+            }
+        }
+        else if (Math.abs(yDiff) > Math.abs(xDiff) && Math.abs(yDiff_second) > Math.abs(xDiff_second)) {
+            // Checks if swipes are more than 50px long
+            if (yDiff > 25 && yDiff_second < -25 && touchYstart < touchYstart_second) {
+                map.display(18.173270, 49.828526, ++zoomLvl, Layer.Water | Layer.Earth | Layer.Boundaries | Layer.Buildings | Layer.Landuse | Layer.Roads | Layer.Transit);
+            }
+            if (yDiff < -25 && yDiff_second > 25 && touchYstart > touchYstart_second) {
+                map.display(18.173270, 49.828526, ++zoomLvl, Layer.Water | Layer.Earth | Layer.Boundaries | Layer.Buildings | Layer.Landuse | Layer.Roads | Layer.Transit);
+            }
+            if (yDiff < -25 && yDiff_second > 25 && touchYstart < touchYstart_second) {
+                map.display(18.173270, 49.828526, --zoomLvl, Layer.Water | Layer.Earth | Layer.Boundaries | Layer.Buildings | Layer.Landuse | Layer.Roads | Layer.Transit);
+            }
+            if (yDiff > 25 && yDiff_second < -25 && touchYstart > touchYstart_second) {
+                map.display(18.173270, 49.828526, --zoomLvl, Layer.Water | Layer.Earth | Layer.Boundaries | Layer.Buildings | Layer.Landuse | Layer.Roads | Layer.Transit);
+            }
+        }
+    }
+    else if ((Math.abs(xDiff) > 50) || (Math.abs(yDiff) > 50)) {
         if (Math.abs(xDiff) > Math.abs(yDiff)) {
             if (xDiff < 0) {
                 sideMenu.showMenu(false);
@@ -124,17 +149,17 @@ function HandleTouchMove(evt) {
                 sideMenu.showMenu(false);
             }
         }
-        touchXstart = null;
-        touchYstart = null;
     }
 }
 function HandleTouchStart(evt) {
     touchXstart = evt.touches[0].clientX;
     touchYstart = evt.touches[0].clientY;
-    //console.log("touchstart X: " + Math.round(touchXstart) + ", Y: " + Math.round(touchYstart));
+    if (evt.touches.length > 1) {
+        touchXstart_second = evt.touches[1].clientX;
+        touchYstart_second = evt.touches[1].clientY;
+    }
 }
 function HandleTouchEnd(evt) {
-    //console.log("touchend");
     sideMenu.showMenu(false);
 }
 //# sourceMappingURL=app.js.map

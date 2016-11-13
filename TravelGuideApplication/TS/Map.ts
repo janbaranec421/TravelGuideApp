@@ -17,7 +17,7 @@
     private currentZoom: number;
 
 
-    constructor(parent: HTMLElement, tileWidth: number = 650, tileHeight: number = 650, mapWidth: number = 650, mapHeight = 650) {
+    constructor(parent: HTMLElement, tileWidth: number = 133, tileHeight: number = 133, mapWidth: number = 400, mapHeight = 400) {
         this.root = parent;
 
         // width and height MUST be set through attribute 
@@ -40,8 +40,8 @@
     }
 
     public display(longitude: number, latitude: number, zoom: number, layers: Layer) {
+        this.clear();
         this._mapData = [];
-
         // [X,Y] Position in map tiles scope
         this.currentTileX = this.long2tileX(longitude, zoom);
         this.currentTileY = this.lat2tileY(latitude, zoom);
@@ -65,8 +65,63 @@
             this._mapData.push(MapTileData);
             console.log(this._mapData);
             this.DrawTile(MapTileData, centerX, centerY);
-        });     
-        
+        });   
+        this.fetchTile(this.currentTileX + 1, this.currentTileY, zoom, (data) => {
+            console.log("\nRIGHT");
+            var MapTileData = new MapTile(data, this.currentTileX + 1, this.currentTileY, zoom, layers, this.tileWidth, this.tileHeight);
+            this._mapData.push(MapTileData);
+            console.log(this._mapData);
+            this.DrawTile(MapTileData, centerX + this.tileWidth, centerY);
+        });
+        this.fetchTile(this.currentTileX - 1, this.currentTileY, zoom, (data) => {
+            console.log("\nLEFT");
+            var MapTileData = new MapTile(data, this.currentTileX - 1, this.currentTileY, zoom, layers, this.tileWidth, this.tileHeight);
+            this._mapData.push(MapTileData);
+            console.log(this._mapData);
+            this.DrawTile(MapTileData, centerX - this.tileWidth, centerY);
+        });
+        this.fetchTile(this.currentTileX, this.currentTileY + 1, zoom, (data) => {
+            console.log("\nBOTTOM");
+            var MapTileData = new MapTile(data, this.currentTileX, this.currentTileY + 1, zoom, layers, this.tileWidth, this.tileHeight);
+            this._mapData.push(MapTileData);
+            console.log(this._mapData);
+            this.DrawTile(MapTileData, centerX, centerY + this.tileHeight);
+        });
+        this.fetchTile(this.currentTileX + 1, this.currentTileY + 1, zoom, (data) => {
+            console.log("\nBOTTOM RIGHT");
+            var MapTileData = new MapTile(data, this.currentTileX + 1, this.currentTileY + 1, zoom, layers, this.tileWidth, this.tileHeight);
+            this._mapData.push(MapTileData);
+            console.log(this._mapData);
+            this.DrawTile(MapTileData, centerX + this.tileWidth, centerY + this.tileHeight);
+        });
+        this.fetchTile(this.currentTileX - 1, this.currentTileY + 1, zoom, (data) => {
+            console.log("\nBOTTOM LEFT");
+            var MapTileData = new MapTile(data, this.currentTileX - 1, this.currentTileY + 1, zoom, layers, this.tileWidth, this.tileHeight);
+            this._mapData.push(MapTileData);
+            console.log(this._mapData);
+            this.DrawTile(MapTileData, centerX - this.tileWidth, centerY + this.tileHeight);
+        });
+        this.fetchTile(this.currentTileX, this.currentTileY - 1, zoom, (data) => {
+            console.log("\nTOP");
+            var MapTileData = new MapTile(data, this.currentTileX, this.currentTileY - 1, zoom, layers, this.tileWidth, this.tileHeight);
+            this._mapData.push(MapTileData);
+            console.log(this._mapData);
+            this.DrawTile(MapTileData, centerX, centerY - this.tileHeight);
+        });
+        this.fetchTile(this.currentTileX - 1, this.currentTileY - 1, zoom, (data) => {
+            console.log("\nTOP LEFT");
+            var MapTileData = new MapTile(data, this.currentTileX - 1, this.currentTileY - 1, zoom, layers, this.tileWidth, this.tileHeight);
+            this._mapData.push(MapTileData);
+            console.log(this._mapData);
+            this.DrawTile(MapTileData, centerX - this.tileWidth, centerY - this.tileHeight);
+        });
+        this.fetchTile(this.currentTileX + 1, this.currentTileY - 1, zoom, (data) => {
+            console.log("\nTOP RIGHT");
+            var MapTileData = new MapTile(data, this.currentTileX + 1, this.currentTileY - 1, zoom, layers, this.tileWidth, this.tileHeight);
+            this._mapData.push(MapTileData);
+            console.log(this._mapData);
+            this.DrawTile(MapTileData, centerX + this.tileWidth, centerY - this.tileHeight);
+        });  
     }
 
     private fetchTile(x: number, y: number, z: number, callback: Function): void
@@ -78,7 +133,7 @@
                 callback(data);
             })
             .fail(function () {
-                console.log("Download failed")
+                console.log("Download of tile: Z=" + z + ", X=" + x + ", Y=" + y + " failed");
             })
 
     }
@@ -220,6 +275,9 @@
         if (shape.properties.layer & Layer.Roads) {
             this.styleRoadsContext(shape, context);
         }
+        if (shape.properties.layer & Layer.Transit) {
+            this.styleTransitContext(shape, context);
+        }
         context.stroke();
     }
 
@@ -264,6 +322,9 @@
             }
             if (shape.properties.layer & Layer.Roads) {
                 this.styleRoadsContext(shape, context);
+            }
+            if (shape.properties.layer & Layer.Transit) {
+                this.styleTransitContext(shape, context);
             }
             context.stroke();
         }
@@ -393,6 +454,9 @@
         if (shape.properties.layer & Layer.Buildings) {
             this.styleBuildingContext(shape, context);
         }
+        if (shape.properties.layer & Layer.Transit) {
+            this.styleTransitContext(shape, context);
+        }
 
         context.stroke();
     }
@@ -443,6 +507,9 @@
             if (shape.properties.layer & Layer.Buildings) {
                 this.styleBuildingContext(shape, context);
             }
+            if (shape.properties.layer & Layer.Transit) {
+                this.styleTransitContext(shape, context);
+            }
             context.stroke();
         }
     }
@@ -450,16 +517,18 @@
 
     private styleBoundariesContext(shape: any, context: any): void
     {
+        context.strokeStyle = "#8e8e8e";
+
         if (shape.properties.kind == "country") {
-            context.strokeStyle = "#8e8e8e"
+            context.strokeStyle = "#8e8e8e";
             context.lineWidth = 1.4;
         }
         if (shape.properties.kind == "state") {
-            context.strokeStyle = "#8e8e8e"
+            context.strokeStyle = "#8e8e8e";
             context.lineWidth = 0.8;
         }
         if (shape.properties.kind == "macroregion") {
-            context.strokeStyle = "#8e8e8e"
+            context.strokeStyle = "#8e8e8e";
             context.lineWidth = 0.8;
         }   
     }
@@ -472,7 +541,7 @@
             case "highway":             { context.strokeStyle = "#fffde8"; context.lineWidth = 3; break; };
             case "major_road":          { context.strokeStyle = "white";   context.lineWidth = 1.75; break; };
             case "minor_road":          { context.strokeStyle = "white";   context.lineWidth = 1.5; break; };
-            case "rail":                { context.strokeStyle = "#b2b2ae"; context.lineWidth = 1.75; break; };
+            case "rail":                { context.strokeStyle = "#b2b2ae"; context.lineWidth = 1.5; break; };
             case "path":                { context.strokeStyle = "#c6c6c6"; context.lineWidth = 1; break; };
             case "ferry":               { context.strokeStyle = "#ffffff"; break; };
             case "piste":               { context.strokeStyle = "#ffffff"; break; };
@@ -492,7 +561,7 @@
 
     private styleBuildingContext(shape: any, context: any): void
     {
-        context.strokeStyle = "#8e8e8e"
+        context.strokeStyle = "#494949"
         context.lineWidth = 0.2;
         context.fillStyle = "#e7deca";
         context.fill();
@@ -562,7 +631,23 @@
 
     private stylePlacesContext(shape: any, context: any): void {
     }
+
+    private styleTransitContext(shape: any, context: any): void {
+        context.fillStyle = '#b2b2ae';
+        context.lineWidth = 0.5;
+
+        if (shape.geometry.type == "LineString" || shape.geometry.type == "MultiLineString") {
+            context.lineWidth = 0.5;
+            context.strokeStyle = '#DCA6A6';
+        }
+        if (shape.geometry.type == "Polygon" || shape.geometry.type == "MultiPolygon") {
+            context.fillStyle = '#00ff00';
+            context.lineWidth = 2;
+            context.fill();
+        }
+    }
   
+
     private MercatorProjection(longitude, latitude): { x: number, y: number } {
         var radius = 6378137;
         var max = 85.0511287798;

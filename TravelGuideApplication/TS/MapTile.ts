@@ -6,7 +6,7 @@
     public yScale: number;
     public layers: Layer;
 
-    public sortedData: any [] = [];
+    public sortedData: any[] = [];
 
     private tileX: number;
     private tileY: number;
@@ -81,15 +81,7 @@
         }
         //Sort them
         array = this.sortBySortKey(array);
-        /*
-        for (var i = 0; i < array.length; i++) {
-            if (array[i].properties.boundary != undefined) {
-                var obj = array[i];
-                array.splice(i, 1);
-                array.unshift(obj);
-            }
-        }
-        */
+
         //Put rest without sort_key at end of array
         if (layers & Layer.Places) {
             holder = data.places.features;
@@ -106,7 +98,6 @@
             holder.forEach(function (obj) { obj.properties.layer = Layer.Landuse_Labels });
             array = array.concat(holder);
         }
-
         return array;
     }
 

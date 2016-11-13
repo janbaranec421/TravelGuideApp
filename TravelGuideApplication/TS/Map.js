@@ -1,9 +1,9 @@
 var Map = (function () {
     function Map(parent, tileWidth, tileHeight, mapWidth, mapHeight) {
-        if (tileWidth === void 0) { tileWidth = 650; }
-        if (tileHeight === void 0) { tileHeight = 650; }
-        if (mapWidth === void 0) { mapWidth = 650; }
-        if (mapHeight === void 0) { mapHeight = 650; }
+        if (tileWidth === void 0) { tileWidth = 133; }
+        if (tileHeight === void 0) { tileHeight = 133; }
+        if (mapWidth === void 0) { mapWidth = 400; }
+        if (mapHeight === void 0) { mapHeight = 400; }
         this._mapData = [];
         this.root = parent;
         // width and height MUST be set through attribute 
@@ -24,6 +24,7 @@ var Map = (function () {
     }
     Map.prototype.display = function (longitude, latitude, zoom, layers) {
         var _this = this;
+        this.clear();
         this._mapData = [];
         // [X,Y] Position in map tiles scope
         this.currentTileX = this.long2tileX(longitude, zoom);
@@ -44,6 +45,62 @@ var Map = (function () {
             console.log(_this._mapData);
             _this.DrawTile(MapTileData, centerX, centerY);
         });
+        this.fetchTile(this.currentTileX + 1, this.currentTileY, zoom, function (data) {
+            console.log("\nRIGHT");
+            var MapTileData = new MapTile(data, _this.currentTileX + 1, _this.currentTileY, zoom, layers, _this.tileWidth, _this.tileHeight);
+            _this._mapData.push(MapTileData);
+            console.log(_this._mapData);
+            _this.DrawTile(MapTileData, centerX + _this.tileWidth, centerY);
+        });
+        this.fetchTile(this.currentTileX - 1, this.currentTileY, zoom, function (data) {
+            console.log("\nLEFT");
+            var MapTileData = new MapTile(data, _this.currentTileX - 1, _this.currentTileY, zoom, layers, _this.tileWidth, _this.tileHeight);
+            _this._mapData.push(MapTileData);
+            console.log(_this._mapData);
+            _this.DrawTile(MapTileData, centerX - _this.tileWidth, centerY);
+        });
+        this.fetchTile(this.currentTileX, this.currentTileY + 1, zoom, function (data) {
+            console.log("\nBOTTOM");
+            var MapTileData = new MapTile(data, _this.currentTileX, _this.currentTileY + 1, zoom, layers, _this.tileWidth, _this.tileHeight);
+            _this._mapData.push(MapTileData);
+            console.log(_this._mapData);
+            _this.DrawTile(MapTileData, centerX, centerY + _this.tileHeight);
+        });
+        this.fetchTile(this.currentTileX + 1, this.currentTileY + 1, zoom, function (data) {
+            console.log("\nBOTTOM RIGHT");
+            var MapTileData = new MapTile(data, _this.currentTileX + 1, _this.currentTileY + 1, zoom, layers, _this.tileWidth, _this.tileHeight);
+            _this._mapData.push(MapTileData);
+            console.log(_this._mapData);
+            _this.DrawTile(MapTileData, centerX + _this.tileWidth, centerY + _this.tileHeight);
+        });
+        this.fetchTile(this.currentTileX - 1, this.currentTileY + 1, zoom, function (data) {
+            console.log("\nBOTTOM LEFT");
+            var MapTileData = new MapTile(data, _this.currentTileX - 1, _this.currentTileY + 1, zoom, layers, _this.tileWidth, _this.tileHeight);
+            _this._mapData.push(MapTileData);
+            console.log(_this._mapData);
+            _this.DrawTile(MapTileData, centerX - _this.tileWidth, centerY + _this.tileHeight);
+        });
+        this.fetchTile(this.currentTileX, this.currentTileY - 1, zoom, function (data) {
+            console.log("\nTOP");
+            var MapTileData = new MapTile(data, _this.currentTileX, _this.currentTileY - 1, zoom, layers, _this.tileWidth, _this.tileHeight);
+            _this._mapData.push(MapTileData);
+            console.log(_this._mapData);
+            _this.DrawTile(MapTileData, centerX, centerY - _this.tileHeight);
+        });
+        this.fetchTile(this.currentTileX - 1, this.currentTileY - 1, zoom, function (data) {
+            console.log("\nTOP LEFT");
+            var MapTileData = new MapTile(data, _this.currentTileX - 1, _this.currentTileY - 1, zoom, layers, _this.tileWidth, _this.tileHeight);
+            _this._mapData.push(MapTileData);
+            console.log(_this._mapData);
+            _this.DrawTile(MapTileData, centerX - _this.tileWidth, centerY - _this.tileHeight);
+        });
+        this.fetchTile(this.currentTileX + 1, this.currentTileY - 1, zoom, function (data) {
+            console.log("\nTOP RIGHT");
+            var MapTileData = new MapTile(data, _this.currentTileX + 1, _this.currentTileY - 1, zoom, layers, _this.tileWidth, _this.tileHeight);
+            _this._mapData.push(MapTileData);
+            console.log(_this._mapData);
+            _this.DrawTile(MapTileData, centerX + _this.tileWidth, centerY - _this.tileHeight);
+        });
     };
     Map.prototype.fetchTile = function (x, y, z, callback) {
         var fetchURL = "https://vector.mapzen.com/osm/all/" + z + "/" + x + "/" + y + ".json?api_key=vector-tiles-fd9uHhC";
@@ -52,7 +109,7 @@ var Map = (function () {
             callback(data);
         })
             .fail(function () {
-            console.log("Download failed");
+            console.log("Download of tile: Z=" + z + ", X=" + x + ", Y=" + y + " failed");
         });
     };
     Map.prototype.printGeometryTypes = function (data) {
@@ -177,6 +234,9 @@ var Map = (function () {
         if (shape.properties.layer & Layer.Roads) {
             this.styleRoadsContext(shape, context);
         }
+        if (shape.properties.layer & Layer.Transit) {
+            this.styleTransitContext(shape, context);
+        }
         context.stroke();
     };
     Map.prototype.strokeMultiLineString = function (shape, mapTile, context, shiftX, shiftY) {
@@ -215,6 +275,9 @@ var Map = (function () {
             }
             if (shape.properties.layer & Layer.Roads) {
                 this.styleRoadsContext(shape, context);
+            }
+            if (shape.properties.layer & Layer.Transit) {
+                this.styleTransitContext(shape, context);
             }
             context.stroke();
         }
@@ -327,6 +390,9 @@ var Map = (function () {
         if (shape.properties.layer & Layer.Buildings) {
             this.styleBuildingContext(shape, context);
         }
+        if (shape.properties.layer & Layer.Transit) {
+            this.styleTransitContext(shape, context);
+        }
         context.stroke();
     };
     Map.prototype.strokeMultiPolygon = function (shape, mapTile, context, shiftX, shiftY) {
@@ -369,10 +435,14 @@ var Map = (function () {
             if (shape.properties.layer & Layer.Buildings) {
                 this.styleBuildingContext(shape, context);
             }
+            if (shape.properties.layer & Layer.Transit) {
+                this.styleTransitContext(shape, context);
+            }
             context.stroke();
         }
     };
     Map.prototype.styleBoundariesContext = function (shape, context) {
+        context.strokeStyle = "#8e8e8e";
         if (shape.properties.kind == "country") {
             context.strokeStyle = "#8e8e8e";
             context.lineWidth = 1.4;
@@ -414,7 +484,7 @@ var Map = (function () {
             case "rail":
                 {
                     context.strokeStyle = "#b2b2ae";
-                    context.lineWidth = 1.75;
+                    context.lineWidth = 1.5;
                     break;
                 }
                 ;
@@ -471,7 +541,7 @@ var Map = (function () {
         context.stroke();
     };
     Map.prototype.styleBuildingContext = function (shape, context) {
-        context.strokeStyle = "#8e8e8e";
+        context.strokeStyle = "#494949";
         context.lineWidth = 0.2;
         context.fillStyle = "#e7deca";
         context.fill();
@@ -672,6 +742,19 @@ var Map = (function () {
     Map.prototype.stylePoisContext = function (shape, context) {
     };
     Map.prototype.stylePlacesContext = function (shape, context) {
+    };
+    Map.prototype.styleTransitContext = function (shape, context) {
+        context.fillStyle = '#b2b2ae';
+        context.lineWidth = 0.5;
+        if (shape.geometry.type == "LineString" || shape.geometry.type == "MultiLineString") {
+            context.lineWidth = 0.5;
+            context.strokeStyle = '#DCA6A6';
+        }
+        if (shape.geometry.type == "Polygon" || shape.geometry.type == "MultiPolygon") {
+            context.fillStyle = '#00ff00';
+            context.lineWidth = 2;
+            context.fill();
+        }
     };
     Map.prototype.MercatorProjection = function (longitude, latitude) {
         var radius = 6378137;
