@@ -1,6 +1,6 @@
 ﻿class TopMenu {
-    items: HTMLElement[];
-    root: HTMLElement;
+    public items: HTMLElement[];
+    public root: HTMLElement;
 
     constructor(root: HTMLElement, items: HTMLElement[]) {
         this.root = root;

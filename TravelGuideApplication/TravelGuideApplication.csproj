@@ -23,10 +23,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="CSS\CSS.css" />
-    <Content Include="font-awesome-4.5.0\css\font-awesome.css" />
-    <Content Include="font-awesome-4.5.0\css\font-awesome.min.css" />
-    <Content Include="font-awesome-4.5.0\fonts\fontawesome-webfont.svg" />
-    <Content Include="font-awesome-4.5.0\HELP-US-OUT.txt" />
     <Content Include="index.html" />
     <Content Include="Resources\avatar.jpg" />
     <Content Include="packages.config" />
@@ -38,6 +34,7 @@
   <ItemGroup>
     <TypeScriptCompile Include="Scripts\typings\jquery\jquery.d.ts" />
     <TypeScriptCompile Include="TS\app.ts" />
+    <TypeScriptCompile Include="TS\Converter.ts" />
     <TypeScriptCompile Include="TS\Layer.ts" />
     <TypeScriptCompile Include="TS\Map.ts" />
     <TypeScriptCompile Include="TS\MapTile.ts" />
@@ -45,37 +42,6 @@
     <TypeScriptCompile Include="TS\TopMenu.ts" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="font-awesome-4.5.0\fonts\fontawesome-webfont.eot" />
-    <Content Include="font-awesome-4.5.0\fonts\fontawesome-webfont.ttf" />
-    <Content Include="font-awesome-4.5.0\fonts\fontawesome-webfont.woff" />
-    <Content Include="font-awesome-4.5.0\fonts\fontawesome-webfont.woff2" />
-    <Content Include="font-awesome-4.5.0\fonts\FontAwesome.otf" />
-    <Content Include="font-awesome-4.5.0\less\animated.less" />
-    <Content Include="font-awesome-4.5.0\less\bordered-pulled.less" />
-    <Content Include="font-awesome-4.5.0\less\core.less" />
-    <Content Include="font-awesome-4.5.0\less\fixed-width.less" />
-    <Content Include="font-awesome-4.5.0\less\font-awesome.less" />
-    <Content Include="font-awesome-4.5.0\less\icons.less" />
-    <Content Include="font-awesome-4.5.0\less\larger.less" />
-    <Content Include="font-awesome-4.5.0\less\list.less" />
-    <Content Include="font-awesome-4.5.0\less\mixins.less" />
-    <Content Include="font-awesome-4.5.0\less\path.less" />
-    <Content Include="font-awesome-4.5.0\less\rotated-flipped.less" />
-    <Content Include="font-awesome-4.5.0\less\stacked.less" />
-    <Content Include="font-awesome-4.5.0\less\variables.less" />
-    <Content Include="font-awesome-4.5.0\scss\font-awesome.scss" />
-    <Content Include="font-awesome-4.5.0\scss\_animated.scss" />
-    <Content Include="font-awesome-4.5.0\scss\_bordered-pulled.scss" />
-    <Content Include="font-awesome-4.5.0\scss\_core.scss" />
-    <Content Include="font-awesome-4.5.0\scss\_fixed-width.scss" />
-    <Content Include="font-awesome-4.5.0\scss\_icons.scss" />
-    <Content Include="font-awesome-4.5.0\scss\_larger.scss" />
-    <Content Include="font-awesome-4.5.0\scss\_list.scss" />
-    <Content Include="font-awesome-4.5.0\scss\_mixins.scss" />
-    <Content Include="font-awesome-4.5.0\scss\_path.scss" />
-    <Content Include="font-awesome-4.5.0\scss\_rotated-flipped.scss" />
-    <Content Include="font-awesome-4.5.0\scss\_stacked.scss" />
-    <Content Include="font-awesome-4.5.0\scss\_variables.scss" />
     <Content Include="Scripts\jquery-2.2.3.min.map" />
     <None Include="TravelGuideApp.pubxml" />
     <None Include="web.Debug.config">

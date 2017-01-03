@@ -1,27 +1,41 @@
 ﻿body {
+    margin: 0px;
 }
 
 div#topMenu {
-    position: absolute;
+    position: fixed;
     top: 0;
     left: 0;
-    min-width: 980px;
+    min-width: 100%;
     max-width: 100%;
-    border-bottom: 1px solid black;
     box-shadow: 0px -6px 40px 0px #404040;
+    z-index: 9000;
+    background-color: #5b6e7d;
+    text-align: center;
+    height: 53px;
+    padding-top: 2px;
 }
 
 ul#topMenuList {
-    display: flex;
+    display: inline-block;
     list-style-type: none;
     margin: 0px;
+    width: 90%; 
+}
+
+ul#topMenuList > li {
+    float: left;
+    width: 19%;
+    margin: 0px 0.25% 0px 0.25%;
 }
 
 .topMenuButton {
     padding-left: 3%;
     padding-right: 3%;
-    width: 20%;
+    width: 100%;
     height: 50px;
+    border-radius: 8px;
+    background-color: #e6e6e6;
 }
 
 .topMenuButton:hover {
@@ -29,24 +43,26 @@ ul#topMenuList {
 }
 
 div#sideMenu {
+    z-index: 9999;
     position: fixed;
     width: 235px;
     height: 100%;
-    top: 0px;
+    top: 55px;
     left: 0px;
     opacity: 0.95;
-    background-color: rgb(58, 56, 56);
+    background-color: #36424c;
     box-shadow: 4px 0px 10px grey;
 }
 
 
 li.sideMenuButton {
-    height: 43px;
+    height: 35px;
     width: 100%;
-    border-top: 0px;
     border-bottom: #4A4949 1px solid;
-    border-left: 0px;
-    border-right: 0px;
+}
+
+li.sideMenuButton > img{
+
 }
 
 li.sideMenuButton:hover {
@@ -57,4 +73,12 @@ img#avatar {
     object-fit:cover;
     height: 15%;
     width: 100%;
+}
+
+div#pageContent {
+    position: absolute;
+    top: 55px;
+    width: 100%;
+    height: 150%;
+    background-color: #f1f1f1;
 }

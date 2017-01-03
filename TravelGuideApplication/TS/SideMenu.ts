@@ -1,8 +1,8 @@
 ﻿class SideMenu {
-    items: HTMLElement[];
-    root: HTMLElement;
-    isAnimationFinished: boolean;
-    isOpen: boolean;
+    public items: HTMLElement[];
+    public root: HTMLElement;
+    public isAnimationFinished: boolean;
+    public isOpen: boolean;
 
     constructor(root: HTMLElement, items: HTMLElement[])
     {
