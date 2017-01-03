@@ -17,7 +17,7 @@ var App = (function () {
         // 17.1070000
         this.latitude = 49.828526;
         this.longitude = 18.173270;
-        this.zoomLvl = 3;
+        this.zoomLvl = 16;
         this.layers = Layer.Water | Layer.Earth | Layer.Boundaries | Layer.Buildings | Layer.Roads | Layer.Transit | Layer.Landuse;
         this.createTopMenu();
         this.createSideMenu();
@@ -249,6 +249,8 @@ var App = (function () {
             var rect = canvas.getBoundingClientRect();
             var x = Math.round((evt.changedTouches[0].clientX - rect.left) / (rect.right - rect.left) * canvas.width);
             var y = Math.round((evt.changedTouches[0].clientY - rect.top) / (rect.bottom - rect.top) * canvas.height);
+            // this.map.markMap_by_xy(x, y);
+            this.map.markMapByTouch(x, y);
         }
         this.isSwipeFired = false;
     };

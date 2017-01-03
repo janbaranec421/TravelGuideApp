@@ -29,7 +29,7 @@ class App {
 
     public latitude: number = 49.828526;
     public longitude: number = 18.173270;
-    public zoomLvl: number = 3;
+    public zoomLvl: number = 16;
     public layers: Layer = Layer.Water | Layer.Earth | Layer.Boundaries | Layer.Buildings | Layer.Roads | Layer.Transit | Layer.Landuse;
 
     constructor() {
@@ -300,15 +300,18 @@ class App {
             var x = Math.round((evt.changedTouches[0].clientX - rect.left) / (rect.right - rect.left) * canvas.width);
             var y = Math.round((evt.changedTouches[0].clientY - rect.top) / (rect.bottom - rect.top) * canvas.height);
 
-           // this.map.markMap_by_xy(x, y);
+            // this.map.markMap_by_xy(x, y);
+            this.map.markMapByTouch(x, y);
         }
         this.isSwipeFired = false;
     }
     
     private HandleCanvasWheel(evt): void {
         evt.preventDefault();
-        if (evt.deltaY > 0) this.map.display(this.latitude, this.longitude, --this.zoomLvl, this.layers);
-        else this.map.display(this.latitude, this.longitude, ++this.zoomLvl, this.layers);
+        if (evt.deltaY > 0)
+            this.map.display(this.latitude, this.longitude, --this.zoomLvl, this.layers);
+        else
+            this.map.display(this.latitude, this.longitude, ++this.zoomLvl, this.layers);
     }
 
     private adjustCanvasToViewport() {

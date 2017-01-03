@@ -53,6 +53,7 @@ var Map = (function () {
                         var MapTileData = new MapTile(data, _this.currentTileX + posX, _this.currentTileY + posY, zoom, layers, centerX - (_this.tileWidth * (-1 * posX)), centerY - (_this.tileHeight * (-1 * posY)), _this.tileWidth, _this.tileHeight);
                         _this._mapData.push(MapTileData);
                         _this.DrawTile(MapTileData);
+                        _this.markCollectionRedraw();
                     });
                 }
             }
@@ -68,6 +69,7 @@ var Map = (function () {
         for (var i = 0; i < this._mapData.length; i++) {
             this.DrawTile(this._mapData[i]);
         }
+        this.markCollectionRedraw();
         this.updateMap();
     };
     Map.prototype.updateMap = function () {
@@ -821,87 +823,74 @@ var Map = (function () {
             context.fill();
         }
     };
-    /*
-    public markMap_by_xy(x: number, y: number): { latitude: number, longitude: number } {
-        // for single rendered tile - temporary
-        //(x >= this.tileWidth) && (x < this.tileWidth*2) ? x -= this.tileWidth : x = x;
-        //(x >= this.tileWidth * 2) && (x < this.tileWidth * 3) ? x -= this.tileWidth * 2 : x = x;
-        //(y >= this.tileHeight) && (y < this.tileHeight * 2) ? y -= this.tileHeight : y = y;
-        //(y >= this.tileHeight * 2) && (y < this.tileHeight * 3) ? y -= this.tileHeight * 2 : y = y;
-        
-        var longitude = (x / this._mapData[0].xScale) + this._mapData[0].boundingBox.xMin;
-        var latitude = this._mapData[0].boundingBox.yMax - (y / this._mapData[0].yScale);
-
-        console.log("touch X:" + x);
-        console.log("touch Y:" + y);
-        console.log("touch x:" + longitude);
-        console.log("touch y:" + latitude);
-
-        longitude >= this._mapData[0].boundingBox.xMin && longitude <= this._mapData[0].boundingBox.xMax ? console.log("x in bounds") : console.log("x not in bounds");
-        latitude >= this._mapData[0].boundingBox.yMin && latitude <= this._mapData[0].boundingBox.yMax ? console.log("y in bounds") : console.log("y not in bounds");
-
-        var canvas = <HTMLCanvasElement>$("#mapCanvas")[0];
-        var context = canvas.getContext('2d');
-        context.fillStyle = '#ff0000';
-        context.strokeStyle = '#000000';
-        context.fillRect(x-2, y-2, 4, 4);
-
-        var point = { latitude: latitude, longitude: longitude };
-        this.client_marks.push(point);
-        return point;
-        
-
-        //TODO: implement mark logic for multiple tiles at once
-    }
-
-    public markMap_by_lonlat(latitude: number, longitude: number) {
-        // for single rendered tile - temporary
-        if (this._mapData.length == 1) {
-            var point = Converter.MercatorProjection(latitude, longitude);
-
-            point = {
-                x: (longitude - this._mapData[0].boundingBox.xMin) * this._mapData[0].xScale,
-                y: (this._mapData[0].boundingBox.yMax - latitude) * this._mapData[0].yScale
-            };
-
-            var canvas = <HTMLCanvasElement>$("#mapCanvas")[0];
+    Map.prototype.markMapByTouch = function (x, y) {
+        var markedTile;
+        for (var i = 0; i < this._mapData.length; i++) {
+            var top = this._mapData[i].positionY;
+            var bot = this._mapData[i].positionY + this.tileHeight;
+            var left = this._mapData[i].positionX;
+            var right = this._mapData[i].positionX + this.tileWidth;
+            // if touch is in this tile...
+            if (left <= x && x <= right && top <= y && y <= bot) {
+                markedTile = this._mapData[i];
+            }
+        }
+        if (markedTile != null) {
+            var latLeft = markedTile.boundingBox.xMin;
+            var latRight = markedTile.boundingBox.xMax;
+            var lonTop = markedTile.boundingBox.yMin;
+            var lonBot = markedTile.boundingBox.yMax;
+            var onTileX = x - markedTile.positionX;
+            var onTileY = y - markedTile.positionY;
+            var latitude = (onTileX / markedTile.xScale) + latLeft;
+            var longitude = lonBot - (onTileY / markedTile.yScale);
+            //(latLeft <= latitude) && (latitude <= latRight) ? console.log("x in bounds") : console.log("x not in bounds");
+            //(lonTop <= longitude) && (longitude <= lonBot) ? console.log("y in bounds") : console.log("y not in bounds");
+            var canvas = $("#mapCanvas")[0];
             var context = canvas.getContext('2d');
             context.fillStyle = '#ff0000';
-            context.strokeStyle = '#000000';
-            context.fillRect(point.x - 2, point.y - 2, 4, 4);
-
-            this.client_marks.push({ latitude, longitude });
+            context.strokeStyle = '#3B3B3B';
+            context.beginPath();
+            context.arc(x, y, 5, 0, 2 * Math.PI);
+            context.fill();
+            context.stroke();
+            var point = {
+                latitude: latitude,
+                longitude: longitude
+            };
+            this.client_marks.push(point);
         }
-    }
-
-    public markMap_redraw_all() {
-
-        var canvas = <HTMLCanvasElement>$("#mapCanvas")[0];
-        var context = canvas.getContext('2d');
-        context.fillStyle = '#ff0000';
-        context.strokeStyle = '#000000';
-
-        for (var mark = 0; mark < this.client_marks.length; mark++) {
-            var lat = this.client_marks[mark].latitude;
-            var long = this.client_marks[mark].longitude;
-
-            for (var tile = 0; tile < this._mapData.length; tile++) {
-                var bbox = this._mapData[tile].boundingBox;
-
-                if (long >= bbox.xMin  &&  long <= bbox.xMax  &&  lat >= bbox.yMin  &&  lat <= bbox.yMax) {
-                    var point = Converter.MercatorProjection(lat, long);
-
-                    point = {
-                        x: (long - bbox.xMin) * this._mapData[tile].xScale,
-                        y: (bbox.yMax - lat) * this._mapData[tile].yScale
-                    };
-
-                    context.fillRect(point.x - 2, point.y - 2, 4, 4);
+    };
+    Map.prototype.markCollectionRedraw = function () {
+        for (var i = 0; i < this.client_marks.length; i++) {
+            for (var j = 0; j < this._mapData.length; j++) {
+                var latLeft = this._mapData[j].boundingBox.xMin;
+                var latRight = this._mapData[j].boundingBox.xMax;
+                var lonTop = this._mapData[j].boundingBox.yMin;
+                var lonBot = this._mapData[j].boundingBox.yMax;
+                // If mark is in [latitude, longitude] bounds of tile..
+                if ((latLeft <= this.client_marks[i].latitude) && (this.client_marks[i].latitude <= latRight)) {
+                    if ((lonTop <= this.client_marks[i].longitude) && (this.client_marks[i].longitude <= lonBot)) {
+                        var point = Converter.MercatorProjection(this.client_marks[i].latitude, this.client_marks[i].longitude);
+                        point = {
+                            x: (this.client_marks[i].latitude - latLeft) * this._mapData[j].xScale,
+                            y: (lonBot - this.client_marks[i].longitude) * this._mapData[j].yScale
+                        };
+                        point.x += this._mapData[j].positionX;
+                        point.y += this._mapData[j].positionY;
+                        var canvas = $("#mapCanvas")[0];
+                        var context = canvas.getContext('2d');
+                        context.fillStyle = '#ff0000';
+                        context.strokeStyle = '#3B3B3B';
+                        context.beginPath();
+                        context.arc(point.x, point.y, 5, 0, 2 * Math.PI);
+                        context.fill();
+                        context.stroke();
+                    }
                 }
             }
         }
-    }
-*/
+    };
     Map.prototype.clear = function () {
         var canvas = $("#mapCanvas")[0];
         var context = canvas.getContext('2d');
