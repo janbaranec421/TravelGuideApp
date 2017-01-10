@@ -6,6 +6,7 @@ class App {
     public topMenu: TopMenu;
     public sideMenu: SideMenu;
     public map: Map;
+    public db: Database;
 
     public touchXstart: number;
     public touchYstart: number;
@@ -30,7 +31,7 @@ class App {
     public latitude: number = 49.828526;
     public longitude: number = 18.173270;
     public zoomLvl: number = 16;
-    public layers: Layer = Layer.Water | Layer.Earth | Layer.Boundaries | Layer.Buildings | Layer.Roads | Layer.Transit | Layer.Landuse;
+    public layers: Layer = Layer.Water | Layer.Earth | Layer.Boundaries | Layer.Buildings | Layer.Roads | Layer.Transit | Layer.Landuse | Layer.Places;
 
     constructor() {
         this.createTopMenu();
@@ -50,13 +51,22 @@ class App {
         window.addEventListener('resize', this.adjustCanvasToViewport, false);
         this.adjustCanvasToViewport();
 
-        var canvas = document.getElementById("mapCanvas");
-        canvas.addEventListener('wheel', this.HandleCanvasWheel.bind(this));
-        canvas.addEventListener('touchmove', this.HandleCanvasTouchMove.bind(this), false);
-        canvas.addEventListener('touchstart', this.HandleCanvasTouchStart.bind(this), false);
-        canvas.addEventListener('touchend', this.HandleCanvasTouchEnd.bind(this), false);
+        this.db = new Database();
+        this.db.initalizeDB()
+            .then((value) => {
+                this.map.database = this.db;
 
-        this.map.display(this.latitude, this.longitude, this.zoomLvl, this.layers);
+                var canvas = document.getElementById("mapCanvas");
+                canvas.addEventListener('wheel', this.HandleCanvasWheel.bind(this));
+                canvas.addEventListener('touchmove', this.HandleCanvasTouchMove.bind(this), false);
+                canvas.addEventListener('touchstart', this.HandleCanvasTouchStart.bind(this), false);
+                canvas.addEventListener('touchend', this.HandleCanvasTouchEnd.bind(this), false);
+
+                this.map.display(this.latitude, this.longitude, this.zoomLvl, this.layers);
+            })
+            .catch((err) => {
+                console.log(err);
+            })
     }
 
     public createTopMenu(): void {
@@ -137,6 +147,7 @@ class App {
 
         this.map = new Map(root);
     }
+
     
     private HandleTouchStart(evt): void {
         this.touchXstart = evt.touches[0].clientX;

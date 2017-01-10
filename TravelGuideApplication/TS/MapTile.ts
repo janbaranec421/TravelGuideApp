@@ -51,7 +51,7 @@
         let array: any[] = [];
         let holder: any[] = [];
 
-        // Compose layers which have sort_key attribute
+        // Compose layers which have sort_key attribute (buildings, roads, etc)
         if (layers & Layer.Water) {
             holder = data.water.features;
             holder.forEach(function (obj) { obj.properties.layer = Layer.Water });
@@ -90,7 +90,11 @@
         //Sort them
         array = this.sortBySortKey(array);
 
-        //Put rest without sort_key at end of array
+        //Put rest without sort_key at end of array (addresses, labels, etc.)   
+        holder = array.filter((obj) => { return obj.properties.sort_rank == undefined; });
+        array.splice(0, holder.length);
+        array = array.concat(holder);
+        
         if (layers & Layer.Places) {
             holder = data.places.features;
             holder.forEach(function (obj) { obj.properties.layer = Layer.Places });
@@ -111,13 +115,18 @@
 
     private print(data) {
         for (var i = 0; i < data.length; i++)
-            console.log(data[i].properties.sort_key);
+            if (data[i].properties.sort_rank == undefined) {
+                console.log(data[i].properties.addr_street);
+            }
+            else {
+                console.log(data[i].properties.sort_rank);
+            }
     }
 
     private sortBySortKey(array) {
         return array.sort(function(a,b) {
-            let x = a.properties.sort_key;
-            let y = b.properties.sort_key;
+            let x = a.properties.sort_rank;
+            let y = b.properties.sort_rank;
             if (x == null) { x = 0; }
             if (y == null) { y = 0; }
 

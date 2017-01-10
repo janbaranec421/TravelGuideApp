@@ -32,9 +32,11 @@
     <Content Include="web.config" />
   </ItemGroup>
   <ItemGroup>
+    <TypeScriptCompile Include="Scripts\typings\es6-promise\es6-promise.d.ts" />
     <TypeScriptCompile Include="Scripts\typings\jquery\jquery.d.ts" />
     <TypeScriptCompile Include="TS\app.ts" />
     <TypeScriptCompile Include="TS\Converter.ts" />
+    <TypeScriptCompile Include="TS\Database.ts" />
     <TypeScriptCompile Include="TS\Layer.ts" />
     <TypeScriptCompile Include="TS\Map.ts" />
     <TypeScriptCompile Include="TS\MapTile.ts" />

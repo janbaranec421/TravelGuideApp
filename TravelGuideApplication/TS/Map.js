@@ -19,18 +19,15 @@ var Map = (function () {
             .css("margin", "auto")
             .css("padding", "0px")
             .css("margin-top", "25px")
-            .css("border", "solid black 2px"));
+            .css("border", "solid black 1.5px"));
         this.mapWidth = mapWidth;
         this.mapHeight = mapHeight;
         this.tileWidth = tileWidth;
         this.tileHeight = tileHeight;
     }
     Map.prototype.display = function (latitude, longitude, zoom, layers) {
-        var _this = this;
         this.clear();
         this._mapData = [];
-        console.log("Latitude: " + latitude);
-        console.log("Longitude: " + longitude);
         this.layers = layers;
         // [X,Y] Position in map tiles scope
         this.currentTileX = Converter.long2tileX(longitude, zoom);
@@ -43,18 +40,15 @@ var Map = (function () {
         var centerY = (this.mapHeight / 2) - (this.tileWidth / 2);
         for (var x = -2; x <= 2; x++) {
             for (var y = -2; y <= 2; y++) {
-                // Outside tiles
+                // Outer ring is not filled with data, so dynamic loading works properly
                 if (x == 2 || x == -2 || y == 2 || y == -2) {
                     var MapTileData = new MapTile(null, this.currentTileX + x, this.currentTileY + y, zoom, layers, centerX - (this.tileWidth * (-1 * x)), centerY - (this.tileHeight * (-1 * y)), this.tileWidth, this.tileHeight);
                     this._mapData.push(MapTileData);
                 }
                 else {
-                    this.fetchTile(this.currentTileX + x, this.currentTileY + y, zoom, x, y, function (posX, posY, data) {
-                        var MapTileData = new MapTile(data, _this.currentTileX + posX, _this.currentTileY + posY, zoom, layers, centerX - (_this.tileWidth * (-1 * posX)), centerY - (_this.tileHeight * (-1 * posY)), _this.tileWidth, _this.tileHeight);
-                        _this._mapData.push(MapTileData);
-                        _this.DrawTile(MapTileData);
-                        _this.markCollectionRedraw();
-                    });
+                    var MapTileData = new MapTile(null, this.currentTileX + x, this.currentTileY + y, zoom, layers, centerX - (this.tileWidth * (-1 * x)), centerY - (this.tileHeight * (-1 * y)), this.tileWidth, this.tileHeight);
+                    this._mapData.push(MapTileData);
+                    this.fillPlaceholder(this.currentTileX + x, this.currentTileY + y);
                 }
             }
         }
@@ -129,29 +123,48 @@ var Map = (function () {
     };
     Map.prototype.fillPlaceholder = function (tileX, tileY) {
         var _this = this;
-        // Search corresponding placeholder and fetch data for him
-        for (var i = 0; i < this._mapData.length; i++) {
-            if (this._mapData[i].data == null) {
-                if (this._mapData[i].tileX == tileX && this._mapData[i].tileY == tileY) {
-                    this.fetchTile(tileX, tileY, this.currentZoom, tileX, tileY, function (argX, argY, data) {
-                        // Searching placeholder to replace in callback, because there is possible change of his coordinates during of download
-                        // In this way, coordinates are corresponding with actual position
-                        for (var j = 0; j < _this._mapData.length; j++) {
-                            if (_this._mapData[j].tileX == argX && _this._mapData[j].tileY == argY) {
-                                var MapTileData = new MapTile(data, _this._mapData[j].tileX, _this._mapData[j].tileY, _this.currentZoom, _this.layers, _this._mapData[j].positionX, _this._mapData[j].positionY, _this._mapData[j].tileWidth, _this._mapData[j].tileHeight);
-                                _this._mapData.splice(j, 1);
-                                _this._mapData.push(MapTileData);
-                                _this.DrawTile(MapTileData);
-                                console.log(MapTileData);
+        var id = (tileX) + "-" + (tileY) + "-" + (this.currentZoom);
+        this.database.getTile(id)
+            .then(function (tileFromDB) {
+            // Search corresponding placeholder and fill it with DB data or fetch from server for him
+            for (var i = 0; i < _this._mapData.length; i++) {
+                if (_this._mapData[i].data == null && _this._mapData[i].tileX == tileX && _this._mapData[i].tileY == tileY) {
+                    // If data was in DB
+                    if (tileFromDB != undefined) {
+                        var MapTileData = new MapTile(tileFromDB.data, _this._mapData[i].tileX, _this._mapData[i].tileY, _this.currentZoom, _this.layers, _this._mapData[i].positionX, _this._mapData[i].positionY, _this._mapData[i].tileWidth, _this._mapData[i].tileHeight);
+                        // Replace and draw
+                        _this._mapData.splice(i, 1);
+                        _this._mapData.push(MapTileData);
+                        _this.DrawTile(MapTileData);
+                        console.log("Tile from DB: " + MapTileData.tileX + "  " + MapTileData.tileY);
+                    }
+                    else {
+                        _this.fetchTile(tileX, tileY, _this.currentZoom, tileX, tileY, function (argX, argY, data) {
+                            // Searching placeholder to replace in callback, because there is possible change of his coordinates during of download
+                            // In this way, coordinates are corresponding with actual position
+                            for (var j = 0; j < _this._mapData.length; j++) {
+                                if (_this._mapData[j].tileX == argX && _this._mapData[j].tileY == argY) {
+                                    var MapTileData = new MapTile(data, _this._mapData[j].tileX, _this._mapData[j].tileY, _this.currentZoom, _this.layers, _this._mapData[j].positionX, _this._mapData[j].positionY, _this._mapData[j].tileWidth, _this._mapData[j].tileHeight);
+                                    // Replace and draw
+                                    _this._mapData.splice(j, 1);
+                                    _this._mapData.push(MapTileData);
+                                    _this.DrawTile(MapTileData);
+                                    console.log("Tile from server: " + MapTileData.tileX + "  " + MapTileData.tileY);
+                                    _this.database.addTile(MapTileData)
+                                        .catch(function () { });
+                                }
                             }
-                        }
-                    });
+                        });
+                    }
                 }
             }
-        }
+        })
+            .catch(function (err) {
+            console.log(err);
+        });
     };
     Map.prototype.fetchTile = function (x, y, z, argX, argY, callback) {
-        var fetchURL = "http://tile.mapzen.com/mapzen/vector/v1/all/" + z + "/" + x + "/" + y + ".json?api_key=mapzen-fd9uHhC";
+        var fetchURL = "http://tile.mapzen.com/mapzen/vector/v1/all/" + z + "/" + x + "/" + y + ".json?api_key=mapzen-eES7bmW";
         $.getJSON(fetchURL)
             .done(function (data) {
             callback(argX, argY, data);
@@ -244,8 +257,6 @@ var Map = (function () {
                 this.drawMultiPolygon(mapTile.sortedData[i], mapTile, context, shiftX, shiftY);
             }
         }
-        //console.log("------------");
-        //console.log("Tile draw");
     };
     Map.prototype.drawLineString = function (shape, mapTile, context, shiftX, shiftY) {
         var longitude, latitude, point;
@@ -345,29 +356,11 @@ var Map = (function () {
         point.x += shiftX;
         point.y += shiftY;
         context.beginPath();
-        // Names of continents
-        if (this.currentZoom <= 5 && (shape.properties.layer & Layer.Boundaries)) {
-            context.fillStyle = 'black';
-            context.textAlign = "center";
-            context.fillText(shape.properties.name, point.x, point.y);
-        }
-        if (shape.properties.layer & Layer.Pois && shape.properties.name != undefined) {
-            context.fillStyle = 'black';
-            context.textAlign = "center";
-            context.fillRect(point.x, point.y + 2, 3, 3);
-            context.fillText(shape.properties.name, point.x, point.y);
-        }
-        if (shape.properties.layer & Layer.Places && shape.properties.name != undefined) {
-            context.fillStyle = 'black';
-            context.textAlign = "center";
-            context.fillRect(point.x, point.y + 2, 3, 3);
-            context.fillText(shape.properties.name, point.x, point.y);
-        }
         if (shape.properties.layer & Layer.Pois) {
             this.stylePoisContext(shape, context);
         }
         if (shape.properties.layer & Layer.Places) {
-            this.stylePlacesContext(shape, context);
+            this.stylePlacesContext(shape, context, point.x, point.y);
         }
         context.stroke();
     };
@@ -596,6 +589,7 @@ var Map = (function () {
     };
     Map.prototype.styleEarthContext = function (shape, context) {
         context.fillStyle = '#eaeaea';
+        context.strokeStyle = '#8F8F8F';
         context.lineWidth = 0.6;
         context.fill();
     };
@@ -796,7 +790,8 @@ var Map = (function () {
     };
     Map.prototype.styleWaterContext = function (shape, context) {
         context.fillStyle = '#9cc3df';
-        context.lineWidth = 0.6;
+        context.strokeStyle = '#C6C6C6';
+        context.lineWidth = 0.3;
         if (shape.geometry.type == "LineString" || shape.geometry.type == "MultiLineString") {
             context.strokeStyle = '#9cc3df';
             context.lineWidth = 0.6;
@@ -808,7 +803,53 @@ var Map = (function () {
     };
     Map.prototype.stylePoisContext = function (shape, context) {
     };
-    Map.prototype.stylePlacesContext = function (shape, context) {
+    Map.prototype.stylePlacesContext = function (shape, context, posX, posY) {
+        context.fillStyle = 'black';
+        context.textAlign = "center";
+        //console.log(shape.properties.kind);
+        if (shape.properties.kind == "country" || shape.properties.kind == "region") {
+            switch (shape.properties.kind) {
+                case "borough": {
+                    context.font = "bolder 15px Arial";
+                    context.fillStyle = 'green';
+                    break;
+                }
+                case "country": {
+                    context.font = "bolder 17px Arial";
+                    context.fillStyle = 'Red';
+                    break;
+                }
+                case "locality": {
+                    context.font = "bolder 15px Arial";
+                    context.fillStyle = 'blue';
+                    break;
+                }
+                case "macrohood": {
+                    context.font = "bolder 15px Arial";
+                    context.fillStyle = 'yellow';
+                    break;
+                }
+                case "microhood": {
+                    context.font = "bolder 15px Arial";
+                    context.fillStyle = 'pink';
+                    break;
+                }
+                case "neighbourhood": {
+                    context.font = "bolder 15px Arial";
+                    context.fillStyle = '#616161';
+                    break;
+                }
+                case "region": {
+                    context.font = "bolder 15px Arial";
+                    context.fillStyle = 'black';
+                    break;
+                }
+                default: {
+                    context.font = "bolder 15px Arial";
+                }
+            }
+            context.fillText(shape.properties.name, posX, posY);
+        }
     };
     Map.prototype.styleTransitContext = function (shape, context) {
         context.fillStyle = '#b2b2ae';
@@ -844,21 +885,37 @@ var Map = (function () {
             var onTileY = y - markedTile.positionY;
             var latitude = (onTileX / markedTile.xScale) + latLeft;
             var longitude = lonBot - (onTileY / markedTile.yScale);
-            //(latLeft <= latitude) && (latitude <= latRight) ? console.log("x in bounds") : console.log("x not in bounds");
-            //(lonTop <= longitude) && (longitude <= lonBot) ? console.log("y in bounds") : console.log("y not in bounds");
-            var canvas = $("#mapCanvas")[0];
-            var context = canvas.getContext('2d');
-            context.fillStyle = '#ff0000';
-            context.strokeStyle = '#3B3B3B';
-            context.beginPath();
-            context.arc(x, y, 5, 0, 2 * Math.PI);
-            context.fill();
-            context.stroke();
-            var point = {
-                latitude: latitude,
-                longitude: longitude
-            };
-            this.client_marks.push(point);
+            var didRemove = false;
+            // Remove mark if there is already one
+            for (var i = 0; i < this.client_marks.length; i++) {
+                var markPositionX = this.client_marks[i].positionX;
+                var markPositionY = this.client_marks[i].positionY;
+                var radius = this.client_marks[i].radius;
+                if (Math.abs(markPositionX - x) <= radius && Math.abs(markPositionY - y) <= radius) {
+                    this.client_marks.splice(i, 1);
+                    didRemove = true;
+                    this.shiftMap(0, 0);
+                }
+            }
+            // If didnt removed mark, draw mark here
+            if (!didRemove) {
+                var canvas = $("#mapCanvas")[0];
+                var context = canvas.getContext('2d');
+                context.fillStyle = '#ff0000';
+                context.strokeStyle = '#3B3B3B';
+                context.beginPath();
+                context.arc(x, y, 5, 0, 2 * Math.PI);
+                context.fill();
+                context.stroke();
+                var point = {
+                    latitude: latitude,
+                    longitude: longitude,
+                    positionX: x,
+                    positionY: y,
+                    radius: 5
+                };
+                this.client_marks.push(point);
+            }
         }
     };
     Map.prototype.markCollectionRedraw = function () {
@@ -886,6 +943,8 @@ var Map = (function () {
                         context.arc(point.x, point.y, 5, 0, 2 * Math.PI);
                         context.fill();
                         context.stroke();
+                        this.client_marks[i].positionX = point.x;
+                        this.client_marks[i].positionY = point.y;
                     }
                 }
             }

@@ -3,6 +3,7 @@ window.onload = function () {
 };
 var App = (function () {
     function App() {
+        var _this = this;
         this.swipe_threshold = 40;
         this.touch_threshold = 10;
         this.isSwipeFired = false;
@@ -18,7 +19,7 @@ var App = (function () {
         this.latitude = 49.828526;
         this.longitude = 18.173270;
         this.zoomLvl = 16;
-        this.layers = Layer.Water | Layer.Earth | Layer.Boundaries | Layer.Buildings | Layer.Roads | Layer.Transit | Layer.Landuse;
+        this.layers = Layer.Water | Layer.Earth | Layer.Boundaries | Layer.Buildings | Layer.Roads | Layer.Transit | Layer.Landuse | Layer.Places;
         this.createTopMenu();
         this.createSideMenu();
         this.createMap();
@@ -32,12 +33,20 @@ var App = (function () {
         sideMenu.addEventListener('touchend', function (e) { e.stopPropagation(); console.log("end"); }, false);
         window.addEventListener('resize', this.adjustCanvasToViewport, false);
         this.adjustCanvasToViewport();
-        var canvas = document.getElementById("mapCanvas");
-        canvas.addEventListener('wheel', this.HandleCanvasWheel.bind(this));
-        canvas.addEventListener('touchmove', this.HandleCanvasTouchMove.bind(this), false);
-        canvas.addEventListener('touchstart', this.HandleCanvasTouchStart.bind(this), false);
-        canvas.addEventListener('touchend', this.HandleCanvasTouchEnd.bind(this), false);
-        this.map.display(this.latitude, this.longitude, this.zoomLvl, this.layers);
+        this.db = new Database();
+        this.db.initalizeDB()
+            .then(function (value) {
+            _this.map.database = _this.db;
+            var canvas = document.getElementById("mapCanvas");
+            canvas.addEventListener('wheel', _this.HandleCanvasWheel.bind(_this));
+            canvas.addEventListener('touchmove', _this.HandleCanvasTouchMove.bind(_this), false);
+            canvas.addEventListener('touchstart', _this.HandleCanvasTouchStart.bind(_this), false);
+            canvas.addEventListener('touchend', _this.HandleCanvasTouchEnd.bind(_this), false);
+            _this.map.display(_this.latitude, _this.longitude, _this.zoomLvl, _this.layers);
+        })
+            .catch(function (err) {
+            console.log(err);
+        });
     }
     App.prototype.createTopMenu = function () {
         var _this = this;
