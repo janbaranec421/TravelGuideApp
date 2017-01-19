@@ -30,8 +30,8 @@ class App {
 
     public latitude: number = 49.828526;
     public longitude: number = 18.173270;
-    public zoomLvl: number = 16;
-    public layers: Layer = Layer.Water | Layer.Earth | Layer.Boundaries | Layer.Buildings | Layer.Roads | Layer.Transit | Layer.Landuse | Layer.Places;
+    public zoomLvl: number = 17;
+    public layers: Layer = Layer.Water | Layer.Earth | Layer.Boundaries | Layer.Buildings | Layer.Roads | Layer.Transit | Layer.Landuse | Layer.Pois | Layer.Places;
 
     constructor() {
         this.createTopMenu();
@@ -67,6 +67,9 @@ class App {
             .catch((err) => {
                 console.log(err);
             })
+
+        //this.map.searchLocationByName("Turzovka");
+        //this.map.searchLocationByCoords(48.858268, 2.294471);
     }
 
     public createTopMenu(): void {
@@ -160,7 +163,9 @@ class App {
         }
         var xDiff = evt.touches[0].clientX - this.touchXstart;
         var yDiff = evt.touches[0].clientY - this.touchYstart;
-        
+
+        console.log(xDiff);
+
         // checks if single swipe
         if ((Math.abs(xDiff) > this.swipe_threshold) || (Math.abs(yDiff) > this.swipe_threshold)) {
             if (Math.abs(xDiff) > Math.abs(yDiff)) {
@@ -311,7 +316,6 @@ class App {
             var x = Math.round((evt.changedTouches[0].clientX - rect.left) / (rect.right - rect.left) * canvas.width);
             var y = Math.round((evt.changedTouches[0].clientY - rect.top) / (rect.bottom - rect.top) * canvas.height);
 
-            // this.map.markMap_by_xy(x, y);
             this.map.markMapByTouch(x, y);
         }
         this.isSwipeFired = false;

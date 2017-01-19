@@ -55,16 +55,20 @@ var Map = (function () {
         console.log(this._mapData);
     };
     Map.prototype.shiftMap = function (shiftX, shiftY) {
+        var start = performance.now();
         for (var i = 0; i < this._mapData.length; i++) {
             this._mapData[i].positionX += shiftX;
             this._mapData[i].positionY += shiftY;
         }
         this.clear();
+        var totalGeometryObjects = 0;
         for (var i = 0; i < this._mapData.length; i++) {
+            totalGeometryObjects += this._mapData[i].sortedData.length;
             this.DrawTile(this._mapData[i]);
         }
         this.markCollectionRedraw();
         this.updateMap();
+        console.log("Total objects: " + totalGeometryObjects + ", time to process: " + ((performance.now() - start) / 1000).toFixed(3) + "s");
     };
     Map.prototype.updateMap = function () {
         // Loop collection to find placeholders
@@ -131,12 +135,13 @@ var Map = (function () {
                 if (_this._mapData[i].data == null && _this._mapData[i].tileX == tileX && _this._mapData[i].tileY == tileY) {
                     // If data was in DB
                     if (tileFromDB != undefined) {
-                        var MapTileData = new MapTile(tileFromDB.data, _this._mapData[i].tileX, _this._mapData[i].tileY, _this.currentZoom, _this.layers, _this._mapData[i].positionX, _this._mapData[i].positionY, _this._mapData[i].tileWidth, _this._mapData[i].tileHeight);
+                        tileFromDB.positionX = _this._mapData[i].positionX;
+                        tileFromDB.positionY = _this._mapData[i].positionY;
                         // Replace and draw
                         _this._mapData.splice(i, 1);
-                        _this._mapData.push(MapTileData);
-                        _this.DrawTile(MapTileData);
-                        console.log("Tile from DB: " + MapTileData.tileX + "  " + MapTileData.tileY);
+                        _this._mapData.push(tileFromDB);
+                        _this.DrawTile(tileFromDB);
+                        _this.markCollectionRedraw();
                     }
                     else {
                         _this.fetchTile(tileX, tileY, _this.currentZoom, tileX, tileY, function (argX, argY, data) {
@@ -149,9 +154,9 @@ var Map = (function () {
                                     _this._mapData.splice(j, 1);
                                     _this._mapData.push(MapTileData);
                                     _this.DrawTile(MapTileData);
-                                    console.log("Tile from server: " + MapTileData.tileX + "  " + MapTileData.tileY);
-                                    _this.database.addTile(MapTileData)
-                                        .catch(function () { });
+                                    _this.markCollectionRedraw();
+                                    //console.log("Tile from server: " + MapTileData.tileX + "  " + MapTileData.tileY);
+                                    _this.database.addTile(MapTileData).catch(function () { });
                                 }
                             }
                         });
@@ -171,6 +176,42 @@ var Map = (function () {
         })
             .fail(function () {
             console.log("Download of tile: Z=" + z + ", X=" + x + ", Y=" + y + " failed");
+        });
+    };
+    Map.prototype.fetchRoute = function (points) {
+        var fetchURL = "http://matrix.mapzen.com/optimized_route?json={\"locations\":[";
+        for (var i = 0; i < points.length; i++) {
+            fetchURL += "{\"lat\":" + points[i].lat.toFixed(3) + ", " + "\"lon\":" + points[i].lon.toFixed(3) + "}";
+            if (i + 1 == points.length) {
+                fetchURL += "],";
+            }
+            else {
+                fetchURL += ",";
+            }
+        }
+        fetchURL += "\"costing\":\"auto\", \"units\":\"mi\"}&api_key=mapzen-eES7bmW";
+        $.getJSON(fetchURL)
+            .then(function (file) {
+            console.log(file.trip);
+        });
+    };
+    Map.prototype.searchLocationByName = function (place) {
+        var fetchURL = "https://search.mapzen.com/v1/search?" + "api_key=mapzen-eES7bmW&text=" + place;
+        $.getJSON(fetchURL)
+            .then(function (file) {
+            for (var i = 0; i < file.features.length; i++) {
+                console.log(file.features[i].properties.label);
+            }
+        });
+    };
+    Map.prototype.searchLocationByCoords = function (latitude, longitude) {
+        var fetchURL = "https://search.mapzen.com/v1/reverse?" + "api_key=mapzen-eES7bmW&point.lat=" + latitude + "&point.lon=" + longitude;
+        $.getJSON(fetchURL)
+            .then(function (file) {
+            console.log(file);
+            for (var i = 0; i < file.features.length; i++) {
+                console.log(file.features[i].properties.label);
+            }
         });
     };
     Map.prototype.DrawTile = function (mapTile) {
@@ -357,7 +398,7 @@ var Map = (function () {
         point.y += shiftY;
         context.beginPath();
         if (shape.properties.layer & Layer.Pois) {
-            this.stylePoisContext(shape, context);
+            this.stylePoisContext(shape, context, point.x, point.y);
         }
         if (shape.properties.layer & Layer.Places) {
             this.stylePlacesContext(shape, context, point.x, point.y);
@@ -380,11 +421,11 @@ var Map = (function () {
             // shifts tile relative to others
             point.x += shiftX;
             point.y += shiftY;
-            if (shape.properties.layer & Layer.Pois && shape.properties.name != undefined) {
-                context.fillStyle = 'black';
-                context.textAlign = "center";
-                context.fillRect(point.x, point.y + 2, 3, 3);
-                context.fillText(shape.properties.name, point.x, point.y);
+            if (shape.properties.layer & Layer.Pois) {
+                this.stylePoisContext(shape, context, point.x, point.y);
+            }
+            if (shape.properties.layer & Layer.Places) {
+                this.stylePlacesContext(shape, context, point.x, point.y);
             }
         }
         context.stroke();
@@ -801,55 +842,14 @@ var Map = (function () {
             context.fill();
         }
     };
-    Map.prototype.stylePoisContext = function (shape, context) {
+    Map.prototype.stylePoisContext = function (shape, context, posX, posY) {
+        /*   context.fillStyle = 'black';
+           context.textAlign = "center";
+           context.font = "bolder 15px Arial";
+           context.fillStyle = 'green';
+           context.fillText(shape.properties.name, posX, posY);*/
     };
     Map.prototype.stylePlacesContext = function (shape, context, posX, posY) {
-        context.fillStyle = 'black';
-        context.textAlign = "center";
-        //console.log(shape.properties.kind);
-        if (shape.properties.kind == "country" || shape.properties.kind == "region") {
-            switch (shape.properties.kind) {
-                case "borough": {
-                    context.font = "bolder 15px Arial";
-                    context.fillStyle = 'green';
-                    break;
-                }
-                case "country": {
-                    context.font = "bolder 17px Arial";
-                    context.fillStyle = 'Red';
-                    break;
-                }
-                case "locality": {
-                    context.font = "bolder 15px Arial";
-                    context.fillStyle = 'blue';
-                    break;
-                }
-                case "macrohood": {
-                    context.font = "bolder 15px Arial";
-                    context.fillStyle = 'yellow';
-                    break;
-                }
-                case "microhood": {
-                    context.font = "bolder 15px Arial";
-                    context.fillStyle = 'pink';
-                    break;
-                }
-                case "neighbourhood": {
-                    context.font = "bolder 15px Arial";
-                    context.fillStyle = '#616161';
-                    break;
-                }
-                case "region": {
-                    context.font = "bolder 15px Arial";
-                    context.fillStyle = 'black';
-                    break;
-                }
-                default: {
-                    context.font = "bolder 15px Arial";
-                }
-            }
-            context.fillText(shape.properties.name, posX, posY);
-        }
     };
     Map.prototype.styleTransitContext = function (shape, context) {
         context.fillStyle = '#b2b2ae';
@@ -890,8 +890,8 @@ var Map = (function () {
             for (var i = 0; i < this.client_marks.length; i++) {
                 var markPositionX = this.client_marks[i].positionX;
                 var markPositionY = this.client_marks[i].positionY;
-                var radius = this.client_marks[i].radius;
-                if (Math.abs(markPositionX - x) <= radius && Math.abs(markPositionY - y) <= radius) {
+                var touchRadius = this.client_marks[i].touchRadius;
+                if (Math.abs(markPositionX - x) <= touchRadius && Math.abs(markPositionY - y) <= touchRadius) {
                     this.client_marks.splice(i, 1);
                     didRemove = true;
                     this.shiftMap(0, 0);
@@ -901,21 +901,32 @@ var Map = (function () {
             if (!didRemove) {
                 var canvas = $("#mapCanvas")[0];
                 var context = canvas.getContext('2d');
-                context.fillStyle = '#ff0000';
-                context.strokeStyle = '#3B3B3B';
-                context.beginPath();
-                context.arc(x, y, 5, 0, 2 * Math.PI);
-                context.fill();
-                context.stroke();
                 var point = {
                     latitude: latitude,
                     longitude: longitude,
                     positionX: x,
                     positionY: y,
-                    radius: 5
+                    radius: 5,
+                    touchRadius: 20
                 };
+                context.fillStyle = '#ff0000';
+                context.strokeStyle = '#3B3B3B';
+                context.beginPath();
+                context.arc(x, y, point.radius, 0, 2 * Math.PI);
+                context.fill();
+                context.stroke();
                 this.client_marks.push(point);
+                this.searchLocationByCoords(point.latitude, point.longitude);
             }
+        }
+        var marks = new Array();
+        //marks.push({ lat: 49.828, lon: 18.172 });
+        //marks.push({ lat: 49.829, lon: 18.173 });
+        if (this.client_marks.length >= 2) {
+            for (var i = 0; i < this.client_marks.length; i++) {
+                marks.push({ lat: this.client_marks[i].latitude, lon: this.client_marks[i].longitude });
+            }
+            this.fetchRoute(marks);
         }
     };
     Map.prototype.markCollectionRedraw = function () {
@@ -940,7 +951,7 @@ var Map = (function () {
                         context.fillStyle = '#ff0000';
                         context.strokeStyle = '#3B3B3B';
                         context.beginPath();
-                        context.arc(point.x, point.y, 5, 0, 2 * Math.PI);
+                        context.arc(point.x, point.y, this.client_marks[i].radius, 0, 2 * Math.PI);
                         context.fill();
                         context.stroke();
                         this.client_marks[i].positionX = point.x;

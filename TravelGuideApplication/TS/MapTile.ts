@@ -1,5 +1,8 @@
 ﻿class MapTile {
     public data: any;
+    set _data(data: any) {
+        this.prepareData(data, this.layers);
+    }
 
     public boundingBox: any = { xMin: 0, xMax: 0, yMin: 0, yMax: 0 };
     public scale: number;
@@ -13,9 +16,9 @@
     public tileY: number;
     public tileWidth: number;
     public tileHeight: number;
-    private longitude: number;
-    private latitude: number;
-    private zoom: number;
+    public longitude: number;
+    public latitude: number;
+    public zoom: number;
 
     public positionX: number;
     public positionY: number;

@@ -4,7 +4,7 @@
 
     public database: Database;
     private _mapData: MapTile[] = [];
-    private client_marks: { latitude: number, longitude: number, positionX: number, positionY: number, radius: number }[] = [];
+    private client_marks: { latitude: number, longitude: number, positionX: number, positionY: number, radius: number, touchRadius: number }[] = [];
     private layers: Layer;
 
     private tileWidth: number;
@@ -36,7 +36,7 @@
                 .css("padding", "0px")
                 .css("margin-top", "25px")
                 .css("border", "solid black 1.5px")
-        );
+            );
         this.mapWidth = mapWidth;
         this.mapHeight = mapHeight;
         this.tileWidth = tileWidth;
@@ -59,9 +59,8 @@
         // [X,Y] Position on canvas element
         var centerX = (this.mapWidth / 2) - (this.tileWidth / 2);
         var centerY = (this.mapHeight / 2) - (this.tileWidth / 2);
-       
-        for (var x = -2; x <= 2; x++)
-        {
+
+        for (var x = -2; x <= 2; x++) {
             for (var y = -2; y <= 2; y++) {
                 // Outer ring is not filled with data, so dynamic loading works properly
                 if (x == 2 || x == -2 || y == 2 || y == -2) {
@@ -79,27 +78,30 @@
     }
 
     public shiftMap(shiftX: number, shiftY: number) {
+        var start = performance.now()
+
         for (var i = 0; i < this._mapData.length; i++) {
             this._mapData[i].positionX += shiftX;
             this._mapData[i].positionY += shiftY;
         }
         this.clear();
-
+        var totalGeometryObjects = 0;
         for (var i = 0; i < this._mapData.length; i++) {
+            totalGeometryObjects += this._mapData[i].sortedData.length;
             this.DrawTile(this._mapData[i]);
         }
         this.markCollectionRedraw();
         this.updateMap();
+
+
+        console.log("Total objects: " + totalGeometryObjects + ", time to process: " + ((performance.now() - start) / 1000).toFixed(3) + "s");
     }
 
-    private updateMap()
-    {
+    private updateMap() {
         // Loop collection to find placeholders
-        for (var i = 0; i < this._mapData.length; i++)
-        {
+        for (var i = 0; i < this._mapData.length; i++) {
             // If tile is placeholder
-            if (this._mapData[i].data == null)
-            {
+            if (this._mapData[i].data == null) {
                 var right = this._mapData[i].positionX + this._mapData[i].tileWidth;
                 var left = this._mapData[i].positionX;
                 var top = this._mapData[i].positionY;
@@ -113,8 +115,7 @@
                     var nextBot = false;
                     
                     // Check if this tile have neighbor
-                    for (var j = 0; j < this._mapData.length; j++)
-                    {
+                    for (var j = 0; j < this._mapData.length; j++) {
                         if (this._mapData[i].tileX + 1 == this._mapData[j].tileX && this._mapData[i].tileY == this._mapData[j].tileY)
                             nextRight = true;
                         if (this._mapData[i].tileX - 1 == this._mapData[j].tileX && this._mapData[i].tileY == this._mapData[j].tileY)
@@ -153,48 +154,35 @@
                     this.fillPlaceholder(tileX, tileY);
                 }
             }
-        }  
+        }
     }
 
-    private fillPlaceholder(tileX: number, tileY: number)
-    {
+    private fillPlaceholder(tileX: number, tileY: number) {
         var id = (tileX) + "-" + (tileY) + "-" + (this.currentZoom);
         this.database.getTile(id)
-            .then((tileFromDB: MapTile) =>
-            {
+            .then((tileFromDB: MapTile) => {
                 // Search corresponding placeholder and fill it with DB data or fetch from server for him
-                for (var i = 0; i < this._mapData.length; i++)
-                {
-                    if (this._mapData[i].data == null && this._mapData[i].tileX == tileX && this._mapData[i].tileY == tileY)
-                    {
+                for (var i = 0; i < this._mapData.length; i++) {
+                    if (this._mapData[i].data == null && this._mapData[i].tileX == tileX && this._mapData[i].tileY == tileY) {
                         // If data was in DB
                         if (tileFromDB != undefined) {
-                            var MapTileData = new MapTile(tileFromDB.data,
-                                this._mapData[i].tileX,
-                                this._mapData[i].tileY,
-                                this.currentZoom,
-                                this.layers,
-                                this._mapData[i].positionX,
-                                this._mapData[i].positionY,
-                                this._mapData[i].tileWidth,
-                                this._mapData[i].tileHeight
-                            );
+                            tileFromDB.positionX = this._mapData[i].positionX;
+                            tileFromDB.positionY = this._mapData[i].positionY;
+
                             // Replace and draw
                             this._mapData.splice(i, 1);
-                            this._mapData.push(MapTileData);
-                            this.DrawTile(MapTileData);
-                            console.log("Tile from DB: " + MapTileData.tileX + "  " + MapTileData.tileY);
+                            this._mapData.push(tileFromDB);
+                            this.DrawTile(tileFromDB);
+                            this.markCollectionRedraw();
+                            //console.log("Tile from DB: " + tileFromDB.tileX + "  " + tileFromDB.tileY + " " + tileFromDB.zoom);
                         }
                         // Else fetch it from server
-                        else
-                        {
+                        else {
                             this.fetchTile(tileX, tileY, this.currentZoom, tileX, tileY, (argX, argY, data) => {
                                 // Searching placeholder to replace in callback, because there is possible change of his coordinates during of download
                                 // In this way, coordinates are corresponding with actual position
-                                for (var j = 0; j < this._mapData.length; j++)
-                                {
-                                    if (this._mapData[j].tileX == argX && this._mapData[j].tileY == argY)
-                                    {
+                                for (var j = 0; j < this._mapData.length; j++) {
+                                    if (this._mapData[j].tileX == argX && this._mapData[j].tileY == argY) {
                                         var MapTileData = new MapTile(data,
                                             this._mapData[j].tileX,
                                             this._mapData[j].tileY,
@@ -209,9 +197,9 @@
                                         this._mapData.splice(j, 1);
                                         this._mapData.push(MapTileData);
                                         this.DrawTile(MapTileData);
-                                        console.log("Tile from server: " + MapTileData.tileX + "  " + MapTileData.tileY);
-                                        this.database.addTile(MapTileData)
-                                            .catch(() => { });
+                                        this.markCollectionRedraw();
+                                        //console.log("Tile from server: " + MapTileData.tileX + "  " + MapTileData.tileY);
+                                        this.database.addTile(MapTileData).catch(() => { });
                                     }
                                 }
                             });
@@ -224,10 +212,9 @@
             })
     }
 
-    private fetchTile(x: number, y: number, z: number, argX: number, argY: number, callback: Function): void
-    {
+    private fetchTile(x: number, y: number, z: number, argX: number, argY: number, callback: Function): void {
         var fetchURL = "http://tile.mapzen.com/mapzen/vector/v1/all/" + z + "/" + x + "/" + y + ".json?api_key=mapzen-eES7bmW";
-       
+
         $.getJSON(fetchURL)
             .done((data) => {
                 callback(argX, argY, data);
@@ -237,8 +224,52 @@
             })
     }
 
-    public DrawTile(mapTile: MapTile): void
+    public fetchRoute(points: { lat: number, lon: number } [])
     {
+        var fetchURL = "http://matrix.mapzen.com/optimized_route?json={\"locations\":[";
+
+        for (var i = 0; i < points.length; i++) {
+            fetchURL += "{\"lat\":" + points[i].lat.toFixed(3) + ", " + "\"lon\":" + points[i].lon.toFixed(3) + "}";
+            if (i + 1 == points.length) {
+                fetchURL += "],";
+            }
+            else {
+                fetchURL += ",";
+            }
+        }
+        fetchURL += "\"costing\":\"auto\", \"units\":\"mi\"}&api_key=mapzen-eES7bmW";
+
+        $.getJSON(fetchURL)
+            .then((file) => {
+                console.log(file.trip);
+            })
+    }
+
+    public searchLocationByName(place: string) {
+        var fetchURL = "https://search.mapzen.com/v1/search?" + "api_key=mapzen-eES7bmW&text=" + place;
+
+        $.getJSON(fetchURL)
+            .then((file) => {
+                for (var i = 0; i < file.features.length; i++) {
+                    console.log(file.features[i].properties.label);
+                }
+            })
+    }
+
+    public searchLocationByCoords(latitude: number, longitude: number) {
+        var fetchURL = "https://search.mapzen.com/v1/reverse?" + "api_key=mapzen-eES7bmW&point.lat=" + latitude + "&point.lon=" + longitude;
+
+        $.getJSON(fetchURL)
+            .then((file) => {
+                console.log(file);
+                for (var i = 0; i < file.features.length; i++) {
+                    console.log(file.features[i].properties.label);
+                }
+            })
+    }
+
+
+    public DrawTile(mapTile: MapTile): void {
 
         this.DrawLayer(mapTile);
 
@@ -308,8 +339,7 @@
             return;
         }
 
-        for (var i = 0; i < mapTile.sortedData.length; i++)
-        {        
+        for (var i = 0; i < mapTile.sortedData.length; i++) {
             if (mapTile.sortedData[i].geometry.type == "Point") {
                 this.drawPoint(mapTile.sortedData[i], mapTile, context, shiftX, shiftY);
             }
@@ -330,7 +360,6 @@
             }
         }
     }
-
 
     private drawLineString(shape: any, mapTile: MapTile, context: any, shiftX: number, shiftY: number): void
     {
@@ -448,7 +477,7 @@
         context.beginPath();
 
         if (shape.properties.layer & Layer.Pois) {
-            this.stylePoisContext(shape, context);
+            this.stylePoisContext(shape, context, point.x, point.y);
         }
         if (shape.properties.layer & Layer.Places) {
             this.stylePlacesContext(shape, context, point.x, point.y);
@@ -477,11 +506,11 @@
             point.x += shiftX;
             point.y += shiftY;
 
-            if (shape.properties.layer & Layer.Pois && shape.properties.name != undefined) {
-                context.fillStyle = 'black';
-                context.textAlign = "center";
-                context.fillRect(point.x, point.y + 2, 3, 3);
-                context.fillText(shape.properties.name, point.x, point.y);
+            if (shape.properties.layer & Layer.Pois) {
+                this.stylePoisContext(shape, context, point.x, point.y);
+            }
+            if (shape.properties.layer & Layer.Places) {
+                this.stylePlacesContext(shape, context, point.x, point.y);
             }
         }
         context.stroke();
@@ -719,16 +748,20 @@
         }
     }
 
-    private stylePoisContext(shape: any, context: any): void {
+    private stylePoisContext(shape: any, context: any, posX: number, posY: number): void {
+     /*   context.fillStyle = 'black';
+        context.textAlign = "center";
+        context.font = "bolder 15px Arial";
+        context.fillStyle = 'green';
+        context.fillText(shape.properties.name, posX, posY);*/
     }
 
     private stylePlacesContext(shape: any, context: any, posX: number, posY: number): void
-    {
+    {/*
         context.fillStyle = 'black';
         context.textAlign = "center";
-        //console.log(shape.properties.kind);
-        if (shape.properties.kind == "country" || shape.properties.kind == "region")
-        {
+        console.log(shape.properties.kind);
+
             switch (shape.properties.kind) {
                 case "borough": { context.font = "bolder 15px Arial"; context.fillStyle = 'green'; break; }
                 case "country": { context.font = "bolder 17px Arial"; context.fillStyle = 'Red'; break; }
@@ -739,8 +772,7 @@
                 case "region": { context.font = "bolder 15px Arial"; context.fillStyle = 'black'; break; }
                 default: { context.font = "bolder 15px Arial"; }
             }
-            context.fillText(shape.properties.name, posX, posY);
-        } 
+            context.fillText(shape.properties.name, posX, posY);*/
     }
 
     private styleTransitContext(shape: any, context: any): void {
@@ -792,9 +824,9 @@
             for (var i = 0; i < this.client_marks.length; i++) {
                 var markPositionX = this.client_marks[i].positionX;
                 var markPositionY = this.client_marks[i].positionY;
-                var radius = this.client_marks[i].radius;
+                var touchRadius = this.client_marks[i].touchRadius;
 
-                if (Math.abs(markPositionX - x) <= radius && Math.abs(markPositionY - y) <= radius) {
+                if (Math.abs(markPositionX - x) <= touchRadius && Math.abs(markPositionY - y) <= touchRadius) {
                     this.client_marks.splice(i, 1);
                     didRemove = true;
                     this.shiftMap(0, 0);
@@ -805,22 +837,38 @@
             {
                 var canvas = <HTMLCanvasElement>$("#mapCanvas")[0];
                 var context = canvas.getContext('2d');
-                context.fillStyle = '#ff0000';
-                context.strokeStyle = '#3B3B3B';
-                context.beginPath();
-                context.arc(x, y, 5, 0, 2 * Math.PI);
-                context.fill();
-                context.stroke();
-
                 var point = {
                     latitude: latitude,
                     longitude: longitude,
                     positionX: x,
                     positionY: y,
-                    radius: 5
+                    radius: 5,
+                    touchRadius: 20
                 };
+
+                context.fillStyle = '#ff0000';
+                context.strokeStyle = '#3B3B3B';
+                context.beginPath();
+                context.arc(x, y, point.radius, 0, 2 * Math.PI);
+                context.fill();
+                context.stroke();
+
                 this.client_marks.push(point);
+                this.searchLocationByCoords(point.latitude, point.longitude);
             }
+        }
+
+        var marks = new Array();
+        //marks.push({ lat: 49.828, lon: 18.172 });
+        //marks.push({ lat: 49.829, lon: 18.173 });
+
+        if (this.client_marks.length >= 2)
+        {
+            for (var i = 0; i < this.client_marks.length; i++)
+            {
+                marks.push({ lat: this.client_marks[i].latitude, lon: this.client_marks[i].longitude });
+            }
+            this.fetchRoute(marks);
         }
     }
 
@@ -855,7 +903,7 @@
                         context.fillStyle = '#ff0000';
                         context.strokeStyle = '#3B3B3B';
                         context.beginPath();
-                        context.arc(point.x, point.y, 5, 0, 2 * Math.PI);
+                        context.arc(point.x, point.y, this.client_marks[i].radius, 0, 2 * Math.PI);
                         context.fill();
                         context.stroke();
 
