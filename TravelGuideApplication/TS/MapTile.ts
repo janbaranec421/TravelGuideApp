@@ -1,7 +1,10 @@
 ﻿class MapTile {
-    public data: any;
-    set _data(data: any) {
-        this.prepareData(data, this.layers);
+    public rawData: any;
+
+    set _rawData(data: any) {
+        this.rawData = data;
+        this.sortedData = this.prepareData(data, this.layers);
+        this.didChange = true;
     }
 
     public boundingBox: any = { xMin: 0, xMax: 0, yMin: 0, yMax: 0 };
@@ -9,6 +12,11 @@
     public xScale: number;
     public yScale: number;
     public layers: Layer;
+
+    public canvas: HTMLCanvasElement;
+    public context: CanvasRenderingContext2D;
+    public didChange = true;
+    public isRequested = false;
 
     public sortedData: any[] = [];
 
@@ -25,7 +33,7 @@
 
     constructor(data: any, tileX: number, tileY: number, zoom: number, layers: Layer, shiftX: number, shiftY: number, tileWidth: number = 260, tileHeight: number = 260)
     {
-        this.data = data;
+        this.rawData = data;
         this.tileX = tileX;
         this.tileY = tileY;
         this.zoom = zoom;
@@ -43,9 +51,9 @@
         this.yScale = this.tileHeight / Math.abs(this.boundingBox.yMax - this.boundingBox.yMin);
         this.scale = this.xScale < this.yScale ? this.xScale : this.yScale;   
 
-        if (this.data != null)
+        if (this.rawData != null)
         {
-            this.sortedData = this.prepareData(this.data, this.layers);
+            this.sortedData = this.prepareData(this.rawData, this.layers);
         }
     }
 

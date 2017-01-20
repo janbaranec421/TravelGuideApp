@@ -18,7 +18,7 @@ var App = (function () {
         // 17.1070000
         this.latitude = 49.828526;
         this.longitude = 18.173270;
-        this.zoomLvl = 17;
+        this.zoomLvl = 8;
         this.layers = Layer.Water | Layer.Earth | Layer.Boundaries | Layer.Buildings | Layer.Roads | Layer.Transit | Layer.Landuse | Layer.Pois | Layer.Places;
         this.createTopMenu();
         this.createSideMenu();

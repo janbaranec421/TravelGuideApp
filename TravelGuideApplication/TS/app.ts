@@ -30,7 +30,7 @@ class App {
 
     public latitude: number = 49.828526;
     public longitude: number = 18.173270;
-    public zoomLvl: number = 17;
+    public zoomLvl: number = 8;
     public layers: Layer = Layer.Water | Layer.Earth | Layer.Boundaries | Layer.Buildings | Layer.Roads | Layer.Transit | Layer.Landuse | Layer.Pois | Layer.Places;
 
     constructor() {
