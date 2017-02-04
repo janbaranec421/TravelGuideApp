@@ -20,17 +20,18 @@ var App = (function () {
         this.longitude = 18.173270;
         this.zoomLvl = 8;
         this.layers = Layer.Water | Layer.Earth | Layer.Boundaries | Layer.Buildings | Layer.Roads | Layer.Transit | Layer.Landuse | Layer.Pois | Layer.Places;
-        this.createTopMenu();
-        this.createSideMenu();
-        this.createMap();
+        this.sideMenu = new SideMenu();
+        this.topMenu = new TopMenu(this.sideMenu);
+        this.map = new Map();
+        this.sideMenu.loadProjectFromJSON(1);
         var pageContent = document.getElementById("pageContent");
         pageContent.addEventListener('touchmove', this.HandleTouchMove.bind(this), false);
         pageContent.addEventListener('touchstart', this.HandleTouchStart.bind(this), false);
         pageContent.addEventListener('touchend', this.HandleTouchEnd.bind(this), false);
         var sideMenu = document.getElementById("sideMenu");
-        sideMenu.addEventListener('touchmove', function (e) { console.log("move"); }, false);
-        sideMenu.addEventListener('touchstart', function (e) { e.stopPropagation(); console.log("start"); }, false);
-        sideMenu.addEventListener('touchend', function (e) { e.stopPropagation(); console.log("end"); }, false);
+        sideMenu.addEventListener('touchmove', function (e) { }, false);
+        sideMenu.addEventListener('touchstart', function (e) { e.stopPropagation(); }, false);
+        sideMenu.addEventListener('touchend', function (e) { e.stopPropagation(); }, false);
         window.addEventListener('resize', this.adjustCanvasToViewport, false);
         this.adjustCanvasToViewport();
         this.db = new Database();
@@ -47,8 +48,6 @@ var App = (function () {
             .catch(function (err) {
             console.log(err);
         });
-        //this.map.searchLocationByName("Turzovka");
-        //this.map.searchLocationByCoords(48.858268, 2.294471);
     }
     App.prototype.createTopMenu = function () {
         var _this = this;
@@ -72,47 +71,14 @@ var App = (function () {
             listItem.appendChild(item);
             items.push(listItem);
         }
+        $("<button>")
+            .attr("class", "topMenuButton")
+            .html("Button N." + i.toString())
+            .on("click", function () {
+            _this.sideMenu.isOpen ? _this.sideMenu.showMenu(false) : _this.sideMenu.showMenu(true);
+        })
+            .appendTo($("<li>"));
         this.topMenu = new TopMenu(root, items);
-    };
-    App.prototype.createSideMenu = function () {
-        var root = document.getElementById("sideMenu");
-        var items = new Array();
-        if (root == null)
-            console.log("Failure: Element with ID \"sideMenu\" not found!");
-        // Avatar
-        var avatarDiv = document.createElement("div");
-        var avatar = document.createElement("img");
-        avatar.setAttribute("id", "avatar");
-        avatar.src = "Resources/avatar.jpg";
-        avatarDiv.appendChild(avatar);
-        root.appendChild(avatarDiv);
-        // List of Buttons
-        for (var i = 0; i < 10; i++) {
-            // Create item for list
-            var item = document.createElement("li");
-            item.setAttribute("class", "sideMenuButton");
-            item.addEventListener("click", function () {
-                alert("Clicked on sideMenu button ");
-            });
-            // Icon for created item
-            var icon = document.createElement("img");
-            icon.style.padding = "5%";
-            // Anchor for created item
-            var anchor = document.createElement("a");
-            anchor.innerHTML = "Button N." + (i + 1).toString();
-            // Insert into item
-            item.appendChild(icon);
-            item.appendChild(anchor);
-            // Insert into list
-            items.push(item);
-        }
-        this.sideMenu = new SideMenu(root, items);
-    };
-    App.prototype.createMap = function () {
-        var root = document.getElementById("map");
-        if (root == null)
-            console.log("Failure: Element with ID \"map\" not found!");
-        this.map = new Map(root);
     };
     App.prototype.HandleTouchStart = function (evt) {
         this.touchXstart = evt.touches[0].clientX;
@@ -124,7 +90,6 @@ var App = (function () {
         }
         var xDiff = evt.touches[0].clientX - this.touchXstart;
         var yDiff = evt.touches[0].clientY - this.touchYstart;
-        console.log(xDiff);
         // checks if single swipe
         if ((Math.abs(xDiff) > this.swipe_threshold) || (Math.abs(yDiff) > this.swipe_threshold)) {
             if (Math.abs(xDiff) > Math.abs(yDiff)) {

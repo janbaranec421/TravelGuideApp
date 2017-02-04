@@ -1,5 +1,5 @@
 ﻿class Map {
-    private root: HTMLElement;
+    private root: JQuery;
     private canvas: HTMLCanvasElement;
     private context: CanvasRenderingContext2D;
 
@@ -22,8 +22,11 @@
     private currentZoom: number;
 
 
-    constructor(parent: HTMLElement, tileWidth: number = 250, tileHeight: number = 250, mapWidth: number = 750, mapHeight = 750) {
-        this.root = parent;
+    constructor(tileWidth: number = 250, tileHeight: number = 250, mapWidth: number = 750, mapHeight = 750) {
+        this.root = $("#map");
+
+        if (this.root == null)
+            console.log("Failure: Element with ID \"map\" not found!")
 
         // width and height MUST be set through attribute 
         // AND NOT BY css property n order to stop streching canvas incorrectly
@@ -164,7 +167,7 @@
                             this.mapData.splice(i, 1, tileFromDB);
                             this.DrawTile(tileFromDB);
                             this.markCollectionRedraw();
-                            console.log("Tile from DB: " + tileFromDB.tileX + "  " + tileFromDB.tileY + " " + tileFromDB.zoom);
+                            //console.log("Tile from DB: " + tileFromDB.tileX + "  " + tileFromDB.tileY + " " + tileFromDB.zoom);
                         }
                         else
                         {

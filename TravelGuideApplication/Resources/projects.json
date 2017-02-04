@@ -1,0 +1,11 @@
+﻿{
+    "projects": [
+        {
+            "id": 1,
+            "name": "Nizozemín"
+        }, {
+            "id": 2,
+            "name": "Island"
+        }
+    ]
+}

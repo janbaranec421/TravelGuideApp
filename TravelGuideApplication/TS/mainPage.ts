@@ -1,8 +1,8 @@
 ﻿window.onload = () => {
-    var app = new App();
+    var mainPage = new MainPage();
 }
 
-class App {
+class MainPage {
     public topMenu: TopMenu;
     public sideMenu: SideMenu;
     public map: Map;
@@ -34,23 +34,25 @@ class App {
     public layers: Layer = Layer.Water | Layer.Earth | Layer.Boundaries | Layer.Buildings | Layer.Roads | Layer.Transit | Layer.Landuse | Layer.Pois | Layer.Places;
 
     constructor() {
-        this.createTopMenu();
-        this.createSideMenu();
-        this.createMap();
+        this.sideMenu = new SideMenu();
+        this.topMenu = new TopMenu(this.sideMenu);
+        this.map = new Map();
 
+        this.sideMenu.loadProjectFromJSON(1);
+        
         var pageContent = document.getElementById("pageContent");
         pageContent.addEventListener('touchmove', this.HandleTouchMove.bind(this), false);
         pageContent.addEventListener('touchstart', this.HandleTouchStart.bind(this), false);
         pageContent.addEventListener('touchend', this.HandleTouchEnd.bind(this), false);
 
         var sideMenu = document.getElementById("sideMenu");
-        sideMenu.addEventListener('touchmove', (e) => { console.log("move"); }, false);
-        sideMenu.addEventListener('touchstart', (e) => { e.stopPropagation(); console.log("start"); }, false);
-        sideMenu.addEventListener('touchend', (e) => { e.stopPropagation(); console.log("end"); }, false);
+        sideMenu.addEventListener('touchmove', (e) => { }, false);
+        sideMenu.addEventListener('touchstart', (e) => { e.stopPropagation(); }, false);
+        sideMenu.addEventListener('touchend', (e) => { e.stopPropagation(); }, false);
 
         window.addEventListener('resize', this.adjustCanvasToViewport, false);
         this.adjustCanvasToViewport();
-
+        
         this.db = new Database();
         this.db.initalizeDB()
             .then((value) => {
@@ -67,90 +69,7 @@ class App {
             .catch((err) => {
                 console.log(err);
             })
-
-        //this.map.searchLocationByName("Turzovka");
-        //this.map.searchLocationByCoords(48.858268, 2.294471);
     }
-
-    public createTopMenu(): void {
-        var root = document.getElementById("topMenu");
-        var items = new Array();
-
-        if (root == null)
-            console.log("Failure: Element with ID \"topMenu\" not found!")
-
-        for (var i = 0; i < 5; i++) {   
-            // Create item for list
-            var listItem = document.createElement("li");
-            var item = document.createElement("button");
-            item.setAttribute("class", "topMenuButton");
-            item.innerHTML = "Button N." + i.toString();
-            item.addEventListener('click', () => {
-                if (this.sideMenu.isOpen)
-                    this.sideMenu.showMenu(false);
-                else
-                    this.sideMenu.showMenu(true);
-            });
-            
-            // Insert into list
-            listItem.appendChild(item);
-            items.push(listItem);
-        }
-
-        this.topMenu = new TopMenu(root, items);
-    }
-
-    public createSideMenu(): void {
-        var root = document.getElementById("sideMenu");
-        var items = new Array();
-
-        if (root == null)
-            console.log("Failure: Element with ID \"sideMenu\" not found!")
-    
-        // Avatar
-        var avatarDiv = document.createElement("div");
-        var avatar = document.createElement("img");
-        avatar.setAttribute("id", "avatar");
-        avatar.src = "Resources/avatar.jpg";
-        avatarDiv.appendChild(avatar);
-        root.appendChild(avatarDiv);
-    
-        // List of Buttons
-        for (var i = 0; i < 10; i++) {   
-            // Create item for list
-            var item = document.createElement("li");
-            item.setAttribute("class", "sideMenuButton");
-            item.addEventListener("click", () => {
-                alert("Clicked on sideMenu button ");
-            })
-            
-            // Icon for created item
-            var icon = document.createElement("img");
-            icon.style.padding = "5%";
-            // Anchor for created item
-            var anchor = document.createElement("a");
-            anchor.innerHTML = "Button N." + (i + 1).toString();
-    
-            // Insert into item
-            item.appendChild(icon);
-            item.appendChild(anchor);
-    
-            // Insert into list
-            items.push(item);
-        }
-
-        this.sideMenu = new SideMenu(root, items);
-    }
-
-    public createMap(): void {
-        var root = document.getElementById("map");
-
-        if (root == null)
-            console.log("Failure: Element with ID \"map\" not found!")
-
-        this.map = new Map(root);
-    }
-
     
     private HandleTouchStart(evt): void {
         this.touchXstart = evt.touches[0].clientX;
@@ -163,8 +82,6 @@ class App {
         }
         var xDiff = evt.touches[0].clientX - this.touchXstart;
         var yDiff = evt.touches[0].clientY - this.touchYstart;
-
-        console.log(xDiff);
 
         // checks if single swipe
         if ((Math.abs(xDiff) > this.swipe_threshold) || (Math.abs(yDiff) > this.swipe_threshold)) {

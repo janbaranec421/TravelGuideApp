@@ -1,5 +1,5 @@
 var Map = (function () {
-    function Map(parent, tileWidth, tileHeight, mapWidth, mapHeight) {
+    function Map(tileWidth, tileHeight, mapWidth, mapHeight) {
         if (tileWidth === void 0) { tileWidth = 250; }
         if (tileHeight === void 0) { tileHeight = 250; }
         if (mapWidth === void 0) { mapWidth = 750; }
@@ -7,7 +7,9 @@ var Map = (function () {
         this.mapData = [];
         this.subCanvasArray = [];
         this.client_marks = [];
-        this.root = parent;
+        this.root = $("#map");
+        if (this.root == null)
+            console.log("Failure: Element with ID \"map\" not found!");
         // width and height MUST be set through attribute 
         // AND NOT BY css property n order to stop streching canvas incorrectly
         $(this.root)
@@ -137,7 +139,6 @@ var Map = (function () {
                         _this.mapData.splice(i, 1, tileFromDB);
                         _this.DrawTile(tileFromDB);
                         _this.markCollectionRedraw();
-                        console.log("Tile from DB: " + tileFromDB.tileX + "  " + tileFromDB.tileY + " " + tileFromDB.zoom);
                     }
                     else {
                         _this.mapData[i].isRequested = true;

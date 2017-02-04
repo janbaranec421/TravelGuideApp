@@ -1,0 +1,123 @@
+﻿{
+
+  "name": "Nizozemí",
+  "desc": "Nizozemsko, někdy také nesprávně Nizozemí nebo Holandsko, je jedna ze čtyř zemí Nizozemského království, která leží v severozápadní Evropě na pobřeží Severního moře. Na východě hraničí s Německem a na jihu s Belgií.",
+
+  "labels": [
+    {
+      "id": 1,
+      "name": "Hlavní město"
+    },
+    {
+      "id": 2,
+      "name": "Památka"
+    }
+  ],
+
+  "places": [
+    {
+      "id": 1,
+      "name": "Royal Palace of Amsterdam",
+      "desc": "The palace was built as a city hall during the Dutch Golden Age in the 17th century.",
+      "gps": {
+        "lat": 52.37316,
+        "lng": 4.8913
+      },
+      "photos": [
+        "https://farm4.staticflickr.com/3203/2745875535_9cdb08ab5f_z.jpg",
+        "https://upload.wikimedia.org/wikipedia/commons/a/a7/Koninklijk_Paleis_Amsterdam.jpg"
+      ],
+      "labels": [ 1, 2 ],
+      "requiredTime": 60,
+      "priority": 3
+    },
+    {
+      "id": 4,
+      "name": "Royal Palace of Amsterdam",
+      "desc": "The palace was built as a city hall during the Dutch Golden Age in the 17th century.",
+      "gps": {
+        "lat": 52.37316,
+        "lng": 4.8913
+      },
+      "photos": [
+        "https://farm4.staticflickr.com/3203/2745875535_9cdb08ab5f_z.jpg",
+        "https://upload.wikimedia.org/wikipedia/commons/a/a7/Koninklijk_Paleis_Amsterdam.jpg"
+      ],
+      "labels": [ 1, 2 ],
+      "requiredTime": 60,
+      "priority": 3
+    },
+    {
+      "id": 2,
+      "name": "Cathedral of Our Lady",
+      "labels": [ 2 ]
+    },
+    {
+      "id": 3,
+      "name": "Vlaeykensgang"
+    }
+  ],
+
+
+  "collections": [
+
+    {
+      "name": "Amterdam",
+      "desc": "Popis amsterdamu",
+      "photo": "https://lonelyplanetimages.imgix.net/mastheads/stock-photo-beautiful-amsterdam-76796579.jpg?sharp=10&vib=20&w=1200",
+      "places": [ 1 ]
+    },
+
+    {
+      "name": "Antwerp",
+      "places": [ 2, 3 ]
+    }
+
+  ],
+
+
+  "schedule": [
+    {
+      "name": "Návštěva Amsterdamu",
+      "note": "Nezapomenou vyzkoušet zdejší palačinky...",
+      "date": {
+        "from": "2017-01-19T12:21:00",
+        "to": "2017-01-19T22:00:00"
+      },
+      "items": [
+        {
+          "place": 1,
+          "date": {
+            "from": "2017-01-19T12:21:00",
+            "to": "2017-01-19T13:00:00"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Návštěva Antwerp",
+      "note": null,
+      "date": {
+        "from": "2017-01-20T08:00:00",
+        "to": "2017-01-20T13:00:00"
+      },
+      "items": [
+        {
+          "place": 2,
+          "date": {
+            "from": "2017-01-19T12:21:00",
+            "to": "2017-01-19T13:00:00"
+          }
+        },
+        {
+          "place": 3,
+          "date": {
+            "from": "2017-01-19T12:21:00",
+            "to": "2017-01-19T13:00:00"
+          }
+        }
+      ]
+    }
+  ]
+
+}

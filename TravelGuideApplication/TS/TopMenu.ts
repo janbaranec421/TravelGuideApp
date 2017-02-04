@@ -1,18 +1,22 @@
 ﻿class TopMenu {
-    public items: HTMLElement[];
-    public root: HTMLElement;
+    public root: JQuery;
 
-    constructor(root: HTMLElement, items: HTMLElement[]) {
-        this.root = root;
-        this.items = items;
+    constructor(sideMenu: SideMenu) {
+        this.root = $("#topMenu");
+        
+        $(this.root)
+            .append($("<ul>").attr("id", "topMenuList")); 
 
-        var list = document.createElement("ul");
-        list.setAttribute("id", "topMenuList");    
-
-        for (var i = 0; i < items.length; i++) {
-            list.appendChild(items[i]);
+        for (var i = 0; i < 5; i++)
+        {
+            $("#topMenu > ul")
+                .append($("<li>")
+                    .append($("<button>")
+                        .attr("class", "topMenuButton")
+                        .html("Button N." + i.toString())
+                        .on("click", () => {
+                            sideMenu.isOpen ? sideMenu.showMenu(false) : sideMenu.showMenu(true);
+                        })));
         }
-
-        root.appendChild(list);
     }
 }
