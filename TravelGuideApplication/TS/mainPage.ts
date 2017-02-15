@@ -38,7 +38,7 @@ class MainPage {
         this.topMenu = new TopMenu(this.sideMenu);
         this.map = new Map();
 
-        this.sideMenu.loadProjectFromJSON(1);
+        //this.sideMenu.loadProjectFromJSON(1);
         
         var pageContent = document.getElementById("pageContent");
         pageContent.addEventListener('touchmove', this.HandleTouchMove.bind(this), false);

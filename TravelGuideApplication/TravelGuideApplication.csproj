@@ -22,22 +22,23 @@
     <Service Include="{4A0DDDB5-7A95-4FBF-97CC-616D07737A77}" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="collections.html" />
     <Content Include="Content\Slick\ajax-loader.gif" />
     <Content Include="Content\Slick\fonts\slick.svg" />
     <Content Include="Content\Slick\slick-theme.css" />
     <Content Include="Content\Slick\slick.css" />
     <Content Include="CSS\CSS.css" />
     <Content Include="index.html" />
+    <Content Include="places.html" />
     <Content Include="Resources\avatar.jpg" />
     <Content Include="packages.config" />
     <Content Include="Resources\clock.png" />
     <Content Include="Resources\collections.png" />
     <Content Include="Resources\image-not-found.png" />
     <Content Include="Resources\map.png" />
-    <Content Include="Resources\project-1.json" />
-    <Content Include="Resources\project-2.json" />
-    <Content Include="Resources\projects.json" />
+    <Content Include="Resources\Projects\project-1.json" />
+    <Content Include="Resources\Projects\project-2.json" />
+    <Content Include="Resources\projects.png" />
+    <Content Include="Resources\Projects\projects.json" />
     <Content Include="app.appcache" />
     <Content Include="Content\Slick\slick.scss" />
     <Content Include="Content\Slick\slick-theme.scss" />
@@ -53,11 +54,9 @@
     <Content Include="Scripts\promise-7.0.4.min.js" />
     <Content Include="Scripts\Slick\slick.js" />
     <Content Include="Scripts\Slick\slick.min.js" />
-    <Content Include="tags.html" />
     <Content Include="web.config" />
   </ItemGroup>
   <ItemGroup>
-    <TypeScriptCompile Include="TS\collectionPage.ts" />
     <TypeScriptCompile Include="Scripts\typings\es6-promise\es6-promise.d.ts" />
     <TypeScriptCompile Include="Scripts\typings\jquery\jquery.d.ts" />
     <TypeScriptCompile Include="Scripts\typings\slick-carousel\slick-carousel.d.ts" />
@@ -68,10 +67,10 @@
     <TypeScriptCompile Include="TS\Map.ts" />
     <TypeScriptCompile Include="TS\MapTile.ts" />
     <TypeScriptCompile Include="TS\PlacesList.ts" />
+    <TypeScriptCompile Include="TS\PlacesPage.ts" />
     <TypeScriptCompile Include="TS\ScheduleList.ts" />
     <TypeScriptCompile Include="TS\schedulePage.ts" />
     <TypeScriptCompile Include="TS\SideMenu.ts" />
-    <TypeScriptCompile Include="TS\tagsPage.ts" />
     <TypeScriptCompile Include="TS\TopMenu.ts" />
   </ItemGroup>
   <ItemGroup>

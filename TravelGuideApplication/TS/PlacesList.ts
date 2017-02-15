@@ -11,202 +11,312 @@
     public addPlacesWithTagName(tagName: string) {
         var ID = window.sessionStorage.getItem("projectID");
 
-        $.getJSON("../Resources/project-" + ID + ".json",(projectData) =>
+        $.getJSON("../Resources/Projects/project-" + ID + ".json",(projectData) =>
         {
             var tagID = this.getTagIDbyTagName(tagName, projectData);
             var taggedPlacesCollection = this.getPlacesByTagID(tagID, projectData);
 
-            // For each place in collection create new list item
-            for (var i = 0; i < taggedPlacesCollection.length; i++) {
-                var listItem = $("<li>", { "id": "placesListItem" });
-                var table = $("<table>", { "cellspacing": "0" });
+            $(this.root).children().fadeOut(500, () => {
+                // For each place in collection create new list item
+                for (var i = 0; i < taggedPlacesCollection.length; i++)
+                {
+                    var listItem = $("<li>", { "id": "placesListItem" });
+                    var table = $("<table>", { "cellspacing": "0" });
         
-                // IMAGES
-                var firstRow = $("<tr>", { "id": "placesListItemFirstRow" })
-                    .append($("<td>", { "colspan": "3" })
-                        .append($("<div>", {
-                            "width": "500px",
-                            "height": "250px",
-                            "margin": "auto"
-                        })));
-                if (taggedPlacesCollection[i].photos != null) {
-                    for (var j = 0; j < taggedPlacesCollection[i].photos.length; j++) {
+                    // IMAGES
+                    var firstRow = $("<tr>", { "id": "placesListItemFirstRow" })
+                        .append($("<td>", { "colspan": "3" })
+                            .append($("<div>", {
+                                "width": "500px",
+                                "height": "250px",
+                                "margin": "auto"
+                            })));
+                    if (taggedPlacesCollection[i].photos != null) {
+                        for (var j = 0; j < taggedPlacesCollection[i].photos.length; j++) {
+                            firstRow.children().children()
+                                .append($("<div>", { "class": "slickImage" }).append($("<img>", { "src": taggedPlacesCollection[i].photos[j] })));
+                        }
+                    }
+                    else {
                         firstRow.children().children()
-                            .append($("<div>", { "class": "slickImage" }).append($("<img>", { "src": taggedPlacesCollection[i].photos[j] })));
+                            .append($("<div>", { "class": "slickImage" }).append($("<img>", { "src": "../Resources/image-not-found.png" })));
                     }
-                }
-                else {
-                    firstRow.children().children()
-                        .append($("<div>", { "class": "slickImage" }).append($("<img>", { "src": "../Resources/image-not-found.png" })));
-                }
-                firstRow.children().children().slick({
-                    dots: false,
-                    infinite: true,
-                    arrows: false,
-                    touchMove: true,
-                    autoplay: true,
-                    fade: true,
-                    autoplaySpeed: 10000,
-                    speed: 750,
-                }).on("touchmove", (evt) => {
-                    evt.stopImmediatePropagation();
-                });
+                    firstRow.children().children().slick({
+                        dots: false,
+                        infinite: true,
+                        arrows: false,
+                        touchMove: true,
+                        autoplay: true,
+                        fade: true,
+                        autoplaySpeed: 10000,
+                        speed: 750,
+                    }).on("touchmove", (evt) => {
+                        evt.stopImmediatePropagation();
+                    });
 
-                // TITLE, COORDINATES, TIME
-                var title = "Title not found";
-                if (taggedPlacesCollection[i].name != null) {
-                    title = taggedPlacesCollection[i].name;
-                }
-                var lat = 0;
-                var lon = 0;
-                if (taggedPlacesCollection[i].gps != undefined) {
-                    lat = taggedPlacesCollection[i].gps.lat.toFixed(4);
-                    lon = taggedPlacesCollection[i].gps.lng.toFixed(4);
-                }
-                var time = 0;
-                if (taggedPlacesCollection[i].requiredTime != null) {
-                    time = taggedPlacesCollection[i].requiredTime;
-                }
-                var secondRow = $("<tr>", { "id": "placesListItemSecondRow" })
-                    .append($("<td>").html(title))
-                    .append($("<td>")
-                        .append($("<tr>")
-                            .append($("<div>").html("lat: " + lat))
-                            .append($("<div>").html("lon: " + lon))))
-                    .append($("<td>")
-                        .append($("<img>", { "src": "../Resources/clock.png" }))
-                        .append($("<span>").html(time + " min")));
+                    // TITLE, COORDINATES, TIME
+                    var title = "Title not found";
+                    if (taggedPlacesCollection[i].name != null) {
+                        title = taggedPlacesCollection[i].name;
+                    }
+                    var lat = 0;
+                    var lon = 0;
+                    if (taggedPlacesCollection[i].gps != undefined) {
+                        lat = taggedPlacesCollection[i].gps.lat.toFixed(4);
+                        lon = taggedPlacesCollection[i].gps.lng.toFixed(4);
+                    }
+                    var time = 0;
+                    if (taggedPlacesCollection[i].requiredTime != null) {
+                        time = taggedPlacesCollection[i].requiredTime;
+                    }
+                    var secondRow = $("<tr>", { "id": "placesListItemSecondRow" })
+                        .append($("<td>").html(title))
+                        .append($("<td>")
+                            .append($("<tr>")
+                                .append($("<div>").html("lat: " + lat))
+                                .append($("<div>").html("lon: " + lon))))
+                        .append($("<td>")
+                            .append($("<img>", { "src": "../Resources/clock.png" }))
+                            .append($("<span>").html(time + " min")));
 
-                // DESCRIPTION
-                var description = "Description not found";
-                if (taggedPlacesCollection[i].desc != null) {
-                    description = taggedPlacesCollection[i].desc;
-                }
-                var thirdRow = $("<tr>", { "id": "placesListItemThirdRow" })
-                    .append($("<td>", { "colspan": "3" }).html(description));
+                    // DESCRIPTION
+                    var description = "Description not found";
+                    if (taggedPlacesCollection[i].desc != null) {
+                        description = taggedPlacesCollection[i].desc;
+                    }
+                    var thirdRow = $("<tr>", { "id": "placesListItemThirdRow" })
+                        .append($("<td>", { "colspan": "3" }).html(description));
 
-                // TAGS
-                var fourthRow = $("<tr>", { "id": "placesListItemFourthRow" })
-                    .append($("<td>", { "colspan": "3" }));
+                    // TAGS
+                    var fourthRow = $("<tr>", { "id": "placesListItemFourthRow" })
+                        .append($("<td>", { "colspan": "3" }));
                     // If does have tags
-                if (taggedPlacesCollection[i].labels != null) {
-                    for (var k = 0; k < taggedPlacesCollection[i].labels.length; k++) {
-                        fourthRow.children().append($("<span>").html(" #" + this.getTagNameByTagID(taggedPlacesCollection[i].labels[k], projectData)));
+                    if (taggedPlacesCollection[i].labels != null) {
+                        for (var k = 0; k < taggedPlacesCollection[i].labels.length; k++) {
+                            fourthRow.children().append($("<span>").html(" #" + this.getTagNameByTagID(taggedPlacesCollection[i].labels[k], projectData)));
+                        }
                     }
+                    else {
+                        fourthRow.children().append($("<span>").html("No Tags Found"));
+                    }
+                    // PUT ALL ROWS IN LIST ITEM
+                    $(this.root).children()
+                        .append(listItem
+                            .append(table
+                                .append(firstRow)
+                                .append(secondRow)
+                                .append(thirdRow)
+                                .append(fourthRow)));
                 }
-                else {
-                    fourthRow.children().append($("<span>").html("No Tags Found"));
-                }
-                // PUT ALL ROWS IN LIST ITEM
-                $(this.root).children()
-                    .append(listItem
-                        .append(table
-                            .append(firstRow)
-                            .append(secondRow)
-                            .append(thirdRow)
-                            .append(fourthRow)));
-            }
+                $(this.root).children().fadeIn(500);
+            });
         })  
     }
 
     public addPlacesWithCollectionName(collectionName: string) {
         var ID = window.sessionStorage.getItem("projectID");
 
-        $.getJSON("../Resources/project-" + ID + ".json", (projectData) => {
+        $.getJSON("../Resources/Projects/project-" + ID + ".json", (projectData) => {
             var collectionPlacesCollection = this.getPlacesByCollectionName(collectionName, projectData);
-            console.log(collectionPlacesCollection);
-            
-            // For each place in collection create new list item
-            for (var i = 0; i < collectionPlacesCollection.length; i++) {
-                var listItem = $("<li>", { "id": "placesListItem" });
-                var table = $("<table>", { "cellspacing": "0" });
+
+            $(this.root).children().fadeOut(500, () => {
+                // For each place in collection create new list item
+                for (var i = 0; i < collectionPlacesCollection.length; i++)
+                {
+                    var listItem = $("<li>", { "id": "placesListItem" });
+                    var table = $("<table>", { "cellspacing": "0" });
         
-                // IMAGES
-                var firstRow = $("<tr>", { "id": "placesListItemFirstRow" })
-                    .append($("<td>", { "colspan": "3" })
-                        .append($("<div>", {
-                            "width": "500px",
-                            "height": "250px",
-                            "margin": "auto"
-                        })));
-                if (collectionPlacesCollection[i].photos != null) {
-                    for (var j = 0; j < collectionPlacesCollection[i].photos.length; j++) {
+                    // IMAGES
+                    var firstRow = $("<tr>", { "id": "placesListItemFirstRow" })
+                        .append($("<td>", { "colspan": "3" })
+                            .append($("<div>", {
+                                "width": "500px",
+                                "height": "250px",
+                                "margin": "auto"
+                            })));
+                    if (collectionPlacesCollection[i].photos != null) {
+                        for (var j = 0; j < collectionPlacesCollection[i].photos.length; j++) {
+                            firstRow.children().children()
+                                .append($("<div>", { "class": "slickImage" }).append($("<img>", { "src": collectionPlacesCollection[i].photos[j] })));
+                        }
+                    }
+                    else {
                         firstRow.children().children()
-                            .append($("<div>", { "class": "slickImage" }).append($("<img>", { "src": collectionPlacesCollection[i].photos[j] })));
+                            .append($("<div>", { "class": "slickImage" }).append($("<img>", { "src": "../Resources/image-not-found.png" })));
                     }
-                }
-                else {
-                    firstRow.children().children()
-                        .append($("<div>", { "class": "slickImage" }).append($("<img>", { "src": "../Resources/image-not-found.png" })));
-                }
-                firstRow.children().children().slick({
-                    dots: false,
-                    infinite: true,
-                    arrows: false,
-                    touchMove: true,
-                    autoplay: true,
-                    fade: true,
-                    autoplaySpeed: 10000,
-                    speed: 750,
-                }).on("touchmove", (evt) => {
-                    evt.stopImmediatePropagation();
-                });
+                    firstRow.children().children().slick({
+                        dots: false,
+                        infinite: true,
+                        arrows: false,
+                        touchMove: true,
+                        autoplay: true,
+                        fade: true,
+                        autoplaySpeed: 10000,
+                        speed: 750,
+                    }).on("touchmove", (evt) => {
+                        evt.stopImmediatePropagation();
+                    });
 
-                // TITLE, COORDINATES, TIME
-                var title = "Title not found";
-                if (collectionPlacesCollection[i].name != null) {
-                    title = collectionPlacesCollection[i].name;
-                }
-                var lat = 0;
-                var lon = 0;
-                if (collectionPlacesCollection[i].gps != undefined) {
-                    lat = collectionPlacesCollection[i].gps.lat.toFixed(4);
-                    lon = collectionPlacesCollection[i].gps.lng.toFixed(4);
-                }
-                var time = 0;
-                if (collectionPlacesCollection[i].requiredTime != null) {
-                    time = collectionPlacesCollection[i].requiredTime;
-                }
-                var secondRow = $("<tr>", { "id": "placesListItemSecondRow" })
-                    .append($("<td>").html(title))
-                    .append($("<td>")
-                        .append($("<tr>")
-                            .append($("<div>").html("lat: " + lat))
-                            .append($("<div>").html("lon: " + lon))))
-                    .append($("<td>")
-                        .append($("<img>", { "src": "../Resources/clock.png" }))
-                        .append($("<span>").html(time + " min")));
-
-                // DESCRIPTION
-                var description = "Description not found";
-                if (collectionPlacesCollection[i].desc != null) {
-                    description = collectionPlacesCollection[i].desc;
-                }
-                var thirdRow = $("<tr>", { "id": "placesListItemThirdRow" })
-                    .append($("<td>", { "colspan": "3" }).html(description));
-
-                // TAGS
-                var fourthRow = $("<tr>", { "id": "placesListItemFourthRow" })
-                    .append($("<td>", { "colspan": "3" }));
-                // If does have tags
-                if (collectionPlacesCollection[i].labels != null) {
-                    for (var k = 0; k < collectionPlacesCollection[i].labels.length; k++) {
-                        fourthRow.children().append($("<span>").html(" #" + this.getTagNameByTagID(collectionPlacesCollection[i].labels[k], projectData)));
+                    // TITLE, COORDINATES, TIME
+                    var title = "Title not found";
+                    if (collectionPlacesCollection[i].name != null) {
+                        title = collectionPlacesCollection[i].name;
                     }
+                    var lat = 0;
+                    var lon = 0;
+                    if (collectionPlacesCollection[i].gps != undefined) {
+                        lat = collectionPlacesCollection[i].gps.lat.toFixed(4);
+                        lon = collectionPlacesCollection[i].gps.lng.toFixed(4);
+                    }
+                    var time = 0;
+                    if (collectionPlacesCollection[i].requiredTime != null) {
+                        time = collectionPlacesCollection[i].requiredTime;
+                    }
+                    var secondRow = $("<tr>", { "id": "placesListItemSecondRow" })
+                        .append($("<td>").html(title))
+                        .append($("<td>")
+                            .append($("<tr>")
+                                .append($("<div>").html("lat: " + lat))
+                                .append($("<div>").html("lon: " + lon))))
+                        .append($("<td>")
+                            .append($("<img>", { "src": "../Resources/clock.png" }))
+                            .append($("<span>").html(time + " min")));
+
+                    // DESCRIPTION
+                    var description = "Description not found";
+                    if (collectionPlacesCollection[i].desc != null) {
+                        description = collectionPlacesCollection[i].desc;
+                    }
+                    var thirdRow = $("<tr>", { "id": "placesListItemThirdRow" })
+                        .append($("<td>", { "colspan": "3" }).html(description));
+
+                    // TAGS
+                    var fourthRow = $("<tr>", { "id": "placesListItemFourthRow" })
+                        .append($("<td>", { "colspan": "3" }));
+                    // If does have tags
+                    if (collectionPlacesCollection[i].labels != null) {
+                        for (var k = 0; k < collectionPlacesCollection[i].labels.length; k++) {
+                            fourthRow.children().append($("<span>").html(" #" + this.getTagNameByTagID(collectionPlacesCollection[i].labels[k], projectData)));
+                        }
+                    }
+                    else {
+                        fourthRow.children().append($("<span>").html("No Tags Found"));
+                    }
+
+                    // PUT ALL ROWS IN LIST ITEM
+                    $(this.root).children()
+                        .append(listItem
+                            .append(table
+                                .append(firstRow)
+                                .append(secondRow)
+                                .append(thirdRow)
+                                .append(fourthRow)));
                 }
-                else {
-                    fourthRow.children().append($("<span>").html("No Tags Found"));
+                $(this.root).children().fadeIn(500);
+            });
+        });
+    }
+
+    public addPlacesWithScheduleName(scheduleName: string) {
+        var ID = window.sessionStorage.getItem("projectID");
+
+        $.getJSON("../Resources/Projects/project-" + ID + ".json", (projectData) => {
+            var schedulePlacesCollection = this.getPlacesByScheduleName(scheduleName, projectData);
+
+            $(this.root).children().fadeOut(500, () => {
+                // For each place in collection create new list item
+                for (var i = 0; i < schedulePlacesCollection.length; i++) {
+                    var listItem = $("<li>", { "id": "placesListItem" });
+                    var table = $("<table>", { "cellspacing": "0" });
+        
+                    // IMAGES
+                    var firstRow = $("<tr>", { "id": "placesListItemFirstRow" })
+                        .append($("<td>", { "colspan": "3" })
+                            .append($("<div>", {
+                                "width": "500px",
+                                "height": "250px",
+                                "margin": "auto"
+                            })));
+                    if (schedulePlacesCollection[i].photos != null) {
+                        for (var j = 0; j < schedulePlacesCollection[i].photos.length; j++) {
+                            firstRow.children().children()
+                                .append($("<div>", { "class": "slickImage" }).append($("<img>", { "src": schedulePlacesCollection[i].photos[j] })));
+                        }
+                    }
+                    else {
+                        firstRow.children().children()
+                            .append($("<div>", { "class": "slickImage" }).append($("<img>", { "src": "../Resources/image-not-found.png" })));
+                    }
+                    firstRow.children().children().slick({
+                        dots: false,
+                        infinite: true,
+                        arrows: false,
+                        touchMove: true,
+                        autoplay: true,
+                        fade: true,
+                        autoplaySpeed: 10000,
+                        speed: 750,
+                    }).on("touchmove", (evt) => {
+                        evt.stopImmediatePropagation();
+                    });
+
+                    // TITLE, COORDINATES, TIME
+                    var title = "Title not found";
+                    if (schedulePlacesCollection[i].name != null) {
+                        title = schedulePlacesCollection[i].name;
+                    }
+                    var lat = 0;
+                    var lon = 0;
+                    if (schedulePlacesCollection[i].gps != undefined) {
+                        lat = schedulePlacesCollection[i].gps.lat.toFixed(4);
+                        lon = schedulePlacesCollection[i].gps.lng.toFixed(4);
+                    }
+                    var time = 0;
+                    if (schedulePlacesCollection[i].requiredTime != null) {
+                        time = schedulePlacesCollection[i].requiredTime;
+                    }
+                    var secondRow = $("<tr>", { "id": "placesListItemSecondRow" })
+                        .append($("<td>").html(title))
+                        .append($("<td>")
+                            .append($("<tr>")
+                                .append($("<div>").html("lat: " + lat))
+                                .append($("<div>").html("lon: " + lon))))
+                        .append($("<td>")
+                            .append($("<img>", { "src": "../Resources/clock.png" }))
+                            .append($("<span>").html(time + " min")));
+
+                    // DESCRIPTION
+                    var description = "Description not found";
+                    if (schedulePlacesCollection[i].desc != null) {
+                        description = schedulePlacesCollection[i].desc;
+                    }
+                    var thirdRow = $("<tr>", { "id": "placesListItemThirdRow" })
+                        .append($("<td>", { "colspan": "3" }).html(description));
+
+                    // TAGS
+                    var fourthRow = $("<tr>", { "id": "placesListItemFourthRow" })
+                        .append($("<td>", { "colspan": "3" }));
+                    // If does have tags
+                    if (schedulePlacesCollection[i].labels != null) {
+                        for (var k = 0; k < schedulePlacesCollection[i].labels.length; k++) {
+                            fourthRow.children().append($("<span>").html(" #" + this.getTagNameByTagID(schedulePlacesCollection[i].labels[k], projectData)));
+                        }
+                    }
+                    else {
+                        fourthRow.children().append($("<span>").html("No Tags Found"));
+                    }
+                    // PUT ALL ROWS IN LIST ITEM
+                    $(this.root).children()
+                        .append(listItem
+                            .append(table
+                                .append(firstRow)
+                                .append(secondRow)
+                                .append(thirdRow)
+                                .append(fourthRow)));
                 }
-                // PUT ALL ROWS IN LIST ITEM
-                $(this.root).children()
-                    .append(listItem
-                        .append(table
-                            .append(firstRow)
-                            .append(secondRow)
-                            .append(thirdRow)
-                            .append(fourthRow)));
-            }
-        })
+                $(this.root).children().fadeIn(500);
+            });
+        });
     }
 
     public getTagIDbyTagName(tag: string, projectData: any): number
@@ -294,6 +404,22 @@
                             placesCollection.push(this.getPlaceByPlaceID(projectData.collections[i].places[j], projectData));
                         }
                     }
+                }
+            }
+        }
+        return placesCollection;
+    }
+
+    public getPlacesByScheduleName(scheduleName: string, projectData: any): Array<any>
+    {
+        if (scheduleName == null) {
+            console.log("Uncorrect parameter");
+        }
+        var placesCollection = new Array();
+        for (var i = 0; i < projectData.schedule.length; i++) {
+            if (projectData.schedule[i].name == scheduleName && projectData.schedule[i].items != null) {
+                for (var j = 0; j < projectData.schedule[i].items.length; j++) {
+                    placesCollection.push(this.getPlaceByPlaceID(projectData.schedule[i].items[j].place, projectData));
                 }
             }
         }

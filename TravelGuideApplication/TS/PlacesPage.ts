@@ -1,13 +1,13 @@
 ﻿window.onload = () => {
-    var tagsPage = new TagsPage();
+    var placesPage = new PlacesPage();
 }
 
-class TagsPage {
+class PlacesPage {
     public topMenu: TopMenu;
     public sideMenu: SideMenu;
     public placesList: PlacesList;
 
-    public selectedTag: string;
+    public selections: any;
 
     public touchXstart: number;
     public touchYstart: number;
@@ -15,17 +15,28 @@ class TagsPage {
     public swipe_threshold: number = 40;
     public isSwipeFired = false;
 
-    constructor()
-    {
-        this.selectedTag = window.sessionStorage.getItem("selectedTag");
-        console.log(this.selectedTag);
-
+    constructor() {
         this.sideMenu = new SideMenu();
         this.topMenu = new TopMenu(this.sideMenu);
         this.placesList = new PlacesList();
-        this.placesList.addPlacesWithTagName(this.selectedTag);
 
-        this.sideMenu.loadProjectFromJSON(1);
+        this.selections = JSON.parse(window.sessionStorage.getItem("selections"));
+        if (this.selections.selectedTag) {
+            this.placesList.addPlacesWithTagName(this.selections.selectedTagValue);
+            this.selections.selectedTag = false;
+            this.selections.selectedTagValue = null;
+        }
+        else if (this.selections.selectedCollection) {
+            this.placesList.addPlacesWithCollectionName(this.selections.selectedCollectionValue);
+            this.selections.selectedCollection = false;
+            this.selections.selectedCollectionValue = null;
+        }
+        else if (this.selections.selectedSchedule) {
+            this.placesList.addPlacesWithScheduleName(this.selections.selectedScheduleValue);
+            this.selections.selectedSchedule = false;
+            this.selections.selectedScheduleValue = null;
+        }
+        window.sessionStorage.setItem("selections", JSON.stringify(this.selections));
 
         var pageContent = document.getElementById("pageContent");
         pageContent.addEventListener('touchmove', this.HandleTouchMove.bind(this), false);

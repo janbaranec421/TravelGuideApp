@@ -48,6 +48,38 @@
       "priority": 3
     },
     {
+      "id": 5,
+      "name": "Royal Palace of Amsterdam",
+      "desc": "The palace was built as a city hall during the Dutch Golden Age in the 17th century.",
+      "gps": {
+        "lat": 52.37316,
+        "lng": 4.8913
+      },
+      "photos": [
+        "https://farm4.staticflickr.com/3203/2745875535_9cdb08ab5f_z.jpg",
+        "https://upload.wikimedia.org/wikipedia/commons/a/a7/Koninklijk_Paleis_Amsterdam.jpg"
+      ],
+      "labels": [ 1, 2 ],
+      "requiredTime": 60,
+      "priority": 3
+    },
+    {
+      "id": 4,
+      "name": "Royal Palace of Amsterdam",
+      "desc": "The palace was built as a city hall during the Dutch Golden Age in the 17th century.",
+      "gps": {
+        "lat": 52.37316,
+        "lng": 4.8913
+      },
+      "photos": [
+        "https://farm4.staticflickr.com/3203/2745875535_9cdb08ab5f_z.jpg",
+        "https://upload.wikimedia.org/wikipedia/commons/a/a7/Koninklijk_Paleis_Amsterdam.jpg"
+      ],
+      "labels": [ 1, 2 ],
+      "requiredTime": 60,
+      "priority": 3
+    },
+    {
       "id": 2,
       "name": "Cathedral of Our Lady",
       "labels": [ 2 ]
@@ -62,10 +94,10 @@
   "collections": [
 
     {
-      "name": "Amterdam",
+      "name": "Amsterdam",
       "desc": "Popis amsterdamu",
       "photo": "https://lonelyplanetimages.imgix.net/mastheads/stock-photo-beautiful-amsterdam-76796579.jpg?sharp=10&vib=20&w=1200",
-      "places": [ 1 ]
+      "places": [ 1, 4, 5 ]
     },
 
     {
