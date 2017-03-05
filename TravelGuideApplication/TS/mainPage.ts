@@ -6,6 +6,7 @@ class MainPage {
     public topMenu: TopMenu;
     public sideMenu: SideMenu;
     public map: Map;
+    public searchPanel: MapSearchingPanel;
     public db: Database;
 
     public touchXstart: number;
@@ -30,15 +31,14 @@ class MainPage {
 
     public latitude: number = 49.828526;
     public longitude: number = 18.173270;
-    public zoomLvl: number = 8;
+    public zoomLvl: number = 19;
     public layers: Layer = Layer.Water | Layer.Earth | Layer.Boundaries | Layer.Buildings | Layer.Roads | Layer.Transit | Layer.Landuse | Layer.Pois | Layer.Places;
 
     constructor() {
         this.sideMenu = new SideMenu();
         this.topMenu = new TopMenu(this.sideMenu);
         this.map = new Map();
-
-        //this.sideMenu.loadProjectFromJSON(1);
+        this.searchPanel = new MapSearchingPanel();
         
         var pageContent = document.getElementById("pageContent");
         pageContent.addEventListener('touchmove', this.HandleTouchMove.bind(this), false);
@@ -50,9 +50,6 @@ class MainPage {
         sideMenu.addEventListener('touchstart', (e) => { e.stopPropagation(); }, false);
         sideMenu.addEventListener('touchend', (e) => { e.stopPropagation(); }, false);
 
-        window.addEventListener('resize', this.adjustCanvasToViewport, false);
-        this.adjustCanvasToViewport();
-        
         this.db = new Database();
         this.db.initalizeDB()
             .then((value) => {
@@ -63,12 +60,15 @@ class MainPage {
                 canvas.addEventListener('touchmove', this.HandleCanvasTouchMove.bind(this), false);
                 canvas.addEventListener('touchstart', this.HandleCanvasTouchStart.bind(this), false);
                 canvas.addEventListener('touchend', this.HandleCanvasTouchEnd.bind(this), false);
-
+                
                 this.map.display(this.latitude, this.longitude, this.zoomLvl, this.layers);
+
+                window.addEventListener('resize', this.adjustMapToViewport.bind(this), false);
+                this.adjustMapToViewport();
             })
             .catch((err) => {
                 console.log(err);
-            })
+            });
     }
     
     private HandleTouchStart(evt): void {
@@ -151,41 +151,43 @@ class MainPage {
         if (evt.touches.length > 1) {
             var xDiff_second = evt.touches[1].clientX - this.touchXstart_second;
             var yDiff_second = evt.touches[1].clientY - this.touchYstart_second;
+
+            var coords = this.map.getCoordinatesAtCenter();
             // Horizontal double swipe
             if (Math.abs(xDiff) > Math.abs(yDiff) && Math.abs(xDiff_second) > Math.abs(yDiff_second)) {
                 if (xDiff > this.swipe_threshold && xDiff_second < -this.swipe_threshold && this.touchXstart < this.touchXstart_second) {
-                    this.map.display(this.latitude, this.longitude, --this.zoomLvl, this.layers);
+                    this.map.display(coords.latitude, coords.longitude, --this.zoomLvl, this.layers);
                     this.isSwipeFired = true;
                 }
                 if (xDiff < -this.swipe_threshold && xDiff_second > this.swipe_threshold && this.touchXstart > this.touchXstart_second) {
-                    this.map.display(this.latitude, this.longitude, --this.zoomLvl, this.layers);
+                    this.map.display(coords.latitude, coords.longitude, --this.zoomLvl, this.layers);
                     this.isSwipeFired = true;
                 }
                 if (xDiff < -this.swipe_threshold && xDiff_second > this.swipe_threshold && this.touchXstart < this.touchXstart_second) {
-                    this.map.display(this.latitude, this.longitude, ++this.zoomLvl, this.layers);
+                    this.map.display(coords.latitude, coords.longitude, ++this.zoomLvl, this.layers);
                     this.isSwipeFired = true;
                 }
                 if (xDiff > this.swipe_threshold && xDiff_second < -this.swipe_threshold && this.touchXstart > this.touchXstart_second) {
-                    this.map.display(this.latitude, this.longitude, ++this.zoomLvl, this.layers);
+                    this.map.display(coords.latitude, coords.longitude, ++this.zoomLvl, this.layers);
                     this.isSwipeFired = true;
                 }
             }
             // Vertical double swipe
             else if (Math.abs(yDiff) > Math.abs(xDiff) && Math.abs(yDiff_second) > Math.abs(xDiff_second)) {
                 if (yDiff > this.swipe_threshold && yDiff_second < -this.swipe_threshold && this.touchYstart < this.touchYstart_second) {
-                    this.map.display(this.latitude, this.longitude, --this.zoomLvl, this.layers);
+                    this.map.display(coords.latitude, coords.longitude, --this.zoomLvl, this.layers);
                     this.isSwipeFired = true;
                 }
                 if (yDiff < -this.swipe_threshold && yDiff_second > this.swipe_threshold && this.touchYstart > this.touchYstart_second) {
-                    this.map.display(this.latitude, this.longitude, --this.zoomLvl, this.layers);
+                    this.map.display(coords.latitude, coords.longitude, --this.zoomLvl, this.layers);
                     this.isSwipeFired = true;
                 }
                 if (yDiff < -this.swipe_threshold && yDiff_second > this.swipe_threshold && this.touchYstart < this.touchYstart_second) {
-                    this.map.display(this.latitude, this.longitude, ++this.zoomLvl, this.layers);
+                    this.map.display(coords.latitude, coords.longitude, ++this.zoomLvl, this.layers);
                     this.isSwipeFired = true;
                 }
                 if (yDiff > this.swipe_threshold && yDiff_second < -this.swipe_threshold && this.touchYstart > this.touchYstart_second) {
-                    this.map.display(this.latitude, this.longitude, ++this.zoomLvl, this.layers);
+                    this.map.display(coords.latitude, coords.longitude, ++this.zoomLvl, this.layers);
                     this.isSwipeFired = true;
                 }
             }
@@ -232,7 +234,6 @@ class MainPage {
             var rect = canvas.getBoundingClientRect();
             var x = Math.round((evt.changedTouches[0].clientX - rect.left) / (rect.right - rect.left) * canvas.width);
             var y = Math.round((evt.changedTouches[0].clientY - rect.top) / (rect.bottom - rect.top) * canvas.height);
-
             this.map.markMapByTouch(x, y);
         }
         this.isSwipeFired = false;
@@ -240,20 +241,30 @@ class MainPage {
     
     private HandleCanvasWheel(evt): void {
         evt.preventDefault();
+        var canvas = <HTMLCanvasElement>document.getElementById("mapCanvas");
+        var rect = canvas.getBoundingClientRect();
+        var x = Math.round((evt.clientX - rect.left) / (rect.right - rect.left) * canvas.width);
+        var y = Math.round((evt.clientY - rect.top) / (rect.bottom - rect.top) * canvas.height);
+        var coords = this.map.getCoordinatesAtCenter();
         if (evt.deltaY > 0)
-            this.map.display(this.latitude, this.longitude, --this.zoomLvl, this.layers);
+            this.map.display(coords.latitude, coords.longitude, --this.zoomLvl, this.layers);
         else
-            this.map.display(this.latitude, this.longitude, ++this.zoomLvl, this.layers);
+            this.map.display(coords.latitude, coords.longitude, ++this.zoomLvl, this.layers);
     }
 
-    private adjustCanvasToViewport() {
-        if ($(window).width() > $(window).height()) {
-            $("#mapCanvas").css("height", "75vh")
-                .css("width", "");
-        }
-        else {
-            $("#mapCanvas").css("width", "75vw")
-                .css("height", "");
-        }
+    private adjustMapToViewport() {
+        // Get canvas dimensions in pixels
+        var width = parseInt($("#mapCanvas").css("width"));
+        var height = parseInt($("#mapCanvas").css("height"));
+
+        var coords = this.map.getCoordinatesAtCenter();
+
+        // Set canvas coordinates accordingly to canvas element dimensions
+        $("#mapCanvas").attr('width', width);
+        $("#mapCanvas").attr('height', height);
+        this.map.setMapDimensions(width, height);
+
+        // Display adjusted map to coordinates, whose were in center before adjusting.
+        this.map.display(coords.latitude, coords.longitude, this.zoomLvl, this.layers);
     }
 }

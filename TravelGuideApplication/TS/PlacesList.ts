@@ -5,23 +5,45 @@
         this.root = $("#placesList");
 
         $(this.root)
-            .append($("<ul>"));
+            .append($("<div>", { "id": "placesListHeader" }).html("List of places")
+                .append($("<div>", { "id": "placesListHeader-project" })
+                    .css({
+                        "font-size": "large",
+                        "border-top": "1px solid #5b6e7d"
+                    })
+                    .html("Project: none"))
+                .append($("<div>", { "id": "placesListHeader-selector" })
+                    .css("font-size", "large")
+                    .html("Collection: none"))
+                .append($("<ul>").css({
+                    "padding": "0px",
+                    "list-style-type": "none"
+                }))
+                   );
     }
 
     public addPlacesWithTagName(tagName: string) {
-        var ID = window.sessionStorage.getItem("projectID");
+        var ID = window.sessionStorage.getItem("currentProjectID");
 
         $.getJSON("../Resources/Projects/project-" + ID + ".json",(projectData) =>
         {
             var tagID = this.getTagIDbyTagName(tagName, projectData);
             var taggedPlacesCollection = this.getPlacesByTagID(tagID, projectData);
 
-            $(this.root).children().fadeOut(500, () => {
+            $("#placesListHeader-project").html("Project: " + projectData.name);
+            $("#placesListHeader-selector").html("Tag: " + tagName);
+
+            if (taggedPlacesCollection.length <= 0) {
+                $("#placesListHeader > ul")
+                    .append($("<li>", { "class": "emptyList" }).html("<List doesn't contain anything yet>"));
+            }
+
+            $(this.root).fadeOut(10, () => {
                 // For each place in collection create new list item
                 for (var i = 0; i < taggedPlacesCollection.length; i++)
                 {
-                    var listItem = $("<li>", { "id": "placesListItem" });
-                    var table = $("<table>", { "cellspacing": "0" });
+                    var listItem = $("<li>", { "class": "placesListItem" });
+                    var table = $("<table>", { "cellspacing": "0", "cellpadding": "0"});
         
                     // IMAGES
                     var firstRow = $("<tr>", { "id": "placesListItemFirstRow" })
@@ -29,7 +51,7 @@
                             .append($("<div>", {
                                 "width": "500px",
                                 "height": "250px",
-                                "margin": "auto"
+                                "margin": "0px"
                             })));
                     if (taggedPlacesCollection[i].photos != null) {
                         for (var j = 0; j < taggedPlacesCollection[i].photos.length; j++) {
@@ -100,7 +122,7 @@
                         fourthRow.children().append($("<span>").html("No Tags Found"));
                     }
                     // PUT ALL ROWS IN LIST ITEM
-                    $(this.root).children()
+                    $("#placesListHeader > ul")
                         .append(listItem
                             .append(table
                                 .append(firstRow)
@@ -108,22 +130,30 @@
                                 .append(thirdRow)
                                 .append(fourthRow)));
                 }
-                $(this.root).children().fadeIn(500);
+                $(this.root).fadeIn(1000);
             });
         })  
     }
 
     public addPlacesWithCollectionName(collectionName: string) {
-        var ID = window.sessionStorage.getItem("projectID");
+        var ID = window.sessionStorage.getItem("currentProjectID");
 
         $.getJSON("../Resources/Projects/project-" + ID + ".json", (projectData) => {
             var collectionPlacesCollection = this.getPlacesByCollectionName(collectionName, projectData);
 
-            $(this.root).children().fadeOut(500, () => {
+            $("#placesListHeader-project").html("Project: " + projectData.name);
+            $("#placesListHeader-selector").html("Collection: " + collectionName);
+
+            $(this.root).fadeOut(10, () => {
+                if (collectionPlacesCollection.length <= 0) {
+                    $("#placesListHeader > ul")
+                        .append($("<li>", { "class": "emptyList" }).html("<List doesn't contain anything yet>"));
+                }
+
                 // For each place in collection create new list item
                 for (var i = 0; i < collectionPlacesCollection.length; i++)
                 {
-                    var listItem = $("<li>", { "id": "placesListItem" });
+                    var listItem = $("<li>", { "class": "placesListItem" });
                     var table = $("<table>", { "cellspacing": "0" });
         
                     // IMAGES
@@ -204,7 +234,7 @@
                     }
 
                     // PUT ALL ROWS IN LIST ITEM
-                    $(this.root).children()
+                    $("#placesListHeader > ul")
                         .append(listItem
                             .append(table
                                 .append(firstRow)
@@ -212,21 +242,26 @@
                                 .append(thirdRow)
                                 .append(fourthRow)));
                 }
-                $(this.root).children().fadeIn(500);
+                $(this.root).fadeIn(1000);
             });
         });
     }
 
     public addPlacesWithScheduleName(scheduleName: string) {
-        var ID = window.sessionStorage.getItem("projectID");
+        var ID = window.sessionStorage.getItem("currentProjectID");
 
         $.getJSON("../Resources/Projects/project-" + ID + ".json", (projectData) => {
             var schedulePlacesCollection = this.getPlacesByScheduleName(scheduleName, projectData);
 
-            $(this.root).children().fadeOut(500, () => {
+            if (schedulePlacesCollection.length <= 0) {
+                $("#placesListHeader > ul")
+                    .append($("<li>", { "class": "emptyList" }).html("<List doesn't contain anything yet>"));
+            }
+
+            $(this.root).children().fadeOut(700, () => {
                 // For each place in collection create new list item
                 for (var i = 0; i < schedulePlacesCollection.length; i++) {
-                    var listItem = $("<li>", { "id": "placesListItem" });
+                    var listItem = $("<li>", { "class": "placesListItem" });
                     var table = $("<table>", { "cellspacing": "0" });
         
                     // IMAGES
@@ -306,7 +341,7 @@
                         fourthRow.children().append($("<span>").html("No Tags Found"));
                     }
                     // PUT ALL ROWS IN LIST ITEM
-                    $(this.root).children()
+                    $("#placesListHeader > ul")
                         .append(listItem
                             .append(table
                                 .append(firstRow)
@@ -314,7 +349,7 @@
                                 .append(thirdRow)
                                 .append(fourthRow)));
                 }
-                $(this.root).children().fadeIn(500);
+                $(this.root).fadeIn(1000);
             });
         });
     }
@@ -425,5 +460,4 @@
         }
         return placesCollection;
     }
-
 }

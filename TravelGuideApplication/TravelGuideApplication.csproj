@@ -35,6 +35,8 @@
     <Content Include="Resources\collections.png" />
     <Content Include="Resources\image-not-found.png" />
     <Content Include="Resources\map.png" />
+    <Content Include="Resources\more-1.png" />
+    <Content Include="Resources\more.png" />
     <Content Include="Resources\Projects\project-1.json" />
     <Content Include="Resources\Projects\project-2.json" />
     <Content Include="Resources\projects.png" />
@@ -45,6 +47,11 @@
     <Content Include="Content\Slick\fonts\slick.woff" />
     <Content Include="Content\Slick\fonts\slick.ttf" />
     <Content Include="Content\Slick\fonts\slick.eot" />
+    <Content Include="CSS\Fonts\Roboto\Roboto-Light.ttf" />
+    <Content Include="CSS\Fonts\Roboto\Roboto-LightItalic.ttf" />
+    <Content Include="CSS\Fonts\Roboto\Roboto-Thin.ttf" />
+    <Content Include="CSS\Fonts\Roboto\Roboto-ThinItalic.ttf" />
+    <Content Include="CSS\Fonts\Roboto\Roboto-Regular.ttf" />
     <None Include="Scripts\jquery-2.2.3.intellisense.js" />
     <Content Include="Resources\schedules.png" />
     <Content Include="Resources\tags.png" />
@@ -65,6 +72,7 @@
     <TypeScriptCompile Include="TS\Database.ts" />
     <TypeScriptCompile Include="TS\Layer.ts" />
     <TypeScriptCompile Include="TS\Map.ts" />
+    <TypeScriptCompile Include="TS\MapSearchingPanel.ts" />
     <TypeScriptCompile Include="TS\MapTile.ts" />
     <TypeScriptCompile Include="TS\PlacesList.ts" />
     <TypeScriptCompile Include="TS\PlacesPage.ts" />
@@ -83,6 +91,7 @@
       <DependentUpon>web.config</DependentUpon>
     </None>
   </ItemGroup>
+  <ItemGroup />
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">12.0</VisualStudioVersion>
   </PropertyGroup>

@@ -1,5 +1,28 @@
-﻿body {
+﻿@font-face {
+    font-family: Roboto_Thin;
+    src: url(Fonts/Roboto/Roboto-Thin.ttf)
+}
+@font-face {
+    font-family: Roboto_Thin_Italic;
+    src: url(Fonts/Roboto/Roboto-ThinItalic.ttf)
+}
+@font-face {
+    font-family: Roboto_Light;
+    src: url(Fonts/Roboto/Roboto-Light.ttf)
+}
+@font-face {
+    font-family: Roboto_Light_Italic;
+    src: url(Fonts/Roboto/Roboto-LightItalic.ttf)
+}
+@font-face {
+    font-family: Roboto_Regular;
+    src: url(Fonts/Roboto/Roboto-Regular.ttf)
+}
+
+body {
     margin: 0px;
+    font-family: Roboto_Light;
+    background-color: #f1f1f1;
 }
 
 div#topMenu {
@@ -24,22 +47,23 @@ ul#topMenuList {
 }
 
 ul#topMenuList > li {
-    float: left;
+    float: right;
     width: 19%;
-    margin: 0px 0.25% 0px 0.25%;
 }
 
 .topMenuButton {
-    padding-left: 3%;
-    padding-right: 3%;
-    width: 100%;
+    color: #f5fefa;
+    vertical-align: middle;
+    display: table-cell;
     height: 50px;
-    border-radius: 8px;
-    background-color: #e6e6e6;
+    min-width: 100px;
+    padding: 0% 10% 0% 10%;
+    text-decoration: none;
+        border-radius: 3px;
 }
 
 .topMenuButton:hover {
-    background-color: #bbbbbb;
+    background-color: #7f92a0;
 }
 
 div#sideMenu {
@@ -57,7 +81,9 @@ div#sideMenu {
 li.sideMenuButton {
     height: 35px;
     width: 100%;
-    border-bottom: #4A4949 1px solid;
+    border: #505050 1px solid;
+    margin: 1px 1px 1px -1px;
+    box-shadow: 0px 0px 3px 1px #2b2b2b;
 }
 
 li.sideMenuButton > a > img{
@@ -67,6 +93,7 @@ li.sideMenuButton > a > img{
 
 li.sideMenuButton > a {
     text-decoration: none;
+    padding-top: 5px;
 }
 
 li.sideMenuButton > a:visited {
@@ -88,28 +115,35 @@ div#pageContent {
     position: absolute;
     top: 55px;
     width: 100%;
-    height: 200%;
+    height: calc(100vh - 55px);
     background-color: #f1f1f1;
 }
 
-div#sideMenu > ul > ul {
-    margin-left: 5%;
-    list-style-type: disc;
+div#pageContent > table {
+    margin: 2% auto auto auto;
 }
 
-li#placesListItem {
+div#placesListHeader {
+    text-align: left;
+    padding: 10px 25px 10px 25px;
+    max-width: 550px;
+    min-width: 550px;
+    margin: auto;
+    background: #E3E5E8;
+    font-size: xx-large;
+    box-shadow: 0 4px 5px 0 rgba(0,0,0,0.14), 0 1px 10px 0 rgba(0,0,0,0.12), 0 2px 4px -1px rgba(0,0,0,0.3);
+}
+
+li.placesListItem {
     display: table;
     margin-left: auto;
     margin-right: auto;
-    margin-top: 2%;
-    margin-bottom: 2%;
+    margin-top: 4%;
+    margin-bottom: 4%;
     max-width: 511px;
-    border: 0.5px solid #cecece;
-}
-
-#placesListItem > table > tbody {
-    box-shadow: 0px 1px 3px 0px #383838;
-    /* background-color: #c8ded2; */
+    box-shadow: 0 8px 10px 1px rgba(0,0,0,0.14), 0 3px 14px 2px rgba(0,0,0,0.12), 0 5px 5px -3px rgba(0,0,0,0.3);
+    text-align: left;
+    font-size: initial;
 }
 
 #placesListItemFirstRow > td > img{
@@ -121,35 +155,23 @@ li#placesListItem {
 }
 #placesListItemSecondRow > td:nth-child(1) {
     width: 46%;
-    box-shadow: 0px 1px 0px 0px #383838;
-    font-size: large;
     font-weight: bold;
-    font-style: italic;
-    padding: 1%;
-    background-color: #97adbf;
-    border: 1px solid rgba(160, 160, 160, 0.5);
+    padding: 2%;
+    background-color: #eaeaea;
 }
 #placesListItemSecondRow > td:nth-child(2) {
     width: 27%;
-    border: 0.5px solid #cecece;
-    box-shadow: 0px 1px 0px 0px #383838;
     font-style: italic;
-    padding: 1%;
-    background-color: #aec0cf;
-    border-top: 1px solid rgba(160, 160, 160, 0.5);
-    border-bottom: 1px solid rgba(160, 160, 160, 0.5);
-    border-right: 1px solid rgba(160, 160, 160, 0.5);
+    padding: 2%;
+    background-color: #eaeaea;
+    border-left: 1px solid #cecece;
 }
 #placesListItemSecondRow > td:nth-child(3) {
     width: 27%;
-    border: 0.5px solid #cecece;
-    box-shadow: 0px 1px 0px 0px #383838;
     font-style: italic;
-    padding: 1%;
-    background-color: #aec0cf;
-    border-right: 1px solid rgba(160, 160, 160, 0.5);
-    border-top: 1px solid rgba(160, 160, 160, 0.5);
-    border-bottom: 1px solid rgba(160, 160, 160, 0.5);
+    padding: 2%;
+    background-color: #eaeaea;
+    border-left: 1px solid #cecece;
 }
 #placesListItemSecondRow > td:nth-child(3) > img {
     width: 24px;
@@ -163,22 +185,19 @@ li#placesListItem {
 
 #placesListItemThirdRow > td {
     width: 100%;
-    border: 0.5px solid #cecece;
+    border-top: 0.5px solid #cecece;
+    border-bottom: 0.5px solid #cecece;
     box-shadow: 0px 1px 0px 0px #383838;
     min-height: 75px;
     vertical-align: text-top;
-    padding: 1%;
-    background-color: #c4d3df;
+    padding: 2%;
+    background-color: #f1f1f1;
 }
 
 #placesListItemFourthRow > td {
-    border-left: 1px solid rgba(160, 160, 160, 0.5);
-    border-bottom: 1px solid rgba(160, 160, 160, 0.5);
-    border-right: 1px solid rgba(160, 160, 160, 0.5);
-    box-shadow: 0px 1px 0px 0px #383838;
     text-align: right;
-    padding: 1%;
-    background-color: #aec0cf;
+    padding: 2%;
+    background-color: #eaeaea;
 }
 
 .slickImage > img {
@@ -187,7 +206,7 @@ li#placesListItem {
 }
 
 .slick-slider {
-    margin: 1px 2px 1px 1px !important;
+    margin: -1px !important;
 }
 
 #scheduleList > ul {
@@ -197,52 +216,121 @@ li#placesListItem {
 .scheduleListItem {
     margin-left: auto;
     margin-right: auto;
-    margin-top: 2%;
-    margin-bottom: 2%;
-    max-width: 70%;
-    min-width: 70%;
+    margin-top: 3%;
+    margin-bottom: 3%;
+    max-width: 500px;
+    min-width: 500px;
+    box-shadow: 0 6px 10px 0 rgba(0,0,0,0.14), 0 1px 18px 0 rgba(0,0,0,0.12), 0 3px 5px -1px rgba(0,0,0,0.3);
 }
 
 .scheduleListItem > table {
     width: 100%;
     background-color: rgba(16, 90, 152, 0.2);
-    border: 1px solid rgba(95, 95, 95, 0.5);
 }
 
-#scheduleListItemFirstRow > td:nth-child(1) {
-    border-right: 1px solid rgba(160, 160, 160, 0.5);
-    background: rgb(151, 173, 191);
+#scheduleListItemFirstRow > td {
+    background: #a7b1c1;
     width: 65%;
+    height: 65px;
     text-align: left;
-    padding: 1%;
-    font-size: large;
+    padding: 2%;
     font-weight: bold;
-    font-style: italic;
-}
-
-#scheduleListItemFirstRow > td:nth-child(2) {
-    border-bottom: 0.5px solid rgba(160, 160, 160, 0.5);
-    background: rgba(151, 173, 191, 0.5);
-    width: 35%;
-    text-align: center;
+    font-size: x-large;
+    border-bottom: 0.5px solid #cecece;
 }
 
 #scheduleListItemSecondRow > td {
-    background: rgba(151, 173, 191, 0.5);
-    border: 1px solid rgba(206, 206, 206, 0.5);
-    text-align: center;
+    background: #f3f3f3;
+    font-size: medium;
+    padding: 1% 2% 1% 2%;
+    border-bottom: 0.5px solid #cecece;
 }
 
 #scheduleListItemThirdRow > td{
-    border-top: 1px solid rgba(160, 160, 160, 0.75);
+    background: #f3f3f3;
+    font-size: medium;
+    padding: 1% 2% 1% 2%;
+    border-bottom: 0.5px solid #cecece;
+}
+
+#scheduleListItemFourthRow > td {
     text-align: left;
-    padding: 1%;
+    padding: 3% 2%;
     vertical-align: text-top;
-    height: 30px;
+    font-size: large;
+    background: #fbfbfb;
 }
 
 div#selectedProject {
-    padding: 5% 5% 1% 5%;
+    padding: 2% 5% 1% 10%;
     color: mintcream;
-    font-style: italic;
+    font-size: medium;
+    border-top: 1px solid #5b6e7d;
+    margin-top: 1%;
+}
+
+#mapPanel {
+    box-shadow: 0px 0px 3px 1px #888787;
+    min-width: 200px;
+    margin-left: 3px;
+    width: 29%;
+    height: calc(100vh - 55px);
+    float: left;
+}
+
+#map {
+    float: left;
+    width: 70%;
+}
+
+
+#mapContent:after {
+    content: "";
+    clear: both;
+    display: table;
+}
+
+#projectsSubMenu, #collectionsSubMenu, #tagsSubMenu {
+    list-style-type: none !important;
+    margin-right: 5px;
+}
+
+#projectsSubMenu > li, #collectionsSubMenu > li, #tagsSubMenu > li {
+    padding: 3px 0px 3px 5px;
+    border: 1px solid rgb(86, 87, 85);
+    background: rgb(65, 74, 82);
+    box-shadow: rgb(43, 43, 43) 0px 0px 3px 1px;
+    margin: 1px;
+    border-bottom-left-radius: 10px;
+}
+
+#scheduleListHeader {
+    text-align: left;
+    padding: 10px 25px 10px 25px;
+    max-width: 550px;
+    min-width: 550px;
+    margin: auto;
+    background: #E3E5E8;
+    font-size: xx-large;
+    box-shadow: 0 4px 5px 0 rgba(0,0,0,0.14), 0 1px 10px 0 rgba(0,0,0,0.12), 0 2px 4px -1px rgba(0,0,0,0.3);
+    list-style-type: none;
+}
+
+#emptyList {
+    text-align: center;
+    font-size: x-large;
+}
+
+@media (max-width: 677px) {
+    #map {
+        width: 100% !important;
+    }
+    #mapCanvas {
+        height: calc(70vh - 55px) !important;
+    }
+    #mapPanel {
+        width: 100% !important;
+        margin-left: 0px;
+        margin-top: 3px;
+    }
 }

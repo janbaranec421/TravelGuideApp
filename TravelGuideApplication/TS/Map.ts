@@ -5,9 +5,7 @@
 
     public database: Database;
     private mapData: MapTile[] = [];
-    private subCanvasArray: { canvas: HTMLCanvasElement, tileX: number, tileY: number }[] = [];
     private client_marks: { latitude: number, longitude: number, positionX: number, positionY: number, radius: number, touchRadius: number }[] = [];
-    private layers: Layer;
 
     private tileWidth: number;
     private tileHeight: number;
@@ -19,10 +17,13 @@
     private currentLongitude: number;
     private currentTileX: number;
     private currentTileY: number;
+
+    private currentRoute: any;
     private currentZoom: number;
+    private currentLayers: Layer;
 
 
-    constructor(tileWidth: number = 250, tileHeight: number = 250, mapWidth: number = 750, mapHeight = 750) {
+    constructor(tileWidth: number = 200, tileHeight: number = 200, mapWidth: number = 700, mapHeight = 700) {
         this.root = $("#map");
 
         if (this.root == null)
@@ -35,13 +36,13 @@
                 .attr("id", "mapCanvas")
                 .attr("width", mapWidth + "px")
                 .attr("height", mapHeight + "px")
-                .css("width", "90vw")
-                .css("display", "block")
-                .css("margin", "auto")
-                .css("padding", "0px")
-                .css("margin-top", "25px")
-                .css("border", "solid black 1.5px")
-        );
+                .css({
+                    "width": "100%",
+                    "height": "calc(100vh - 55px)",
+                    "display": "block",
+                    "padding": "0px",
+                }));
+
         this.canvas = <HTMLCanvasElement>document.getElementById('mapCanvas');
         this.context = this.canvas.getContext('2d');
 
@@ -51,27 +52,41 @@
         this.tileHeight = tileHeight;
     }
 
+    public setMapDimensions(mapWidth: number, mapHeight: number) {
+        this.mapWidth = mapWidth;
+        this.mapHeight = mapHeight;
+    }
+
     public display(latitude: number, longitude: number, zoom: number, layers: Layer) {
         this.clear();
         this.mapData = [];
 
-        this.layers = layers;
         // [X,Y] Position in map tiles scope
         this.currentTileX = Converter.long2tileX(longitude, zoom);
         this.currentTileY = Converter.lat2tileY(latitude, zoom);
-
         this.currentLatitude = latitude;
         this.currentLongitude = longitude;
         this.currentZoom = zoom;
+        this.currentLayers = layers;
 
-        // [X,Y] Position on canvas element
-        var centerX = (this.mapWidth / 2) - (this.tileWidth / 2);
-        var centerY = (this.mapHeight / 2) - (this.tileWidth / 2);
+        var boundingBox = Converter.tile2boundingBox(this.currentTileX, this.currentTileY, this.currentZoom);
+        var xScale = this.tileWidth / Math.abs(boundingBox.xMax - boundingBox.xMin);
+        var yScale = this.tileHeight / Math.abs(boundingBox.yMax - boundingBox.yMin);
+        var scale = xScale < yScale ? xScale : yScale;
 
-        for (var x = -2; x <= 2; x++) {
-            for (var y = -2; y <= 2; y++) {
-                // Outer ring is not filled with data, so dynamic loading works properly
-                if (x == 2 || x == -2 || y == 2 || y == -2) {
+        var point = {
+            x: (longitude - boundingBox.xMin) * xScale,
+            y: (boundingBox.yMax - latitude) * yScale
+        };
+        // [X,Y] Position of Tile on canvas element
+        var centerX = (this.mapWidth / 2) - point.x;
+        var centerY = (this.mapHeight / 2) - point.y;
+
+        var box = this.tilesFittingMapBoundingBox(centerX, centerY);
+        for (var x = box.negativeBoundX - 1; x <= box.positiveBoundX + 1; x++) {
+            for (var y = box.negativeBoundY - 1; y <= box.positiveBoundY + 1; y++) {
+                // Outer ring is not filled with data, due to dynamic loading mechanism
+                if (x == box.positiveBoundX + 1 || x == box.negativeBoundX - 1 || y == box.positiveBoundY + 1 || y == box.negativeBoundY - 1) {
                     var MapTileData = new MapTile(null, this.currentTileX + x, this.currentTileY + y, zoom, layers, centerX - (this.tileWidth * (-1 * x)), centerY - (this.tileHeight * (-1 * y)), this.tileWidth, this.tileHeight);
                     this.mapData.push(MapTileData);
                 }
@@ -82,36 +97,27 @@
                 }
             }
         }
-        console.log(this.mapData);
     }
 
     public shiftMap(shiftX: number, shiftY: number) {
-        var start = performance.now()
-
         for (var i = 0; i < this.mapData.length; i++) {
             this.mapData[i].positionX += shiftX;
             this.mapData[i].positionY += shiftY;
         }
         this.clear();
-        var totalGeometryObjects = 0;
         for (var i = 0; i < this.mapData.length; i++) {
-            totalGeometryObjects += this.mapData[i].sortedData.length;
-            this.DrawTile(this.mapData[i]);
+            this.drawTile(this.mapData[i]);
         }
+        this.drawPath(this.currentRoute);
         this.markCollectionRedraw();
         this.updateMap();
-
-
-        //console.log("Total objects: " + totalGeometryObjects + ", time to process: " + ((performance.now() - start) / 1000).toFixed(3) + "s");
     }
 
     private updateMap() {
         // Loop collection to find placeholders
-        for (var i = 0; i < this.mapData.length; i++)
-        {
+        for (var i = 0; i < this.mapData.length; i++) {
             // If tile is placeholder
-            if (this.mapData[i].rawData == null)
-            {
+            if (this.mapData[i].rawData == null) {
                 var ph = this.mapData[i];
                 var right = ph.positionX + ph.tileWidth;
                 var left = ph.positionX;
@@ -119,26 +125,24 @@
                 var bot = ph.positionY + ph.tileHeight;
 
                 // Check if tile intersect map visible area
-                if (0 < right && this.mapWidth > left && 0 < bot && this.mapHeight > top)
-                {
+                if (0 < right && this.mapWidth > left && 0 < bot && this.mapHeight > top) {
                     var nextLeft = false;
                     var nextRight = false;
                     var nextTop = false;
                     var nextBot = false;
 
                     // Check if this tile have neighbor
-                    for (var j = 0; j < this.mapData.length; j++)
-                    {
+                    for (var j = 0; j < this.mapData.length; j++) {
                         if (ph.tileX + 1 == this.mapData[j].tileX && ph.tileY == this.mapData[j].tileY) nextRight = true;
                         if (ph.tileX - 1 == this.mapData[j].tileX && ph.tileY == this.mapData[j].tileY) nextLeft = true;
                         if (ph.tileY + 1 == this.mapData[j].tileY && ph.tileX == this.mapData[j].tileX) nextBot = true;
                         if (ph.tileY - 1 == this.mapData[j].tileY && ph.tileX == this.mapData[j].tileX) nextTop = true;
                     }
                     // If does have neighbor, create placeholders for them
-                    if (!nextRight){ this.mapData.push(new MapTile(null, ph.tileX + 1, ph.tileY, ph.zoom, ph.layers, ph.positionX + ph.tileWidth, ph.positionY, ph.tileWidth, ph.tileHeight)); }
+                    if (!nextRight) { this.mapData.push(new MapTile(null, ph.tileX + 1, ph.tileY, ph.zoom, ph.layers, ph.positionX + ph.tileWidth, ph.positionY, ph.tileWidth, ph.tileHeight)); }
                     if (!nextLeft) { this.mapData.push(new MapTile(null, ph.tileX - 1, ph.tileY, ph.zoom, ph.layers, ph.positionX - ph.tileWidth, ph.positionY, ph.tileWidth, ph.tileHeight)); }
-                    if (!nextBot)  { this.mapData.push(new MapTile(null, ph.tileX, ph.tileY + 1, ph.zoom, ph.layers, ph.positionX, ph.positionY + ph.tileHeight, ph.tileWidth, ph.tileHeight)); }
-                    if (!nextTop)  { this.mapData.push(new MapTile(null, ph.tileX, ph.tileY - 1, ph.zoom, ph.layers, ph.positionX, ph.positionY - ph.tileHeight, ph.tileWidth, ph.tileHeight)); }
+                    if (!nextBot) { this.mapData.push(new MapTile(null, ph.tileX, ph.tileY + 1, ph.zoom, ph.layers, ph.positionX, ph.positionY + ph.tileHeight, ph.tileWidth, ph.tileHeight)); }
+                    if (!nextTop) { this.mapData.push(new MapTile(null, ph.tileX, ph.tileY - 1, ph.zoom, ph.layers, ph.positionX, ph.positionY - ph.tileHeight, ph.tileWidth, ph.tileHeight)); }
                     
                     // At last, fill placeholder tile with data to render and remove this placeholder
                     this.fillPlaceholder(ph);
@@ -156,36 +160,36 @@
         this.database.getTile(id)
             .then((tileFromDB: MapTile) => {
                 // Search corresponding placeholder and fill it with DB data or fetch from server for him
-                for (var i = 0; i < this.mapData.length; i++)
-                {
-                    if (this.mapData[i].rawData == null && this.mapData[i].tileX == tileToFill.tileX && this.mapData[i].tileY == tileToFill.tileY)
-                    {
+                for (var i = 0; i < this.mapData.length; i++) {
+                    if (this.mapData[i].rawData == null && this.mapData[i].tileX == tileToFill.tileX && this.mapData[i].tileY == tileToFill.tileY) {
                         if (tileFromDB != undefined) {
-                            tileFromDB.positionX = this.mapData[i].positionX;
-                            tileFromDB.positionY = this.mapData[i].positionY;
+                            var x = tileFromDB;
+                            tileFromDB = new MapTile(x._rawData, x.tileX, x.tileY, x.zoom, x.layers, this.mapData[i].positionX, this.mapData[i].positionY, this.mapData[i].tileWidth, this.mapData[i].tileHeight);
+
                             // Replace and draw
                             this.mapData.splice(i, 1, tileFromDB);
-                            this.DrawTile(tileFromDB);
+                            this.drawTile(tileFromDB);
+                            this.drawPath(this.currentRoute);
                             this.markCollectionRedraw();
                             //console.log("Tile from DB: " + tileFromDB.tileX + "  " + tileFromDB.tileY + " " + tileFromDB.zoom);
                         }
-                        else
-                        {
+                        else {
                             this.mapData[i].isRequested = true;
                             this.fetchTile(tileToFill.tileX, tileToFill.tileY, tileToFill.zoom, tileToFill.tileX, tileToFill.tileY, (argX, argY, data) => {
                                 // Searching placeholder to replace in callback, because there is possible change of his coordinates during of download
                                 // In this way, coordinates are corresponding with actual position
                                 for (var j = 0; j < this.mapData.length; j++) {
-                                    if (this.mapData[j]._rawData == null && this.mapData[j].tileX == argX && this.mapData[j].tileY == argY) {
+                                    if (this.mapData[j].rawData == null && this.mapData[j].tileX == argX && this.mapData[j].tileY == argY) {
                                         var x = this.mapData[j];
-                                        var MapTileData = new MapTile(data, x.tileX, x.tileY, this.currentZoom, this.layers, x.positionX, x.positionY, x.tileWidth, x.tileHeight);
+                                        var MapTileData = new MapTile(data, x.tileX, x.tileY, this.currentZoom, this.currentLayers, x.positionX, x.positionY, x.tileWidth, x.tileHeight);
                                         // Add to DB before draw (drawin creates html nodes which cannot be added into IndexedDB)
                                         this.database.addTile(MapTileData).catch(() => { });
                                         // Replace and draw
                                         this.mapData.splice(j, 1, MapTileData);
-                                        this.DrawTile(MapTileData);
+                                        this.drawTile(MapTileData);
+                                        this.drawPath(this.currentRoute);
                                         this.markCollectionRedraw();
-                                        console.log("Tile from server: " + MapTileData.tileX + "  " + MapTileData.tileY);
+                                        //console.log("Tile from server: " + MapTileData.tileX + "  " + MapTileData.tileY);
                                     }
                                 }
                             });
@@ -196,6 +200,66 @@
             .catch((err) => {
                 console.log(err);
             })
+    }
+
+    private tilesFittingMapBoundingBox(centerTilePosX: number, centerTilePosY: number): { positiveBoundX: number, negativeBoundX: number, positiveBoundY: number, negativeBoundY: number } {
+        var positiveX = 0;
+        while (true) {
+            var positionX = centerTilePosX + (positiveX * this.tileWidth);
+            var positionY = centerTilePosY;
+            var right = positionX + this.tileWidth;
+            var left = positionX;
+            var top = positionY;
+            var bot = positionY + this.tileHeight;
+
+            if (0 < right && this.mapWidth > left && 0 < bot && this.mapHeight > top) { positiveX++; }
+            else { break; }
+        }
+
+        var negativeX = -1;
+        while (true) {
+            var positionX = centerTilePosX + (negativeX * this.tileWidth);
+            var positionY = centerTilePosY;
+            var right = positionX + this.tileWidth;
+            var left = positionX;
+            var top = positionY;
+            var bot = positionY + this.tileHeight;
+
+            if (0 < right && this.mapWidth > left && 0 < bot && this.mapHeight > top) { negativeX--; }
+            else { break; }
+        }
+        var positiveY = 0;
+        while (true) {
+            var positionX = centerTilePosX;
+            var positionY = centerTilePosY + (positiveY * this.tileHeight);
+            var right = positionX + this.tileWidth;
+            var left = positionX;
+            var top = positionY;
+            var bot = positionY + this.tileHeight;
+
+            if (0 < right && this.mapWidth > left && 0 < bot && this.mapHeight > top) { positiveY++; }
+            else { break; }
+        }
+
+        var negativeY = -1;
+        while (true) {
+            var positionX = centerTilePosX;
+            var positionY = centerTilePosY + (negativeY * this.tileHeight);
+            var right = positionX + this.tileWidth;
+            var left = positionX;
+            var top = positionY;
+            var bot = positionY + this.tileHeight;
+
+            if (0 < right && this.mapWidth > left && 0 < bot && this.mapHeight > top) { negativeY--; }
+            else { break; }
+        }
+
+        return {
+            positiveBoundX: --positiveX,
+            negativeBoundX: ++negativeX,
+            positiveBoundY: --positiveY,
+            negativeBoundY: ++negativeY
+        }
     }
 
     private fetchTile(x: number, y: number, z: number, argX: number, argY: number, callback: Function): void {
@@ -210,12 +274,11 @@
             })
     }
 
-    public fetchRoute(points: { lat: number, lon: number } [])
-    {
+    public fetchRoute(points: { lat: number, lon: number }[], travelType: string = "auto") {
         var fetchURL = "http://matrix.mapzen.com/optimized_route?json={\"locations\":[";
-
+        // Add endpoints to URL
         for (var i = 0; i < points.length; i++) {
-            fetchURL += "{\"lat\":" + points[i].lat.toFixed(3) + ", " + "\"lon\":" + points[i].lon.toFixed(3) + "}";
+            fetchURL += "{\"lat\":" + points[i].lat + ", " + "\"lon\":" + points[i].lon + "}";
             if (i + 1 == points.length) {
                 fetchURL += "],";
             }
@@ -224,10 +287,21 @@
             }
         }
         fetchURL += "\"costing\":\"auto\", \"units\":\"mi\"}&api_key=mapzen-eES7bmW";
-
+        
         $.getJSON(fetchURL)
-            .then((file) => {
-                console.log(file.trip);
+            .then((routeObject) => {
+                console.log(routeObject);
+                if (points.length - 1 == routeObject.trip.legs.length) {
+                    var route = new Array();
+                    for (var i = 0; i < routeObject.trip.legs.length; i++) {
+                        var obj = [points[i], points[i + 1]];
+                        route.push({
+                            endpoints: obj,
+                            path: Converter.decodePolyline(routeObject.trip.legs[i].shape, 6)
+                        });
+                    }
+                }
+                this.drawPath(route);
             })
     }
 
@@ -247,15 +321,15 @@
 
         $.getJSON(fetchURL)
             .then((file) => {
-                console.log(file);
+                //console.log(file);
                 for (var i = 0; i < file.features.length; i++) {
-                    console.log(file.features[i].properties.label);
+                    //console.log(file.features[i].properties.label);
                 }
             })
     }
 
 
-    public DrawTile(mapTile: MapTile): void {
+    public drawTile(mapTile: MapTile): void {
         // Placeholders aren't drawn
         if (mapTile.rawData == null) {
             return;
@@ -263,10 +337,10 @@
         // Render data changes
         if (mapTile.didChange) {
             mapTile.canvas = document.createElement('canvas');
-            mapTile.canvas.width = mapTile.tileWidth;
-            mapTile.canvas.height = mapTile.tileHeight;
             mapTile.context = mapTile.canvas.getContext('2d');
             mapTile.context.strokeStyle = '#333333';
+            mapTile.context.canvas.width = mapTile.tileWidth;
+            mapTile.context.canvas.height = mapTile.tileHeight;
 
             for (var i = 0; i < mapTile.sortedData.length; i++) {
                 if (mapTile.sortedData[i].geometry.type == "Point") {
@@ -289,21 +363,19 @@
                 }
             }
             mapTile.didChange = false;
-            this.context.drawImage(mapTile.canvas, mapTile.positionX, mapTile.positionY);
+            this.context.drawImage(mapTile.canvas, mapTile.positionX, mapTile.positionY, mapTile.tileWidth, mapTile.tileHeight);
         }
-        else
-        {
+        else {
             this.context.drawImage(mapTile.canvas, mapTile.positionX, mapTile.positionY);
         }
     }
 
-    private drawLineString(shape: any, mapTile: MapTile): void
-    {
+    private drawLineString(shape: any, mapTile: MapTile): void {
         var longitude, latitude, point;
 
-        for (var j = 0; j < shape.geometry.coordinates.length; j++) {
-            longitude = shape.geometry.coordinates[j][0];
-            latitude = shape.geometry.coordinates[j][1];
+        for (var i = 0; i < shape.geometry.coordinates.length; i++) {
+            longitude = shape.geometry.coordinates[i][0];
+            latitude = shape.geometry.coordinates[i][1];
 
             point = Converter.MercatorProjection(latitude, longitude);
             // Scale the points of the coordinate
@@ -313,7 +385,7 @@
                 y: (mapTile.boundingBox.yMax - latitude) * mapTile.yScale
             };
 
-            if (j === 0) {
+            if (i == 0) {
                 mapTile.context.beginPath();
                 mapTile.context.moveTo(point.x, point.y);
             }
@@ -339,14 +411,11 @@
         mapTile.context.stroke();
     }
 
-    private drawMultiLineString(shape: any, mapTile: MapTile): void
-    {
+    private drawMultiLineString(shape: any, mapTile: MapTile): void {
         var longitude, latitude, point;
 
-        for (var j = 0; j < shape.geometry.coordinates.length; j++)
-        {
-            for (var k = 0; k < shape.geometry.coordinates[j].length; k++)
-            {
+        for (var j = 0; j < shape.geometry.coordinates.length; j++) {
+            for (var k = 0; k < shape.geometry.coordinates[j].length; k++) {
                 longitude = shape.geometry.coordinates[j][k][0];
                 latitude = shape.geometry.coordinates[j][k][1];
 
@@ -358,7 +427,7 @@
                     y: (mapTile.boundingBox.yMax - latitude) * mapTile.yScale
                 };
                 // If this is the first coordinate in a shape, start a new path
-                if (k === 0) {
+                if (k == 0) {
                     mapTile.context.beginPath();
                     mapTile.context.moveTo(point.x, point.y);
                 }
@@ -437,8 +506,7 @@
         mapTile.context.stroke();
     }
 
-    private drawPolygon(shape: any, mapTile: MapTile): void
-    {
+    private drawPolygon(shape: any, mapTile: MapTile): void {
         var longitude, latitude, point;
 
         mapTile.context.beginPath();
@@ -452,12 +520,12 @@
                 // Scale the points of the coordinate
                 // to fit inside bounding box
                 point = {
-                    x: (longitude - mapTile.boundingBox.xMin) * mapTile.xScale, 
+                    x: (longitude - mapTile.boundingBox.xMin) * mapTile.xScale,
                     y: (mapTile.boundingBox.yMax - latitude) * mapTile.yScale
                 };
 
                 // If this is the first coordinate in a shape, start a new path
-                if (k === 0 && j !== 0) {
+                if (k == 0 && j != 0) {
                     mapTile.context.closePath();
                     mapTile.context.moveTo(point.x, point.y);
                 }
@@ -482,17 +550,13 @@
         mapTile.context.stroke();
     }
 
-    private drawMultiPolygon(shape: any, mapTile: MapTile): void
-    {
+    private drawMultiPolygon(shape: any, mapTile: MapTile): void {
         var longitude, latitude, point;
 
-        for (var j = 0; j < shape.geometry.coordinates.length; j++)
-        {
+        for (var j = 0; j < shape.geometry.coordinates.length; j++) {
             mapTile.context.beginPath();
-            for (var k = 0; k < shape.geometry.coordinates[j].length; k++)
-            {
-                for (var l = 0; l < shape.geometry.coordinates[j][k].length; l++)
-                {
+            for (var k = 0; k < shape.geometry.coordinates[j].length; k++) {
+                for (var l = 0; l < shape.geometry.coordinates[j][k].length; l++) {
                     longitude = shape.geometry.coordinates[j][k][l][0];
                     latitude = shape.geometry.coordinates[j][k][l][1];
 
@@ -505,7 +569,7 @@
                     };
 
                     // If this is the first coordinate in a shape, start a new path
-                    if (l === 0 && k !== 0) {
+                    if (l == 0 && k != 0) {
                         mapTile.context.closePath();
                         mapTile.context.moveTo(point.x, point.y);
                     }
@@ -532,7 +596,75 @@
             mapTile.context.stroke();
         }
     }
+    
+    private drawPath(routes: any) {
+        if (routes == undefined) {
+            return;
+        }
+        // Check if path string still have existing endpoints placed on map
+        for (var i = 0; i < routes.length; i++) {
+            var numOfPoints = 0;
+            for (var j = 0; j < routes[i].endpoints.length; j++) {
+                
+                for (var k = 0; k < this.client_marks.length; k++) {
+                    if (routes[i].endpoints[j].lat == this.client_marks[k].latitude && routes[i].endpoints[j].lon == this.client_marks[k].longitude) {
+                        ++numOfPoints;
+                    }
+                }
+            }
+            // Mark paths whose don't have endpoints, so we don't draw them
+            (numOfPoints == routes[i].endpoints.length) ? routes[i].drawIt = true : routes[i].drawIt = false;
+        }
+        
+        var canvas = <HTMLCanvasElement>$("#mapCanvas")[0];
+        var context = canvas.getContext('2d');
+        context.beginPath();
 
+        for (var i = 0; i < routes.length; i++) {
+            if (routes[i].drawIt) {
+                for (var j = 0; j < routes[i].path.length; j++) {
+                    for (var k = 0; k < this.mapData.length; k++) {
+                        var latLeft = this.mapData[k].boundingBox.yMin;
+                        var latRight = this.mapData[k].boundingBox.yMax;
+                        var lonTop = this.mapData[k].boundingBox.xMin;
+                        var lonBot = this.mapData[k].boundingBox.xMax;
+
+                        // If mark is in [latitude, longitude] bounds of tile..
+                        if ((latLeft <= routes[i].path[j][0]) && (routes[i].path[j][0] <= latRight) && (lonTop <= routes[i].path[j][1]) && (routes[i].path[j][1] <= lonBot)) {
+                            var point = Converter.MercatorProjection(routes[i].path[j][0], routes[i].path[j][1]);
+
+                            point = {
+                                x: (routes[i].path[j][1] - lonTop) * this.mapData[k].xScale,
+                                y: (latRight - routes[i].path[j][0]) * this.mapData[k].yScale
+                            };
+
+                            point.x += this.mapData[k].positionX;
+                            point.y += this.mapData[k].positionY;
+
+                            if (j == 0) {
+                                context.moveTo(point.x, point.y);
+                            }
+                            else {
+                                context.lineTo(point.x, point.y);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        context.strokeStyle = '#ff0000';
+        context.lineWidth = 3;
+        context.stroke();
+        context.lineWidth = 2;
+        context.strokeStyle = 'yellow';
+        context.stroke();
+        context.lineWidth = 1;
+
+        this.currentRoute = routes;
+        this.markCollectionRedraw();
+    }
+    
 
     private styleBoundariesContext(shape: any, context: any): void {
         context.strokeStyle = "#8e8e8e";
@@ -708,6 +840,37 @@
     }
 
 
+    public getCoordinatesAtCenter(): { latitude: number, longitude: number }
+    {
+        var x = this.mapWidth / 2;
+        var y = this.mapHeight / 2;
+        // Get tile which is in center of map
+        var tileAtCenter;
+        for (var i = 0; i < this.mapData.length; i++) {
+            var top = this.mapData[i].positionY;
+            var bot = this.mapData[i].positionY + this.tileHeight;
+            var left = this.mapData[i].positionX;
+            var right = this.mapData[i].positionX + this.tileWidth;
+
+            // if touch is in this tile...
+            if (left <= x && x <= right && top <= y && y <= bot) {
+                tileAtCenter = this.mapData[i];
+            }
+        }
+        // Calculate [lat,long]
+        var latLeft = tileAtCenter.boundingBox.xMin;
+        var lonBot = tileAtCenter.boundingBox.yMax;
+        var onTileX = x - tileAtCenter.positionX;
+        var onTileY = y - tileAtCenter.positionY;
+
+        var longitude = (onTileX / tileAtCenter.xScale) + latLeft;
+        var latitude = lonBot - (onTileY / tileAtCenter.yScale);
+        return {
+            latitude: latitude,
+            longitude: longitude
+        }
+    }
+
     public markMapByTouch(x: number, y: number)
     {
         var markedTile;
@@ -727,14 +890,12 @@
         if (markedTile != null)
         {
             var latLeft = markedTile.boundingBox.xMin;
-            var latRight = markedTile.boundingBox.xMax;
-            var lonTop = markedTile.boundingBox.yMin;
             var lonBot = markedTile.boundingBox.yMax;
             var onTileX = x - markedTile.positionX;
             var onTileY = y - markedTile.positionY;
 
-            var latitude = (onTileX / markedTile.xScale) + latLeft;
-            var longitude = lonBot - (onTileY / markedTile.yScale);
+            var longitude = (onTileX / markedTile.xScale) + latLeft;
+            var latitude = lonBot - (onTileY / markedTile.yScale);
 
             var didRemove = false;
             // Remove mark if there is already one
@@ -764,6 +925,7 @@
                 };
 
                 context.fillStyle = '#ff0000';
+                context.lineWidth = 1;
                 context.strokeStyle = '#3B3B3B';
                 context.beginPath();
                 context.arc(x, y, point.radius, 0, 2 * Math.PI);
@@ -776,9 +938,6 @@
         }
 
         var marks = new Array();
-        //marks.push({ lat: 49.828, lon: 18.172 });
-        //marks.push({ lat: 49.829, lon: 18.173 });
-
         if (this.client_marks.length >= 2)
         {
             for (var i = 0; i < this.client_marks.length; i++)
@@ -791,32 +950,36 @@
 
     public markCollectionRedraw()
     {
+        var canvas = <HTMLCanvasElement>$("#mapCanvas")[0];
+        var context = canvas.getContext('2d');
+
         for (var i = 0; i < this.client_marks.length; i++)
         {
             for (var j = 0; j < this.mapData.length; j++)
             {
-                var latLeft = this.mapData[j].boundingBox.xMin;
-                var latRight = this.mapData[j].boundingBox.xMax;
-                var lonTop = this.mapData[j].boundingBox.yMin;
-                var lonBot = this.mapData[j].boundingBox.yMax;
+                var latLeft = this.mapData[j].boundingBox.yMin;
+                var latRight = this.mapData[j].boundingBox.yMax;
+                var lonTop = this.mapData[j].boundingBox.xMin;
+                var lonBot = this.mapData[j].boundingBox.xMax;
+
+                var markLat = this.client_marks[i].latitude;
+                var markLon = this.client_marks[i].longitude;
 
                 // If mark is in [latitude, longitude] bounds of tile..
-                if ((latLeft <= this.client_marks[i].latitude) && (this.client_marks[i].latitude <= latRight))
+                if ((latLeft <= markLat) && (markLat <= latRight))
                 {
-                    if ((lonTop <= this.client_marks[i].longitude) && (this.client_marks[i].longitude <= lonBot))
+                    if ((lonTop <= markLon) && (markLon <= lonBot))
                     {
                         var point = Converter.MercatorProjection(this.client_marks[i].latitude, this.client_marks[i].longitude);
 
                         point = {
-                            x: (this.client_marks[i].latitude - latLeft) * this.mapData[j].xScale,
-                            y: (lonBot - this.client_marks[i].longitude) * this.mapData[j].yScale
+                            x: (this.client_marks[i].longitude - lonTop) * this.mapData[j].xScale,
+                            y: (latRight - this.client_marks[i].latitude) * this.mapData[j].yScale
                         };
 
                         point.x += this.mapData[j].positionX;
                         point.y += this.mapData[j].positionY;
                         
-                        var canvas = <HTMLCanvasElement>$("#mapCanvas")[0];
-                        var context = canvas.getContext('2d');
                         context.fillStyle = '#ff0000';
                         context.strokeStyle = '#3B3B3B';
                         context.beginPath();

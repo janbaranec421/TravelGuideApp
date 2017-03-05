@@ -21,8 +21,6 @@ class SchedulePage {
         this.scheduleList = new ScheduleList();
         this.scheduleList.addSchedules();
 
-        //this.sideMenu.loadProjectFromJSON(1);
-
         var pageContent = document.getElementById("pageContent");
         pageContent.addEventListener('touchmove', this.HandleTouchMove.bind(this), false);
         pageContent.addEventListener('touchstart', this.HandleTouchStart.bind(this), false);

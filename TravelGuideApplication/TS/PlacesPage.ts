@@ -21,20 +21,17 @@ class PlacesPage {
         this.placesList = new PlacesList();
 
         this.selections = JSON.parse(window.sessionStorage.getItem("selections"));
-        if (this.selections.selectedTag) {
-            this.placesList.addPlacesWithTagName(this.selections.selectedTagValue);
-            this.selections.selectedTag = false;
-            this.selections.selectedTagValue = null;
+        if (this.selections.currentProjectID) {
+            this.sideMenu.loadProjectFromJSON(this.selections.currentProjectID);
         }
-        else if (this.selections.selectedCollection) {
-            this.placesList.addPlacesWithCollectionName(this.selections.selectedCollectionValue);
-            this.selections.selectedCollection = false;
-            this.selections.selectedCollectionValue = null;
+        if (this.selections.currentTag) {
+            this.placesList.addPlacesWithTagName(this.selections.currentTag);
         }
-        else if (this.selections.selectedSchedule) {
-            this.placesList.addPlacesWithScheduleName(this.selections.selectedScheduleValue);
-            this.selections.selectedSchedule = false;
-            this.selections.selectedScheduleValue = null;
+        else if (this.selections.currentCollection) {
+            this.placesList.addPlacesWithCollectionName(this.selections.currentCollection);
+        }
+        else if (this.selections.currentSchedule) {
+            this.placesList.addPlacesWithScheduleName(this.selections.currentSchedule);
         }
         window.sessionStorage.setItem("selections", JSON.stringify(this.selections));
 

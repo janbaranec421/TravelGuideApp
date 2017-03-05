@@ -1,13 +1,16 @@
 ﻿class MapTile {
-    public rawData: any;
+    public _rawData: any;
 
-    set _rawData(data: any) {
-        this.rawData = data;
+    get rawData(): any {
+        return this._rawData;
+    }
+    set rawData(data: any) {
+        this._rawData = data;
         this.sortedData = this.prepareData(data, this.layers);
         this.didChange = true;
     }
 
-    public boundingBox: any = { xMin: 0, xMax: 0, yMin: 0, yMax: 0 };
+    public boundingBox: { xMin: number, xMax: number, yMin: number, yMax: number };
     public scale: number;
     public xScale: number;
     public yScale: number;
@@ -22,8 +25,37 @@
 
     public tileX: number;
     public tileY: number;
-    public tileWidth: number;
-    public tileHeight: number;
+
+    private _tileWidth: number;
+    get tileWidth(): number {
+        return this._tileWidth;
+    }
+    set tileWidth(tileWidth: number) {
+        this._tileWidth = tileWidth;
+        if (this.boundingBox != null || this.tileWidth != null) {
+            this.xScale = this.tileWidth / Math.abs(this.boundingBox.xMax - this.boundingBox.xMin);
+            this.yScale = this.tileHeight / Math.abs(this.boundingBox.yMax - this.boundingBox.yMin);
+            this.scale = this.xScale < this.yScale ? this.xScale : this.yScale;
+        }
+        console.log(this.scale);
+        this.didChange = true;
+    }
+
+    private _tileHeight: number;
+    get tileHeight(): number {
+        return this._tileHeight;
+    }
+    set tileHeight(tileHeight: number) {
+        this._tileHeight = tileHeight;
+        if (this.boundingBox != null || this.tileWidth != null) {
+            this.xScale = this.tileWidth / Math.abs(this.boundingBox.xMax - this.boundingBox.xMin);
+            this.yScale = this.tileHeight / Math.abs(this.boundingBox.yMax - this.boundingBox.yMin);
+            this.scale = this.xScale < this.yScale ? this.xScale : this.yScale;
+        }
+        console.log(this.scale);
+        this.didChange = true;
+    }
+
     public longitude: number;
     public latitude: number;
     public zoom: number;
@@ -33,18 +65,18 @@
 
     constructor(data: any, tileX: number, tileY: number, zoom: number, layers: Layer, shiftX: number, shiftY: number, tileWidth: number = 260, tileHeight: number = 260)
     {
-        this.rawData = data;
+        this._rawData = data;
         this.tileX = tileX;
         this.tileY = tileY;
         this.zoom = zoom;
         this.layers = layers;
         this.positionX = shiftX;
         this.positionY = shiftY;
-        this.tileWidth = tileWidth;
-        this.tileHeight = tileHeight;
+        this._tileWidth = tileWidth;
+        this._tileHeight = tileHeight;
 
         this.longitude = Converter.Xtile2long(tileX, zoom);
-        this.latitude = Converter.Ytile2lat(tileX, zoom);
+        this.latitude = Converter.Ytile2lat(tileY, zoom);
         this.boundingBox = Converter.tile2boundingBox(tileX, tileY, zoom);
 
         this.xScale = this.tileWidth / Math.abs(this.boundingBox.xMax - this.boundingBox.xMin);
