@@ -305,29 +305,6 @@
             })
     }
 
-    public searchLocationByName(place: string) {
-        var fetchURL = "https://search.mapzen.com/v1/search?" + "api_key=mapzen-eES7bmW&text=" + place;
-
-        $.getJSON(fetchURL)
-            .then((file) => {
-                for (var i = 0; i < file.features.length; i++) {
-                    console.log(file.features[i].properties.label);
-                }
-            })
-    }
-
-    public searchLocationByCoords(latitude: number, longitude: number) {
-        var fetchURL = "https://search.mapzen.com/v1/reverse?" + "api_key=mapzen-eES7bmW&point.lat=" + latitude + "&point.lon=" + longitude;
-
-        $.getJSON(fetchURL)
-            .then((file) => {
-                //console.log(file);
-                for (var i = 0; i < file.features.length; i++) {
-                    //console.log(file.features[i].properties.label);
-                }
-            })
-    }
-
 
     public drawTile(mapTile: MapTile): void {
         // Placeholders aren't drawn
@@ -920,7 +897,7 @@
                     longitude: longitude,
                     positionX: x,
                     positionY: y,
-                    radius: 5,
+                    radius: 10,
                     touchRadius: 20
                 };
 
@@ -930,10 +907,10 @@
                 context.beginPath();
                 context.arc(x, y, point.radius, 0, 2 * Math.PI);
                 context.fill();
+                context.strokeText((this.client_marks.length + 1).toString(), x - point.radius / 3, y + point.radius / 3);
                 context.stroke();
 
                 this.client_marks.push(point);
-                this.searchLocationByCoords(point.latitude, point.longitude);
             }
         }
 
@@ -968,8 +945,7 @@
                 // If mark is in [latitude, longitude] bounds of tile..
                 if ((latLeft <= markLat) && (markLat <= latRight))
                 {
-                    if ((lonTop <= markLon) && (markLon <= lonBot))
-                    {
+                    if ((lonTop <= markLon) && (markLon <= lonBot)) {
                         var point = Converter.MercatorProjection(this.client_marks[i].latitude, this.client_marks[i].longitude);
 
                         point = {
@@ -979,13 +955,17 @@
 
                         point.x += this.mapData[j].positionX;
                         point.y += this.mapData[j].positionY;
-                        
-                        context.fillStyle = '#ff0000';
+
+                        context.fillStyle = '#CEFF0000';
                         context.strokeStyle = '#3B3B3B';
+                        context.lineWidth = 1;
                         context.beginPath();
                         context.arc(point.x, point.y, this.client_marks[i].radius, 0, 2 * Math.PI);
                         context.fill();
+                        context.strokeText((i + 1).toString(), point.x - this.client_marks[i].radius / 3, point.y + this.client_marks[i].radius / 3);
+                        context.lineWidth = 0.5;
                         context.stroke();
+                        context.lineWidth = 1;
 
                         this.client_marks[i].positionX = point.x;
                         this.client_marks[i].positionY = point.y;

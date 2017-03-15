@@ -153,7 +153,15 @@
                 // For each place in collection create new list item
                 for (var i = 0; i < collectionPlacesCollection.length; i++)
                 {
-                    var listItem = $("<li>", { "class": "placesListItem" });
+                    var listItem = $("<li>", { "class": "placesListItem" })
+                        .on("click", (evt) => {                          
+                            var coords = {
+                                lat: $(evt.currentTarget).find("#placesListItemSecondRow > td > tr > div:contains(lat)").text().substr(5),
+                                lon: $(evt.currentTarget).find("#placesListItemSecondRow > td > tr > div:contains(lon)").text().substr(5)
+                            }
+                            window.sessionStorage.setItem("placeItemCoordinates", JSON.stringify(coords));
+                            window.location.href = "index.html";
+                        });
                     var table = $("<table>", { "cellspacing": "0" });
         
                     // IMAGES
@@ -195,8 +203,8 @@
                     var lat = 0;
                     var lon = 0;
                     if (collectionPlacesCollection[i].gps != undefined) {
-                        lat = collectionPlacesCollection[i].gps.lat.toFixed(4);
-                        lon = collectionPlacesCollection[i].gps.lng.toFixed(4);
+                        lat = collectionPlacesCollection[i].gps.lat.toFixed(2);
+                        lon = collectionPlacesCollection[i].gps.lng.toFixed(2);
                     }
                     var time = 0;
                     if (collectionPlacesCollection[i].requiredTime != null) {

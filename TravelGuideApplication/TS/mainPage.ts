@@ -29,17 +29,17 @@ class MainPage {
     // 48.1492400
     // 17.1070000
 
-    public latitude: number = 49.828526;
-    public longitude: number = 18.173270;
-    public zoomLvl: number = 19;
+    public latitude: number;
+    public longitude: number;
+    public zoomLvl: number = 14;
     public layers: Layer = Layer.Water | Layer.Earth | Layer.Boundaries | Layer.Buildings | Layer.Roads | Layer.Transit | Layer.Landuse | Layer.Pois | Layer.Places;
 
     constructor() {
         this.sideMenu = new SideMenu();
         this.topMenu = new TopMenu(this.sideMenu);
         this.map = new Map();
-        this.searchPanel = new MapSearchingPanel();
-        
+        this.searchPanel = new MapSearchingPanel(this.map);
+
         var pageContent = document.getElementById("pageContent");
         pageContent.addEventListener('touchmove', this.HandleTouchMove.bind(this), false);
         pageContent.addEventListener('touchstart', this.HandleTouchStart.bind(this), false);
@@ -60,7 +60,23 @@ class MainPage {
                 canvas.addEventListener('touchmove', this.HandleCanvasTouchMove.bind(this), false);
                 canvas.addEventListener('touchstart', this.HandleCanvasTouchStart.bind(this), false);
                 canvas.addEventListener('touchend', this.HandleCanvasTouchEnd.bind(this), false);
-                
+
+                if (window.sessionStorage.getItem("lastMapCoords")){
+                    var coords = JSON.parse(window.sessionStorage.getItem("lastMapCoords"));
+                    this.latitude = parseFloat(coords.latitude);
+                    this.longitude = parseFloat(coords.longitude);
+                }
+                if (window.sessionStorage.getItem("placeItemCoordinates")) {
+                    var placeItemCoords = JSON.parse(window.sessionStorage.getItem("placeItemCoordinates"));
+                    this.latitude = parseFloat(placeItemCoords.lat);
+                    this.longitude = parseFloat(placeItemCoords.lon);
+                    window.sessionStorage.removeItem("placeItemCoordinates");
+                }
+                if (!this.latitude && !this.longitude) {
+                    this.latitude = 49.828526;
+                    this.longitude = 18.173270;
+                }
+
                 this.map.display(this.latitude, this.longitude, this.zoomLvl, this.layers);
 
                 window.addEventListener('resize', this.adjustMapToViewport.bind(this), false);
@@ -69,8 +85,12 @@ class MainPage {
             .catch((err) => {
                 console.log(err);
             });
+
+        $(window).bind('beforeunload', () => {
+            window.sessionStorage.setItem("lastMapCoords", JSON.stringify(this.map.getCoordinatesAtCenter()));
+        });
     }
-    
+
     private HandleTouchStart(evt): void {
         this.touchXstart = evt.touches[0].clientX;
         this.touchYstart = evt.touches[0].clientY;
@@ -153,6 +173,8 @@ class MainPage {
             var yDiff_second = evt.touches[1].clientY - this.touchYstart_second;
 
             var coords = this.map.getCoordinatesAtCenter();
+            this.latitude = coords.latitude;
+            this.longitude = coords.longitude;
             // Horizontal double swipe
             if (Math.abs(xDiff) > Math.abs(yDiff) && Math.abs(xDiff_second) > Math.abs(yDiff_second)) {
                 if (xDiff > this.swipe_threshold && xDiff_second < -this.swipe_threshold && this.touchXstart < this.touchXstart_second) {
@@ -192,31 +214,6 @@ class MainPage {
                 }
             }
         }
-        /*
-        // checks if single swipe
-        else if ((Math.abs(xDiff) > this.swipe_threshold) || (Math.abs(yDiff) > this.swipe_threshold)) {
-            if (Math.abs(xDiff) > Math.abs(yDiff)) {
-                if (xDiff < 0) {  // Left swipe
-                    console.log("LEFT swipe on canvas");
-                    this.isSwipeFired = true;
-                }
-                else {            // Right swipe
-                    console.log("RIGHT swipe on canvas");
-                    this.isSwipeFired = true;
-                }
-            }
-            else {
-                if (yDiff < 0) {  // Up swipe
-                    console.log("UP swipe on canvas");
-                    this.isSwipeFired = true;
-                }
-                else {            // Down swipe
-                    console.log("DOWN swipe on canvas");
-                    this.isSwipeFired = true;
-                }
-            }
-        }
-        */
     }
 
     private HandleCanvasTouchEnd(evt): void {
@@ -238,7 +235,7 @@ class MainPage {
         }
         this.isSwipeFired = false;
     }
-    
+
     private HandleCanvasWheel(evt): void {
         evt.preventDefault();
         var canvas = <HTMLCanvasElement>document.getElementById("mapCanvas");
@@ -246,6 +243,8 @@ class MainPage {
         var x = Math.round((evt.clientX - rect.left) / (rect.right - rect.left) * canvas.width);
         var y = Math.round((evt.clientY - rect.top) / (rect.bottom - rect.top) * canvas.height);
         var coords = this.map.getCoordinatesAtCenter();
+        this.latitude = coords.latitude;
+        this.longitude = coords.longitude;
         if (evt.deltaY > 0)
             this.map.display(coords.latitude, coords.longitude, --this.zoomLvl, this.layers);
         else
@@ -258,6 +257,8 @@ class MainPage {
         var height = parseInt($("#mapCanvas").css("height"));
 
         var coords = this.map.getCoordinatesAtCenter();
+        this.latitude = coords.latitude;
+        this.longitude = coords.longitude;
 
         // Set canvas coordinates accordingly to canvas element dimensions
         $("#mapCanvas").attr('width', width);
@@ -266,5 +267,9 @@ class MainPage {
 
         // Display adjusted map to coordinates, whose were in center before adjusting.
         this.map.display(coords.latitude, coords.longitude, this.zoomLvl, this.layers);
+    }
+
+    private getUserLocation(success, failure) {
+        navigator.geolocation.getCurrentPosition(success, failure);
     }
 }

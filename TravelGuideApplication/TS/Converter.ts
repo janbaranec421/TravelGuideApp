@@ -129,4 +129,49 @@
         }
         return coordinates;
     }
+
+    static kelvinToCelsius(kelvin: number): number {
+        return kelvin - 273.15;
+    }
+
+    static kelvinToFarenheit(kelvin: number): number {
+        return kelvin * (9/5) - 459.67
+    }
+
+    static farenheitToCelsius(farenheit: number): number {
+        return (farenheit - 32) / 1.8;
+    }
+
+    static farenheitToKelvin(farenheit: number): number {
+        return (farenheit + 459.67) * 5 / 9;
+    }
+
+    static celsiusToFarenheit(celsius: number): number {
+        return celsius * (9/5) + 32;
+    }
+
+    static celsiusToKelvin(celsius: number): number {
+        return celsius + 273.15;
+    }
+
+    static unixToDateTime(UNIX_timestamp): string {
+        var a = new Date(UNIX_timestamp * 1000);
+        var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        var year = a.getFullYear();
+        var month = months[a.getMonth()];
+        var date = a.getDate();
+        var hour = (a.getHours() >= 0 && a.getHours() <= 9) ? "0" + a.getHours().toString() : a.getHours().toString();
+        var min = (a.getMinutes() >= 0 && a.getMinutes() <= 9) ? "0" + a.getMinutes().toString() : a.getMinutes().toString();
+        var sec = (a.getSeconds() >= 0 && a.getSeconds() <= 9) ? "0" + a.getSeconds().toString() : a.getSeconds().toString();
+        return date + ' ' + month + ' ' + year + ' ' + hour + ':' + min + ':' + sec;
+    }
+
+    static unixToDate(UNIX_timestamp): string {
+        var a = new Date(UNIX_timestamp * 1000);
+        var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        var year = a.getFullYear();
+        var month = months[a.getMonth()];
+        var date = a.getDate();
+        return date + ' ' + month + ' ' + year;
+    }
 }
