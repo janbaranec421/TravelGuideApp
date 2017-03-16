@@ -375,7 +375,7 @@
                                 .append(thirdRow)
                                 .append(fourthRow)));
                 }
-                $(this.root).fadeIn(1000);
+                $(this.root).children().fadeIn(1000);
             });
         });
     }
