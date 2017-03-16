@@ -161,25 +161,36 @@ li.placesListItem {
     background-color: #eaeaea;
 }
 #placesListItemSecondRow > td:nth-child(2) {
-    width: 27%;
+    width: 22%;
     font-style: italic;
     padding: 2%;
     background-color: #eaeaea;
     border-left: 1px solid #cecece;
 }
 #placesListItemSecondRow > td:nth-child(3) {
-    width: 27%;
+    width: 32%;
     font-style: italic;
     padding: 2%;
     background-color: #eaeaea;
     border-left: 1px solid #cecece;
 }
-#placesListItemSecondRow > td:nth-child(3) > img {
-    width: 24px;
-    height: 24px;
+#placesListItemSecondRow > td:nth-child(3) > div:nth-child(1) {
+    text-align: center;
+    padding: 5px;
+    box-shadow: 0 2px 2px 0 rgba(0,0,0,0.14), 0 1px 5px 0 rgba(0,0,0,0.12), 0 3px 1px -2px rgba(0,0,0,0.2);
+    background: #c6d3e4;
+    color: #212d37;
+    border: 1px solid #8a8a8a;
+    border-radius: 7px;
+}
+#placesListItemSecondRow > td:nth-child(3) > div:nth-child(2) {
+    padding-top: 5px;
+    text-align: center;
+    font-style: normal;
+    font-size: small;
 }
 
-#placesListItemSecondRow > td:nth-child(3) > span {
+#placesListItemSecondRow > td:nth-child(2) > span {
     vertical-align: super;
     padding-left: 5%;
 }
@@ -277,6 +288,7 @@ div#selectedProject {
     width: 29%;
     height: calc(100vh - 55px);
     float: left;
+    min-height: 380px;
 }
 
 #map {
@@ -348,26 +360,12 @@ div#selectedProject {
     background: #d6dbdf;
 }
 
-@media (max-width: 677px ), (max-height: 380px) {
-    #map {
-        width: 100% !important;
-    }
-    #mapCanvas {
-        height: calc(70vh - 55px) !important;
-    }
-    #mapPanel {
-        width: 100% !important;
-        margin-left: 0px;
-        margin-top: 3px;
-    }
-}
-
 input::-webkit-calendar-picker-indicator {
   display: none;
 }
 
 div#detailedInfo {
-    height: calc(100% - 62px);
+    height: calc(100% - 68px);
     width: 95%;
     position: relative;
     margin: auto;
@@ -391,7 +389,8 @@ div.detailedInfoSegment {
         min-height: 100px;
     }
     div.detailedInfoSegment:nth-of-type(2) {
-        height: calc(95vh - 201px);
+        height: calc(95vh - 223px);
+        position: relative;
         margin-top: 7px;
     }
     .detailedInfoSegment > table > tbody > tr {
@@ -401,7 +400,7 @@ div.detailedInfoSegment {
 #PlaceDetails {
     width: 85%;
     margin: auto;
-    padding: 3% 2%;
+    padding: 1% 2%;
     font-size: smaller;
     box-shadow: inset 0px 0px 10px 0px #cccccc;
     background: #e8e8e8;
@@ -471,10 +470,36 @@ ul#list-forecast {
     overflow-y: scroll;
     position: relative;
     max-height: calc(95vh - 235px);
+    min-height: 150px;
 }
 ul#list-forecast > table {
     width: 100%;
     padding: 1% 5%;
     background: #e2ecf3;
     box-shadow: inset 0px 0px 2px 0px #88bde2;
+}
+
+
+@media (max-width: 677px ), (max-height: 380px) {
+    #map {
+        width: 100% !important;
+    }
+    #mapCanvas {
+        height: calc(70vh - 55px) !important;
+    }
+    #mapPanel {
+        width: 100% !important;
+        margin-left: 0px;
+        margin-top: 3px;
+    }
+    #detailedInfo {
+        height: calc(100% - 85px) !important;
+    }
+    div.detailedInfoSegment:nth-of-type(2) {
+        margin-top: 15px;
+    }
+    #list-forecast {
+        max-height: calc(95vh - 275px) !important;
+    }
+
 }

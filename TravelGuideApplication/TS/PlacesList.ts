@@ -84,8 +84,8 @@
                     var lat = 0;
                     var lon = 0;
                     if (taggedPlacesCollection[i].gps != undefined) {
-                        lat = taggedPlacesCollection[i].gps.lat.toFixed(4);
-                        lon = taggedPlacesCollection[i].gps.lng.toFixed(4);
+                        lat = taggedPlacesCollection[i].gps.lat.toFixed(2);
+                        lon = taggedPlacesCollection[i].gps.lng.toFixed(2);
                     }
                     var time = 0;
                     if (taggedPlacesCollection[i].requiredTime != null) {
@@ -94,12 +94,21 @@
                     var secondRow = $("<tr>", { "id": "placesListItemSecondRow" })
                         .append($("<td>").html(title))
                         .append($("<td>")
-                            .append($("<tr>")
-                                .append($("<div>").html("lat: " + lat))
-                                .append($("<div>").html("lon: " + lon))))
-                        .append($("<td>")
                             .append($("<img>", { "src": "../Resources/clock.png" }))
-                            .append($("<span>").html(time + " min")));
+                            .append($("<span>").html(time + " min").css("vertical-align", "super")))
+                        .append($("<td>")
+                            .append($("<div>", { "class": "showOnMapButton" }).html("Show on map")
+                                .on('click', (evt) => {
+                                    var text = $(evt.currentTarget).parent().find(".itemCoordinates").text().substr(5).replace("[", "").replace("]", "").split(",");
+                                    var coords = {
+                                        lat: text[0],
+                                        lon: text[1]
+                                    }
+                                    window.sessionStorage.setItem("placeItemCoordinates", JSON.stringify(coords));
+                                    window.location.href = "index.html";
+                                }))
+                            .append($("<div>", { "class": "itemCoordinates" }).html("GPS: [" + lat + "," + lon + "]"))
+                    );
 
                     // DESCRIPTION
                     var description = "Description not found";
@@ -151,17 +160,8 @@
                 }
 
                 // For each place in collection create new list item
-                for (var i = 0; i < collectionPlacesCollection.length; i++)
-                {
-                    var listItem = $("<li>", { "class": "placesListItem" })
-                        .on("click", (evt) => {                          
-                            var coords = {
-                                lat: $(evt.currentTarget).find("#placesListItemSecondRow > td > tr > div:contains(lat)").text().substr(5),
-                                lon: $(evt.currentTarget).find("#placesListItemSecondRow > td > tr > div:contains(lon)").text().substr(5)
-                            }
-                            window.sessionStorage.setItem("placeItemCoordinates", JSON.stringify(coords));
-                            window.location.href = "index.html";
-                        });
+                for (var i = 0; i < collectionPlacesCollection.length; i++) {
+                    var listItem = $("<li>", { "class": "placesListItem" });
                     var table = $("<table>", { "cellspacing": "0" });
         
                     // IMAGES
@@ -213,12 +213,21 @@
                     var secondRow = $("<tr>", { "id": "placesListItemSecondRow" })
                         .append($("<td>").html(title))
                         .append($("<td>")
-                            .append($("<tr>")
-                                .append($("<div>").html("lat: " + lat))
-                                .append($("<div>").html("lon: " + lon))))
-                        .append($("<td>")
                             .append($("<img>", { "src": "../Resources/clock.png" }))
-                            .append($("<span>").html(time + " min")));
+                            .append($("<span>").html(time + " min").css("vertical-align", "super")))
+                        .append($("<td>")
+                            .append($("<div>", {"class" : "showOnMapButton"}).html("Show on map")
+                                .on('click', (evt) => {
+                                    var text = $(evt.currentTarget).parent().find(".itemCoordinates").text().substr(5).replace("[", "").replace("]", "").split(",");
+                                    var coords = {
+                                        lat: text[0],
+                                        lon: text[1]
+                                    }
+                                    window.sessionStorage.setItem("placeItemCoordinates", JSON.stringify(coords));
+                                    window.location.href = "index.html";
+                                }))
+                            .append($("<div>", { "class": "itemCoordinates"}).html("GPS: [" + lat + "," + lon +"]"))
+                        );
 
                     // DESCRIPTION
                     var description = "Description not found";
@@ -311,8 +320,8 @@
                     var lat = 0;
                     var lon = 0;
                     if (schedulePlacesCollection[i].gps != undefined) {
-                        lat = schedulePlacesCollection[i].gps.lat.toFixed(4);
-                        lon = schedulePlacesCollection[i].gps.lng.toFixed(4);
+                        lat = schedulePlacesCollection[i].gps.lat.toFixed(2);
+                        lon = schedulePlacesCollection[i].gps.lng.toFixed(2);
                     }
                     var time = 0;
                     if (schedulePlacesCollection[i].requiredTime != null) {
@@ -321,12 +330,21 @@
                     var secondRow = $("<tr>", { "id": "placesListItemSecondRow" })
                         .append($("<td>").html(title))
                         .append($("<td>")
-                            .append($("<tr>")
-                                .append($("<div>").html("lat: " + lat))
-                                .append($("<div>").html("lon: " + lon))))
-                        .append($("<td>")
                             .append($("<img>", { "src": "../Resources/clock.png" }))
-                            .append($("<span>").html(time + " min")));
+                            .append($("<span>").html(time + " min").css("vertical-align", "super")))
+                        .append($("<td>")
+                            .append($("<div>", { "class": "showOnMapButton" }).html("Show on map")
+                                .on('click', (evt) => {
+                                    var text = $(evt.currentTarget).parent().find(".itemCoordinates").text().substr(5).replace("[", "").replace("]", "").split(",");
+                                    var coords = {
+                                        lat: text[0],
+                                        lon: text[1]
+                                    }
+                                    window.sessionStorage.setItem("placeItemCoordinates", JSON.stringify(coords));
+                                    window.location.href = "index.html";
+                                }))
+                            .append($("<div>", { "class": "itemCoordinates" }).html("GPS: [" + lat + "," + lon + "]"))
+                        );
 
                     // DESCRIPTION
                     var description = "Description not found";

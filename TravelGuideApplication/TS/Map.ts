@@ -787,18 +787,17 @@
         context.fillStyle = 'black';
         context.textAlign = "center";
         console.log(shape.properties.kind);
-
-            switch (shape.properties.kind) {
-                case "borough": { context.font = "bolder 15px Arial"; context.fillStyle = 'green'; break; }
-                case "country": { context.font = "bolder 17px Arial"; context.fillStyle = 'Red'; break; }
-                case "locality": { context.font = "bolder 15px Arial"; context.fillStyle = 'blue'; break; }
-                case "macrohood": { context.font = "bolder 15px Arial"; context.fillStyle = 'yellow'; break; }
-                case "microhood": { context.font = "bolder 15px Arial"; context.fillStyle = 'pink'; break; }
-                case "neighbourhood": { context.font = "bolder 15px Arial"; context.fillStyle = '#616161'; break; }
-                case "region": { context.font = "bolder 15px Arial"; context.fillStyle = 'black'; break; }
-                default: { context.font = "bolder 15px Arial"; }
-            }
-            context.fillText(shape.properties.name, posX, posY);*/
+        switch (shape.properties.kind) {
+            case "borough": { context.font = "bolder 15px Arial"; context.fillStyle = 'green'; break; }
+            case "country": { context.font = "bolder 17px Arial"; context.fillStyle = 'Red'; break; }
+            case "locality": { context.font = "bolder 15px Arial"; context.fillStyle = 'blue'; break; }
+            case "macrohood": { context.font = "bolder 15px Arial"; context.fillStyle = 'yellow'; break; }
+            case "microhood": { context.font = "bolder 15px Arial"; context.fillStyle = 'pink'; break; }
+            case "neighbourhood": { context.font = "bolder 15px Arial"; context.fillStyle = '#616161'; break; }
+            case "region": { context.font = "bolder 15px Arial"; context.fillStyle = 'black'; break; }
+            default: { context.font = "bolder 15px Arial"; }
+        }
+        context.fillText(shape.properties.name, posX, posY);*/
     }
 
     private styleTransitContext(shape: any, context: any): void {
