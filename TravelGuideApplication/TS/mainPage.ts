@@ -40,31 +40,16 @@ class MainPage {
         this.map = new Map();
         this.searchPanel = new MapSearchingPanel(this.map);
 
-        var pageContent = document.getElementById("pageContent");
-        pageContent.addEventListener('touchmove', this.HandleTouchMove.bind(this), false);
-        pageContent.addEventListener('touchstart', this.HandleTouchStart.bind(this), false);
-        pageContent.addEventListener('touchend', this.HandleTouchEnd.bind(this), false);
-
-        var sideMenu = document.getElementById("sideMenu");
-        sideMenu.addEventListener('touchmove', (e) => { }, false);
-        sideMenu.addEventListener('touchstart', (e) => { e.stopPropagation(); }, false);
-        sideMenu.addEventListener('touchend', (e) => { e.stopPropagation(); }, false);
-
         this.db = new Database();
-        this.db.initalizeDB()
+        this.db.initializeDB()
             .then((value) => {
                 this.map.database = this.db;
-
-                var canvas = document.getElementById("mapCanvas");
-                canvas.addEventListener('wheel', this.HandleCanvasWheel.bind(this));
-                canvas.addEventListener('touchmove', this.HandleCanvasTouchMove.bind(this), false);
-                canvas.addEventListener('touchstart', this.HandleCanvasTouchStart.bind(this), false);
-                canvas.addEventListener('touchend', this.HandleCanvasTouchEnd.bind(this), false);
 
                 if (window.sessionStorage.getItem("lastMapCoords")){
                     var coords = JSON.parse(window.sessionStorage.getItem("lastMapCoords"));
                     this.latitude = parseFloat(coords.latitude);
                     this.longitude = parseFloat(coords.longitude);
+                    this.zoomLvl = parseInt(coords.zoom);
                 }
                 if (window.sessionStorage.getItem("placeItemCoordinates")) {
                     var placeItemCoords = JSON.parse(window.sessionStorage.getItem("placeItemCoordinates"));
@@ -77,7 +62,7 @@ class MainPage {
                     this.longitude = 18.173270;
                 }
 
-                this.map.display(this.latitude, this.longitude, this.zoomLvl, this.layers);
+                this.map.displayPlace(this.latitude, this.longitude, this.zoomLvl, this.layers);
 
                 window.addEventListener('resize', this.adjustMapToViewport.bind(this), false);
                 this.adjustMapToViewport();
@@ -86,8 +71,25 @@ class MainPage {
                 console.log(err);
             });
 
+        var canvas = document.getElementById("mapCanvas");
+        canvas.addEventListener('wheel', this.HandleCanvasWheel.bind(this));
+        canvas.addEventListener('touchmove', this.HandleCanvasTouchMove.bind(this), false);
+        canvas.addEventListener('touchstart', this.HandleCanvasTouchStart.bind(this), false);
+        canvas.addEventListener('touchend', this.HandleCanvasTouchEnd.bind(this), false);
+
+        var pageContent = document.getElementById("pageContent");
+        pageContent.addEventListener('touchmove', this.HandleTouchMove.bind(this), false);
+        pageContent.addEventListener('touchstart', this.HandleTouchStart.bind(this), false);
+        pageContent.addEventListener('touchend', this.HandleTouchEnd.bind(this), false);
+
         $(window).bind('beforeunload', () => {
-            window.sessionStorage.setItem("lastMapCoords", JSON.stringify(this.map.getCoordinatesAtCenter()));
+            var obj = this.map.getCoordinatesAtCenter();
+            var item = {
+                latitude: obj.latitude,
+                longitude: obj.longitude,
+                zoom: this.zoomLvl
+            }
+            window.sessionStorage.setItem("lastMapCoords", JSON.stringify(item));
         });
     }
 
@@ -178,38 +180,38 @@ class MainPage {
             // Horizontal double swipe
             if (Math.abs(xDiff) > Math.abs(yDiff) && Math.abs(xDiff_second) > Math.abs(yDiff_second)) {
                 if (xDiff > this.swipe_threshold && xDiff_second < -this.swipe_threshold && this.touchXstart < this.touchXstart_second) {
-                    this.map.display(coords.latitude, coords.longitude, --this.zoomLvl, this.layers);
+                    this.map.displayPlace(coords.latitude, coords.longitude, --this.zoomLvl, this.layers);
                     this.isSwipeFired = true;
                 }
                 if (xDiff < -this.swipe_threshold && xDiff_second > this.swipe_threshold && this.touchXstart > this.touchXstart_second) {
-                    this.map.display(coords.latitude, coords.longitude, --this.zoomLvl, this.layers);
+                    this.map.displayPlace(coords.latitude, coords.longitude, --this.zoomLvl, this.layers);
                     this.isSwipeFired = true;
                 }
                 if (xDiff < -this.swipe_threshold && xDiff_second > this.swipe_threshold && this.touchXstart < this.touchXstart_second) {
-                    this.map.display(coords.latitude, coords.longitude, ++this.zoomLvl, this.layers);
+                    this.map.displayPlace(coords.latitude, coords.longitude, ++this.zoomLvl, this.layers);
                     this.isSwipeFired = true;
                 }
                 if (xDiff > this.swipe_threshold && xDiff_second < -this.swipe_threshold && this.touchXstart > this.touchXstart_second) {
-                    this.map.display(coords.latitude, coords.longitude, ++this.zoomLvl, this.layers);
+                    this.map.displayPlace(coords.latitude, coords.longitude, ++this.zoomLvl, this.layers);
                     this.isSwipeFired = true;
                 }
             }
             // Vertical double swipe
             else if (Math.abs(yDiff) > Math.abs(xDiff) && Math.abs(yDiff_second) > Math.abs(xDiff_second)) {
                 if (yDiff > this.swipe_threshold && yDiff_second < -this.swipe_threshold && this.touchYstart < this.touchYstart_second) {
-                    this.map.display(coords.latitude, coords.longitude, --this.zoomLvl, this.layers);
+                    this.map.displayPlace(coords.latitude, coords.longitude, --this.zoomLvl, this.layers);
                     this.isSwipeFired = true;
                 }
                 if (yDiff < -this.swipe_threshold && yDiff_second > this.swipe_threshold && this.touchYstart > this.touchYstart_second) {
-                    this.map.display(coords.latitude, coords.longitude, --this.zoomLvl, this.layers);
+                    this.map.displayPlace(coords.latitude, coords.longitude, --this.zoomLvl, this.layers);
                     this.isSwipeFired = true;
                 }
                 if (yDiff < -this.swipe_threshold && yDiff_second > this.swipe_threshold && this.touchYstart < this.touchYstart_second) {
-                    this.map.display(coords.latitude, coords.longitude, ++this.zoomLvl, this.layers);
+                    this.map.displayPlace(coords.latitude, coords.longitude, ++this.zoomLvl, this.layers);
                     this.isSwipeFired = true;
                 }
                 if (yDiff > this.swipe_threshold && yDiff_second < -this.swipe_threshold && this.touchYstart > this.touchYstart_second) {
-                    this.map.display(coords.latitude, coords.longitude, ++this.zoomLvl, this.layers);
+                    this.map.displayPlace(coords.latitude, coords.longitude, ++this.zoomLvl, this.layers);
                     this.isSwipeFired = true;
                 }
             }
@@ -231,7 +233,7 @@ class MainPage {
             var rect = canvas.getBoundingClientRect();
             var x = Math.round((evt.changedTouches[0].clientX - rect.left) / (rect.right - rect.left) * canvas.width);
             var y = Math.round((evt.changedTouches[0].clientY - rect.top) / (rect.bottom - rect.top) * canvas.height);
-            this.map.markMapByTouch(x, y);
+            this.map.markMap(x, y);
         }
         this.isSwipeFired = false;
     }
@@ -246,9 +248,9 @@ class MainPage {
         this.latitude = coords.latitude;
         this.longitude = coords.longitude;
         if (evt.deltaY > 0)
-            this.map.display(coords.latitude, coords.longitude, --this.zoomLvl, this.layers);
+            this.map.displayPlace(coords.latitude, coords.longitude, --this.zoomLvl, this.layers);
         else
-            this.map.display(coords.latitude, coords.longitude, ++this.zoomLvl, this.layers);
+            this.map.displayPlace(coords.latitude, coords.longitude, ++this.zoomLvl, this.layers);
     }
 
     private adjustMapToViewport() {
@@ -266,10 +268,6 @@ class MainPage {
         this.map.setMapDimensions(width, height);
 
         // Display adjusted map to coordinates, whose were in center before adjusting.
-        this.map.display(coords.latitude, coords.longitude, this.zoomLvl, this.layers);
-    }
-
-    private getUserLocation(success, failure) {
-        navigator.geolocation.getCurrentPosition(success, failure);
+        this.map.displayPlace(coords.latitude, coords.longitude, this.zoomLvl, this.layers);
     }
 }

@@ -1,5 +1,5 @@
 ﻿class TopMenu {
-    public root: JQuery;
+    private root: JQuery;
 
     constructor(sideMenu: SideMenu) {
         this.root = $("#topMenu");

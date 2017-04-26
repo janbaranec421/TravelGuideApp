@@ -156,16 +156,6 @@
         return array;
     }
 
-    private print(data) {
-        for (var i = 0; i < data.length; i++)
-            if (data[i].properties.sort_rank == undefined) {
-                console.log(data[i].properties.addr_street);
-            }
-            else {
-                console.log(data[i].properties.sort_rank);
-            }
-    }
-
     private sortBySortKey(array) {
         return array.sort(function(a,b) {
             let x = a.properties.sort_rank;

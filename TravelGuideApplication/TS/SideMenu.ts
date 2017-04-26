@@ -3,8 +3,6 @@
     public isAnimationFinished: boolean;
     public isOpen: boolean;
 
-    public projects: any[];
-
     constructor() {
         this.root = $("#sideMenu").attr("left", "-250px");
 
@@ -213,11 +211,6 @@
                 }
             });
         });
-    }
-
-    public isOpened()
-    {
-        return this.isOpen;
     }
 
     public showMenu(openMenu: boolean) {

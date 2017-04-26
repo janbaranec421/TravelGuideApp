@@ -1,6 +1,6 @@
 ﻿class Database {
 
-    private db: any;
+    private db: IDBDatabase;
 
     public static databaseName: string = "TileDB";
     public static databaseVersion: number = 1;
@@ -18,7 +18,7 @@
         }
     }
 
-    public initalizeDB(): Promise<{}>
+    public initializeDB(): Promise<any>
     {
         return new Promise(
             (resolve, reject) => {
@@ -58,7 +58,7 @@
         })
     }
 
-    public getTile(id: string): Promise<{}>
+    public getTile(id: string): Promise<any>
     {
         return new Promise((resolve, reject) => {
             var request = this.db.transaction(["Tile"], "readonly")

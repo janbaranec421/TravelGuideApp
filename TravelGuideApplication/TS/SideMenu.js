@@ -188,9 +188,6 @@ var SideMenu = (function () {
             });
         });
     };
-    SideMenu.prototype.isOpened = function () {
-        return this.isOpen;
-    };
     SideMenu.prototype.showMenu = function (openMenu) {
         var _this = this;
         if (this.isAnimationFinished) {

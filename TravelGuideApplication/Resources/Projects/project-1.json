@@ -1,108 +1,177 @@
 ﻿{
-
-  "name": "Nizozemí",
-  "desc": "Nizozemsko, někdy také nesprávně Nizozemí nebo Holandsko, je jedna ze čtyř zemí Nizozemského království, která leží v severozápadní Evropě na pobřeží Severního moře. Na východě hraničí s Německem a na jihu s Belgií.",
+  "name": "Česká republika",
+  "desc": "Česko, dlhý tvar Česká republika, je stredoeurópsky štát. Na západe susedí s Nemeckom, na severe s Poľskom, na juhovýchode so Slovenskom a na juhu s Rakúskom. Česko tvoria Čechy, Morava a české Sliezsko",
 
   "labels": [
     {
       "id": 1,
-      "name": "Hlavní město"
+      "name": "Reštaurácie"
     },
     {
-      "id": 2,
-      "name": "Památka"
+      "id": 3,
+      "name": "Pamiatky"
+    },
+    {
+      "id": 4,
+      "name": "Kultúra"
+    },
+        {
+      "id": 5,
+      "name": "Bar"
     }
   ],
 
   "places": [
     {
       "id": 1,
-      "name": "Royal Palace of Amsterdam",
-      "desc": "The palace was built as a city hall during the Dutch Golden Age in the 17th century.",
+      "name": "Nová radnica, Ostrava",
+      "desc": "Najznámejšia budova v Ostrave a zároveň najvyššia radničná veža v Českej republike (85,6m).",
       "gps": {
-        "lat": 52.37316,
-        "lng": 4.8913
+        "lat": 49.841625,
+        "lng": 18.291279
       },
       "photos": [
-        "https://farm4.staticflickr.com/3203/2745875535_9cdb08ab5f_z.jpg",
-        "https://upload.wikimedia.org/wikipedia/commons/a/a7/Koninklijk_Paleis_Amsterdam.jpg"
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/2014_Ostrawa%2C_Nowy_Ratusz_10.jpg/800px-2014_Ostrawa%2C_Nowy_Ratusz_10.jpg",
+        "http://itras.cz/fotogalerie/nova-radnice-ostrava/velke/nova-radnice-ostrava-ilona-hromadkova-001.jpg",
+        "http://orig09.deviantart.net/a1e3/f/2012/356/1/3/chrostmas_in_ostrava_by_dorcadion-d5orwbu.jpg"
       ],
-      "labels": [ 1, 2 ],
-      "requiredTime": 60,
+      "labels": [ 3 ],
+      "requiredTime": 45,
+      "priority": 3
+    },
+
+    {
+      "id": 2,
+      "name": "Dolná oblasť Vítkovice",
+      "desc": "Rozsiahly priemyselný areál s unikátnym súborom indutriálnej architektúry. V areále sa nachádza moderné science centrum Svět techniky, množstvo laboratórií, dielňe, 3D kino a divadlo.",
+      "gps": {
+        "lat": 49.818701,
+        "lng": 18.279491
+      },
+      "photos": [
+        "http://2015.ostravskamuzejninoc.cz/wp-content/uploads/2015/05/01_dov.jpg",
+        "http://cdn.i0.cz/src/public-data/ac/bd/de9925de3c8bb6475a8ddf6db402_base_optimal.jpg"
+      ],
+      "labels": [ 3 ],
+      "requiredTime": 75,
+      "priority": 3
+    },
+    {
+      "id": 3,
+      "name": "Stodolní Street",
+      "desc": "Ulica v centre Ostravy. Je preslávená nočným životom. Obsahuje desiatky barov, reštaurácií a klubov.",
+      "gps": {
+        "lat": 49.818701,
+        "lng": 18.279491
+      },
+      "photos": [
+        "http://www.tomwal.borec.cz/stodol2.jpg",
+        "https://media.novinky.cz/993/369933-top_foto1-7ariz.jpg?1447065001",
+        "https://www.ostrava.cz/cs/turista/zabava/nocni-zivot/nocni-zivot/STODpanor..jpg"
+      ],
+      "labels": [ 1, 5 ],
+      "requiredTime": 45,
       "priority": 3
     },
     {
       "id": 4,
-      "name": "Royal Palace of Amsterdam",
-      "desc": "The palace was built as a city hall during the Dutch Golden Age in the 17th century.",
+      "name": "Divadlo Antonína Dvořáka",
+      "desc": "Domovská scéna operného, činoherného a baletného súboru Národného divadla moravskoslezského.",
       "gps": {
-        "lat": 52.37316,
-        "lng": 4.8913
+        "lat": 49.832570,
+        "lng": 18.291214
       },
       "photos": [
-        "https://farm4.staticflickr.com/3203/2745875535_9cdb08ab5f_z.jpg",
-        "https://upload.wikimedia.org/wikipedia/commons/a/a7/Koninklijk_Paleis_Amsterdam.jpg"
+        "http://www.ndm.cz/userfiles/archiv_priloh/clanky/fotografie/dad-budova-1446815603.jpg",
+        "http://www.theatre-architecture.eu/res/archive/084/009659.jpg?seek=1277394071"
       ],
-      "labels": [ 1, 2 ],
-      "requiredTime": 60,
+      "labels": [ 3, 4 ],
+      "requiredTime": 90,
       "priority": 3
     },
     {
       "id": 5,
-      "name": "Royal Palace of Amsterdam",
-      "desc": "The palace was built as a city hall during the Dutch Golden Age in the 17th century.",
+      "name": "Pražský hrad",
+      "desc": "Je symbolom českého štátu, najvýznamnejšou českou pamiatkou i kultúrnou inštitúciou.",
       "gps": {
-        "lat": 52.37316,
-        "lng": 4.8913
+        "lat": 50.090189,
+        "lng": 14.399965
       },
       "photos": [
-        "https://farm4.staticflickr.com/3203/2745875535_9cdb08ab5f_z.jpg",
-        "https://upload.wikimedia.org/wikipedia/commons/a/a7/Koninklijk_Paleis_Amsterdam.jpg"
+        "http://1gr.cz/fotky/idnes/08/083/maxi/TOM2562ae_prazsky_hrad.jpg",
+        "http://poznejte-cesko.eu/wp-content/uploads/2016/01/Pra%C5%BEsk%C3%BD-hrad-foto-2.jpg",
+        "https://www.hrad.cz/file/edee/public/2015/09/svatyvit-20150923-141241.jpg"
       ],
-      "labels": [ 1, 2 ],
+      "labels": [ 3, 4 ],
       "requiredTime": 60,
       "priority": 3
     },
     {
-      "id": 4,
-      "name": "Royal Palace of Amsterdam",
-      "desc": "The palace was built as a city hall during the Dutch Golden Age in the 17th century.",
+      "id": 6,
+      "name": "Tancujúci dom",
+      "desc": "Stojí na nároží Jiráskovho námestia a Rašinovského nábrežia. Vytvoril ho americký architekt Frank Gehry spolu s českým architektom Vladom Milunićom. Je príkladom dekonštruktívnej architektúry.",
       "gps": {
-        "lat": 52.37316,
-        "lng": 4.8913
+        "lat": 50.075396,
+        "lng": 14.414168
       },
       "photos": [
-        "https://farm4.staticflickr.com/3203/2745875535_9cdb08ab5f_z.jpg",
-        "https://upload.wikimedia.org/wikipedia/commons/a/a7/Koninklijk_Paleis_Amsterdam.jpg"
+        "https://m.smedata.sk/api-media/media/image/sme/5/20/2095305/2095305_1200x.jpeg?rev=4",
+        "https://www.pluska.sk/images/gallery/fotoreportaz/2015/11/architektura/praha.jpg",
+        "http://img.nehnutelnosti.sk/stories/Magazin/Magazin_2/tancujuci_dom_praha_dreamstime.jpg"
       ],
-      "labels": [ 1, 2 ],
-      "requiredTime": 60,
+      "labels": [ 3, 4 ],
+      "requiredTime": 30,
       "priority": 3
     },
     {
-      "id": 2,
-      "name": "Cathedral of Our Lady",
-      "labels": [ 2 ]
+      "id": 7,
+      "name": "Pražský orloj",
+      "desc": "Je stredoveký orloj umiestnený na južnej strane veže Staromestskej radnice v Prahe. Je jedným z najznámejších turistických objektov Prahy",
+      "gps": {
+        "lat": 50.087072,
+        "lng": 14.420659
+      },
+      "photos": [
+        "https://media.novinky.cz/312/163123-top_foto1-6trgo.jpg?1271835001",
+        "http://1gr.cz/fotky/idnes/11/033/cl6/JB39ef6f_profimedia_0000696122.jpg",
+        "http://www.joutrip.com/i/p/prague-astronomical-clock-2.jpg"
+      ],
+      "labels": [ 3, 4 ],
+      "requiredTime": 20,
+      "priority": 3
     },
     {
-      "id": 3,
-      "name": "Vlaeykensgang"
+      "id": 8,
+      "name": "Karolov most",
+      "desc": "Je najstarší stojaci most cez rieku Vltavu v Prahe a druhý najstarší zachovaný most v Česku",
+      "gps": {
+        "lat": 50.086484,
+        "lng": 14.411716
+      },
+      "photos": [
+        "https://www.fotopraha.com/foto-praha/karluv-most-mlha.jpg",
+        "http://www.ttstudio.sk/photos/karlov-most-v-noci-2525.jpg",
+        "https://fotky.sme.sk/foto/111223/karlov-most"
+      ],
+      "labels": [ 3 ],
+      "requiredTime": 20,
+      "priority": 3
     }
+
   ],
 
 
   "collections": [
 
     {
-      "name": "Amsterdam",
-      "desc": "Popis amsterdamu",
-      "photo": "https://lonelyplanetimages.imgix.net/mastheads/stock-photo-beautiful-amsterdam-76796579.jpg?sharp=10&vib=20&w=1200",
-      "places": [ 1, 4, 5 ]
+      "name": "Ostrava",
+      "desc": "Ostrava je tretie najväčšie mesto v Česku na hraniciach Moravy a Sliezska. Ide o aglomeráciu pôvodne 33 samostatných obcí. ",
+      "places": [ 1, 2, 3, 4 ]
     },
 
     {
-      "name": "Antwerp",
-      "places": [ 2, 3 ]
+      "name": "Praha",
+      "places": [ 5, 6, 7, 8 ]
     }
 
   ],
@@ -110,46 +179,80 @@
 
   "schedule": [
     {
-      "name": "Návštěva Amsterdamu",
-      "note": "Nezapomenou vyzkoušet zdejší palačinky...",
+      "name": "Výlet do Prahy",
+      "note": "Nezabudnúť ochutnať tunajšiu kuchyňu...",
       "date": {
-        "from": "2017-01-19T12:21:00",
-        "to": "2017-01-19T22:00:00"
+        "from": "2017-06-19T9:45",
+        "to": "2017-06-22T18:21"
       },
       "items": [
         {
-          "place": 1,
+          "place": 5,
           "date": {
-            "from": "2017-01-19T12:21:00",
-            "to": "2017-01-19T13:00:00"
+            "from": "2017-01-19T12:00",
+            "to": "2017-01-19T13:00"
+          }
+        },
+        {
+          "place": 6,
+          "date": {
+            "from": "2017-06-19T14:30",
+            "to": "2017-06-19T16:00"
+          }
+        },
+        {
+          "place": 7,
+          "date": {
+            "from": "2017-06-20T16:00",
+            "to": "2017-06-20T18:00"
+          }
+        },
+        {
+          "place": 8,
+          "date": {
+            "from": "2017-06-21T13:00",
+            "to": "2017-06-21T15:00"
           }
         }
       ]
     },
     {
-      "name": "Návštěva Antwerp",
-      "note": null,
+      "name": "Návšteva Ostravy",
+      "note": "Kúpiť suvenýr pre rodičov",
       "date": {
-        "from": "2017-01-20T08:00:00",
-        "to": "2017-01-20T13:00:00"
+        "from": "2017-05-19T08:00",
+        "to": "2017-05-20T10:00"
       },
       "items": [
         {
+          "place": 1,
+          "date": {
+            "from": "2017-01-19T10:25",
+            "to": "2017-01-19T11:00"
+          }
+        },
+        {
           "place": 2,
           "date": {
-            "from": "2017-01-19T12:21:00",
-            "to": "2017-01-19T13:00:00"
+            "from": "2017-01-19T13:00",
+            "to": "2017-01-19T15:00"
+          }
+        },
+        {
+          "place": 4,
+          "date": {
+            "from": "2017-01-19T17:45",
+            "to": "2017-01-19T21:00"
           }
         },
         {
           "place": 3,
           "date": {
-            "from": "2017-01-19T12:21:00",
-            "to": "2017-01-19T13:00:00"
+            "from": "2017-01-19T21:30",
+            "to": "2017-01-20T2:00"
           }
         }
       ]
     }
   ]
-
 }

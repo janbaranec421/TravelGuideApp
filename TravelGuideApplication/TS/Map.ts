@@ -4,8 +4,8 @@
     private context: CanvasRenderingContext2D;
 
     public database: Database;
-    private mapData: MapTile[] = [];
-    private client_marks: { latitude: number, longitude: number, positionX: number, positionY: number, radius: number, touchRadius: number }[] = [];
+    private mapData: Array<MapTile> = [];
+    private user_marks: { latitude: number, longitude: number, positionX: number, positionY: number, radius: number, touchRadius: number }[] = [];
 
     private tileWidth: number;
     private tileHeight: number;
@@ -57,7 +57,7 @@
         this.mapHeight = mapHeight;
     }
 
-    public display(latitude: number, longitude: number, zoom: number, layers: Layer) {
+    public displayPlace(latitude: number, longitude: number, zoom: number, layers: Layer) {
         this.clear();
         this.mapData = [];
 
@@ -85,14 +85,10 @@
         var box = this.tilesFittingMapBoundingBox(centerX, centerY);
         for (var x = box.negativeBoundX - 1; x <= box.positiveBoundX + 1; x++) {
             for (var y = box.negativeBoundY - 1; y <= box.positiveBoundY + 1; y++) {
+                var MapTileData = new MapTile(null, this.currentTileX + x, this.currentTileY + y, zoom, layers, centerX - (this.tileWidth * (-1 * x)), centerY - (this.tileHeight * (-1 * y)), this.tileWidth, this.tileHeight);
+                this.mapData.push(MapTileData);
                 // Outer ring is not filled with data, due to dynamic loading mechanism
-                if (x == box.positiveBoundX + 1 || x == box.negativeBoundX - 1 || y == box.positiveBoundY + 1 || y == box.negativeBoundY - 1) {
-                    var MapTileData = new MapTile(null, this.currentTileX + x, this.currentTileY + y, zoom, layers, centerX - (this.tileWidth * (-1 * x)), centerY - (this.tileHeight * (-1 * y)), this.tileWidth, this.tileHeight);
-                    this.mapData.push(MapTileData);
-                }
-                else {
-                    var MapTileData = new MapTile(null, this.currentTileX + x, this.currentTileY + y, zoom, layers, centerX - (this.tileWidth * (-1 * x)), centerY - (this.tileHeight * (-1 * y)), this.tileWidth, this.tileHeight);
-                    this.mapData.push(MapTileData);
+                if (!(x == box.positiveBoundX + 1 || x == box.negativeBoundX - 1 || y == box.positiveBoundY + 1 || y == box.negativeBoundY - 1)) {
                     this.fillPlaceholder(MapTileData);
                 }
             }
@@ -274,17 +270,12 @@
             })
     }
 
-    public fetchRoute(points: { lat: number, lon: number }[], travelType: string = "auto") {
+    public fetchRoute(points: Array<{ lat: number, lon: number }>, travelType: string = "auto") {
         var fetchURL = "http://matrix.mapzen.com/optimized_route?json={\"locations\":[";
         // Add endpoints to URL
         for (var i = 0; i < points.length; i++) {
             fetchURL += "{\"lat\":" + points[i].lat + ", " + "\"lon\":" + points[i].lon + "}";
-            if (i + 1 == points.length) {
-                fetchURL += "],";
-            }
-            else {
-                fetchURL += ",";
-            }
+            (i + 1 == points.length) ? fetchURL += "]," : fetchURL += ",";
         }
         fetchURL += "\"costing\":\"auto\", \"units\":\"mi\"}&api_key=mapzen-eES7bmW";
         
@@ -304,9 +295,9 @@
                 this.drawPath(route);
             })
     }
+    
 
-
-    public drawTile(mapTile: MapTile): void {
+    private drawTile(mapTile: MapTile): void {
         // Placeholders aren't drawn
         if (mapTile.rawData == null) {
             return;
@@ -320,24 +311,12 @@
             mapTile.context.canvas.height = mapTile.tileHeight;
 
             for (var i = 0; i < mapTile.sortedData.length; i++) {
-                if (mapTile.sortedData[i].geometry.type == "Point") {
-                    this.drawPoint(mapTile.sortedData[i], mapTile);
-                }
-                if (mapTile.sortedData[i].geometry.type == "MultiPoint") {
-                    this.drawMultiPoint(mapTile.sortedData[i], mapTile);
-                }
-                if (mapTile.sortedData[i].geometry.type == "LineString") {
-                    this.drawLineString(mapTile.sortedData[i], mapTile);
-                }
-                if (mapTile.sortedData[i].geometry.type == "MultiLineString") {
-                    this.drawMultiLineString(mapTile.sortedData[i], mapTile);
-                }
-                if (mapTile.sortedData[i].geometry.type == "Polygon") {
-                    this.drawPolygon(mapTile.sortedData[i], mapTile);
-                }
-                if (mapTile.sortedData[i].geometry.type == "MultiPolygon") {
-                    this.drawMultiPolygon(mapTile.sortedData[i], mapTile);
-                }
+                if (mapTile.sortedData[i].geometry.type == "Point")             { this.drawPoint(mapTile.sortedData[i], mapTile); }
+                if (mapTile.sortedData[i].geometry.type == "MultiPoint")        { this.drawMultiPoint(mapTile.sortedData[i], mapTile); }
+                if (mapTile.sortedData[i].geometry.type == "LineString")        { this.drawLineString(mapTile.sortedData[i], mapTile); }
+                if (mapTile.sortedData[i].geometry.type == "MultiLineString")   { this.drawMultiLineString(mapTile.sortedData[i], mapTile); }
+                if (mapTile.sortedData[i].geometry.type == "Polygon")           { this.drawPolygon(mapTile.sortedData[i], mapTile); }
+                if (mapTile.sortedData[i].geometry.type == "MultiPolygon")      { this.drawMultiPolygon(mapTile.sortedData[i], mapTile); }
             }
             mapTile.didChange = false;
             this.context.drawImage(mapTile.canvas, mapTile.positionX, mapTile.positionY, mapTile.tileWidth, mapTile.tileHeight);
@@ -583,8 +562,8 @@
             var numOfPoints = 0;
             for (var j = 0; j < routes[i].endpoints.length; j++) {
                 
-                for (var k = 0; k < this.client_marks.length; k++) {
-                    if (routes[i].endpoints[j].lat == this.client_marks[k].latitude && routes[i].endpoints[j].lon == this.client_marks[k].longitude) {
+                for (var k = 0; k < this.user_marks.length; k++) {
+                    if (routes[i].endpoints[j].lat == this.user_marks[k].latitude && routes[i].endpoints[j].lon == this.user_marks[k].longitude) {
                         ++numOfPoints;
                     }
                 }
@@ -847,7 +826,7 @@
         }
     }
 
-    public markMapByTouch(x: number, y: number)
+    public markMap(x: number, y: number)
     {
         var markedTile;
         for (var i = 0; i < this.mapData.length; i++)
@@ -875,13 +854,13 @@
 
             var didRemove = false;
             // Remove mark if there is already one
-            for (var i = 0; i < this.client_marks.length; i++) {
-                var markPositionX = this.client_marks[i].positionX;
-                var markPositionY = this.client_marks[i].positionY;
-                var touchRadius = this.client_marks[i].touchRadius;
+            for (var i = 0; i < this.user_marks.length; i++) {
+                var markPositionX = this.user_marks[i].positionX;
+                var markPositionY = this.user_marks[i].positionY;
+                var touchRadius = this.user_marks[i].touchRadius;
 
                 if (Math.abs(markPositionX - x) <= touchRadius && Math.abs(markPositionY - y) <= touchRadius) {
-                    this.client_marks.splice(i, 1);
+                    this.user_marks.splice(i, 1);
                     didRemove = true;
                     this.shiftMap(0, 0);
                 }
@@ -906,19 +885,19 @@
                 context.beginPath();
                 context.arc(x, y, point.radius, 0, 2 * Math.PI);
                 context.fill();
-                context.strokeText((this.client_marks.length + 1).toString(), x - point.radius / 3, y + point.radius / 3);
+                context.strokeText((this.user_marks.length + 1).toString(), x - point.radius / 3, y + point.radius / 3);
                 context.stroke();
 
-                this.client_marks.push(point);
+                this.user_marks.push(point);
             }
         }
 
         var marks = new Array();
-        if (this.client_marks.length >= 2)
+        if (this.user_marks.length >= 2)
         {
-            for (var i = 0; i < this.client_marks.length; i++)
+            for (var i = 0; i < this.user_marks.length; i++)
             {
-                marks.push({ lat: this.client_marks[i].latitude, lon: this.client_marks[i].longitude });
+                marks.push({ lat: this.user_marks[i].latitude, lon: this.user_marks[i].longitude });
             }
             this.fetchRoute(marks);
         }
@@ -929,7 +908,7 @@
         var canvas = <HTMLCanvasElement>$("#mapCanvas")[0];
         var context = canvas.getContext('2d');
 
-        for (var i = 0; i < this.client_marks.length; i++)
+        for (var i = 0; i < this.user_marks.length; i++)
         {
             for (var j = 0; j < this.mapData.length; j++)
             {
@@ -938,18 +917,18 @@
                 var lonTop = this.mapData[j].boundingBox.xMin;
                 var lonBot = this.mapData[j].boundingBox.xMax;
 
-                var markLat = this.client_marks[i].latitude;
-                var markLon = this.client_marks[i].longitude;
+                var markLat = this.user_marks[i].latitude;
+                var markLon = this.user_marks[i].longitude;
 
                 // If mark is in [latitude, longitude] bounds of tile..
                 if ((latLeft <= markLat) && (markLat <= latRight))
                 {
                     if ((lonTop <= markLon) && (markLon <= lonBot)) {
-                        var point = Converter.MercatorProjection(this.client_marks[i].latitude, this.client_marks[i].longitude);
+                        var point = Converter.MercatorProjection(this.user_marks[i].latitude, this.user_marks[i].longitude);
 
                         point = {
-                            x: (this.client_marks[i].longitude - lonTop) * this.mapData[j].xScale,
-                            y: (latRight - this.client_marks[i].latitude) * this.mapData[j].yScale
+                            x: (this.user_marks[i].longitude - lonTop) * this.mapData[j].xScale,
+                            y: (latRight - this.user_marks[i].latitude) * this.mapData[j].yScale
                         };
 
                         point.x += this.mapData[j].positionX;
@@ -959,15 +938,15 @@
                         context.strokeStyle = '#3B3B3B';
                         context.lineWidth = 1;
                         context.beginPath();
-                        context.arc(point.x, point.y, this.client_marks[i].radius, 0, 2 * Math.PI);
+                        context.arc(point.x, point.y, this.user_marks[i].radius, 0, 2 * Math.PI);
                         context.fill();
-                        context.strokeText((i + 1).toString(), point.x - this.client_marks[i].radius / 3, point.y + this.client_marks[i].radius / 3);
+                        context.strokeText((i + 1).toString(), point.x - this.user_marks[i].radius / 3, point.y + this.user_marks[i].radius / 3);
                         context.lineWidth = 0.5;
                         context.stroke();
                         context.lineWidth = 1;
 
-                        this.client_marks[i].positionX = point.x;
-                        this.client_marks[i].positionY = point.y;
+                        this.user_marks[i].positionX = point.x;
+                        this.user_marks[i].positionY = point.y;
                     }
                 }
             }

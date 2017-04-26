@@ -84,8 +84,8 @@
                     var lat = 0;
                     var lon = 0;
                     if (taggedPlacesCollection[i].gps != undefined) {
-                        lat = taggedPlacesCollection[i].gps.lat.toFixed(2);
-                        lon = taggedPlacesCollection[i].gps.lng.toFixed(2);
+                        lat = taggedPlacesCollection[i].gps.lat.toFixed(3);
+                        lon = taggedPlacesCollection[i].gps.lng.toFixed(3);
                     }
                     var time = 0;
                     if (taggedPlacesCollection[i].requiredTime != null) {

@@ -39,9 +39,11 @@
                             var table = $("<table>", { "cellspacing": "0" })
                                 .on('click', (evt) => {
                                     var value = $(evt.currentTarget).find("> tbody > tr#scheduleListItemFirstRow > td").html();
-                                    var selectionObject = JSON.parse(window.sessionStorage.getItem("selections"));
-                                    selectionObject.currentSchedule = value;
-                                    window.sessionStorage.setItem("selections", JSON.stringify(selectionObject));
+                                    var selections = JSON.parse(window.sessionStorage.getItem("selections"));
+                                    selections.currentSchedule = value;
+                                    selections.currentTag = null;
+                                    selections.currentCollection = null;
+                                    window.sessionStorage.setItem("selections", JSON.stringify(selections));
                                     window.location.href = "places.html";
                                 });
 
@@ -59,7 +61,7 @@
                             var thirdRow = $("<tr>", { "id": "scheduleListItemThirdRow" })
                                 .append($("<td>").html("To: " + data))
                             // Fourth row
-                            data = projectData.schedule[i].note != null ? projectData.schedule[i].note : "Description not provided";
+                            data = projectData.schedule[i].note != null ? projectData.schedule[i].note : "";
                             var fourthRow = $("<tr>", { "id": "scheduleListItemFourthRow" })
                                 .append($("<td>").html(data));
 

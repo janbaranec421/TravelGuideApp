@@ -1,7 +1,7 @@
 ﻿class MapSearchingPanel {
     public root: JQuery;
     public map: Map;
-    public currentSuggestionsList: any[] = new Array();
+    public suggestionsList: Array<any> = [];
 
     constructor(map: Map) {
         this.root = $("#mapPanel");
@@ -22,8 +22,8 @@
                     .then((suggestions) => {
                         this.setSuggestions(suggestions);
                     })
-            }, 250))
-            ;
+            }, 250));
+
         // List of suggested places
         var suggestionList = $("<datalist>", { "id": "suggestionList" })
             .append($("<option>", { "value": "some city" }));
@@ -37,13 +37,13 @@
                 // Search for entered place
                 this.searchLocationByName(text)
                     .then((locations) => {
-                        this.map.display(locations.features[0].geometry.coordinates[1], locations.features[0].geometry.coordinates[0], 14, 1007);
+                        this.map.displayPlace(locations.features[0].geometry.coordinates[1], locations.features[0].geometry.coordinates[0], 14, 1007);
                         $(".detailedInfoSegment:eq(0)").fadeIn(1000);
                         $("#PlaceName").html(locations.features[0].properties.name);
                         $("#PlaceRegionCountry").html(locations.features[0].properties.region + ", " + locations.features[0].properties.country);
                         $("#PlaceGPS").html("GPS: [" + locations.features[0].geometry.coordinates[1].toFixed(2) + ", " + locations.features[0].geometry.coordinates[0].toFixed(2) + "]");
 
-                        this.fetchCurrentWeather(locations.features[0].properties.name, locations.features[0].properties.country)
+                        this.fetchWeather(locations.features[0].properties.name, locations.features[0].properties.country)
                             .then((weather) => {
                                 this.setWeather(weather);
                                 $(".detailedInfoSegment:eq(1)").fadeIn(1500);
@@ -147,10 +147,8 @@
         $(".detailedInfoSegment").fadeOut(1);
     }
 
-
     public throttle(fn: Function, delay: number) {
-        var wait = false;                 
-                     
+        var wait = false;                           
         return () => {
             if (!wait) {
                 fn();
@@ -160,26 +158,6 @@
                 }, delay);
             }
         }
-    }
-
-    private fetchSuggestions(place: string, focusLat: number = 0, focusLon: number = 0): Promise<any> {
-        var fetchURL = "https://search.mapzen.com/v1/autocomplete?api_key=mapzen-eES7bmW&layers=locality&";
-
-        if (focusLat > 0 && focusLon > 0) {
-            fetchURL += "focus.point.lat=" + focusLat.toFixed(3) + "&focus.point.lon=" + focusLon.toFixed(3);
-        }
-        fetchURL += "&text=" + place;
-
-        return new Promise((resolve, reject) => {
-            $.getJSON(fetchURL, (suggestions) => {
-                if (suggestions) {
-                    resolve(suggestions);
-                }
-                else {
-                    reject("Error fetching suggestions")
-                }
-            })
-        });
     }
 
     public searchLocationByName(place: string): Promise<any> {
@@ -212,7 +190,27 @@
         });
     }
 
-    public fetchCurrentWeather(placeName: string, country: string = null): Promise<any> {
+    private fetchSuggestions(place: string, focusLat: number = 0, focusLon: number = 0): Promise<any> {
+        var fetchURL = "https://search.mapzen.com/v1/autocomplete?api_key=mapzen-eES7bmW&layers=locality&";
+
+        if (focusLat > 0 && focusLon > 0) {
+            fetchURL += "focus.point.lat=" + focusLat.toFixed(3) + "&focus.point.lon=" + focusLon.toFixed(3);
+        }
+        fetchURL += "&text=" + place;
+
+        return new Promise((resolve, reject) => {
+            $.getJSON(fetchURL, (suggestions) => {
+                if (suggestions) {
+                    resolve(suggestions);
+                }
+                else {
+                    reject("Error fetching suggestions")
+                }
+            })
+        });
+    }
+
+    public fetchWeather(placeName: string, country: string = null): Promise<any> {
         var fetchURL = "http://api.openweathermap.org/data/2.5/weather?q=" + placeName;
         if (country) {
             fetchURL += "," + country;
@@ -221,12 +219,7 @@
 
         return new Promise((resolve, reject) => {
             $.getJSON(fetchURL, (locations) => {
-                if (locations) {
-                    resolve(locations);
-                }
-                else {
-                    reject();
-                }
+                locations ? resolve(locations) : reject();
             })
         });
     }
@@ -240,12 +233,7 @@
 
         return new Promise((resolve, reject) => {
             $.getJSON(fetchURL, (locations) => {
-                if (locations) {
-                    resolve(locations);
-                }
-                else {
-                    reject();
-                }
+                locations ? resolve(locations) : reject();
             })
         });
     }

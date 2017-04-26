@@ -19,6 +19,7 @@ class SchedulePage {
         this.sideMenu = new SideMenu();
         this.topMenu = new TopMenu(this.sideMenu);
         this.scheduleList = new ScheduleList();
+
         this.scheduleList.addSchedules();
 
         var pageContent = document.getElementById("pageContent");

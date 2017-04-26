@@ -1,3 +1,118 @@
 ﻿{
-    "name": "Island"
+  "name": "Island",
+  "desc": "Ostrovný štát neďaleko Grónska považovaný za súčasť Európy",
+
+  "labels": [
+    {
+      "id": 1,
+      "name": "Pamiatky"
+    },
+    {
+      "id": 2,
+      "name": "Kultúra"
+    },
+    {
+      "id": 4,
+      "name": "Príroda"
+    },
+    {
+      "id": 5,
+      "name": "Hlavné mesto"
+    }
+  ],
+  "places": [
+    {
+      "id": 1,
+      "name": "Reykjavík",
+      "desc": "Najsevernejšie ležiace hlavné mesto na svete. Nachádza sa takmer pri severnom polárnom kruhu",
+      "gps": {
+        "lat": 64.125920,
+        "lng": -21.854157
+      },
+      "photos": [
+        "https://cdn-goeuro.com/static_content/web/content/destination/Reykjavik-deluxe2.jpg",
+        "https://i.ytimg.com/vi/FzW7N242deo/maxresdefault.jpg",
+        "http://www.iheartreykjavik.net/wp-content/uploads/2015/04/Helicopters-Reykjavik-1024x683.jpg"
+      ],
+      "labels": [ 1, 2, 5 ],
+      "requiredTime": 90,
+      "priority": 3
+    },
+
+    {
+      "id": 2,
+      "name": "Heimaey",
+      "desc": "Najväčší ostrov v súostroví Vestmannaeyjar na Islande. Na ostrove je činná sopka Eldfell",
+      "gps": {
+        "lat": 63.429545,
+        "lng": -20.267313
+      },
+      "photos": [
+        "http://img.mediacentrum.sk/gallery/620_a/2406701.jpg",
+        "http://for91days.com/photos/Iceland/Hiking%20Westman%20Islands/Hiking%20Westman%20Islands%20-%2001-20130812%20for91days.com.jpg"
+      ],
+      "labels": [ 2, 4 ],
+      "requiredTime": 75,
+      "priority": 3
+    },
+    {
+      "id": 3,
+      "name": "Langjökull",
+      "desc": "Druhý najväčší ľadovec na Inslande (rozloha 950km štvorcových). Pod Langjökullom sa nachádzajú dve sopky.",
+      "gps": {
+        "lat": 64.650532,
+        "lng": -20.581958
+      },
+      "photos": [
+        "https://lh3.googleusercontent.com/-zWP0ZMSWbP0/VYJhlDXsE6I/AAAAAAABDYE/WthO00Zx4xM/into-the-glacier-3%25255B2%25255D.jpg?imgmax=800",
+        "https://www.vikingcarrental.is/images/stories/langjokull_03.jpg"
+      ],
+      "labels": [ 4 ],
+      "requiredTime": 95,
+      "priority": 3
+    }
+  ],
+
+  "collections": [
+
+    {
+      "name": "Island",
+      "desc": "",
+      "places": [ 1, 2, 3 ]
+    }
+  ],
+
+  "schedule": [
+    {
+      "name": "Turistika na Islande",
+      "note": "Doniesť domov Brennivín",
+      "date": {
+        "from": "2017-11-2T11:30",
+        "to": "2017-11-10T18:00"
+      },
+      "items": [
+        {
+          "place": 1,
+          "date": {
+            "from": "2017-11-3T8:00",
+            "to": "2017-11-4T19:00"
+          }
+        },
+        {
+          "place": 2,
+          "date": {
+            "from": "2017-11-5T10:30",
+            "to": "2017-11-7T19:00"
+          }
+        },
+        {
+          "place": 3,
+          "date": {
+            "from": "2017-11-8T9:00",
+            "to": "2017-11-10T13:00"
+          }
+        }
+      ]
+    }
+  ]
 }

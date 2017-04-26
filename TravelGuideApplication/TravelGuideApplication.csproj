@@ -70,6 +70,7 @@
     <Content Include="CSS\Fonts\Roboto\Roboto-Thin.ttf" />
     <Content Include="CSS\Fonts\Roboto\Roboto-ThinItalic.ttf" />
     <Content Include="CSS\Fonts\Roboto\Roboto-Regular.ttf" />
+    <Content Include="ClassDiagram1.cd" />
     <None Include="Scripts\jquery-2.2.3.intellisense.js" />
     <Content Include="Resources\schedules.png" />
     <Content Include="Resources\search.png" />
@@ -86,7 +87,7 @@
     <TypeScriptCompile Include="Scripts\typings\es6-promise\es6-promise.d.ts" />
     <TypeScriptCompile Include="Scripts\typings\jquery\jquery.d.ts" />
     <TypeScriptCompile Include="Scripts\typings\slick-carousel\slick-carousel.d.ts" />
-    <TypeScriptCompile Include="TS\mainPage.ts" />
+    <TypeScriptCompile Include="TS\MainPage.ts" />
     <TypeScriptCompile Include="TS\Converter.ts" />
     <TypeScriptCompile Include="TS\Database.ts" />
     <TypeScriptCompile Include="TS\Layer.ts" />
@@ -96,7 +97,7 @@
     <TypeScriptCompile Include="TS\PlacesList.ts" />
     <TypeScriptCompile Include="TS\PlacesPage.ts" />
     <TypeScriptCompile Include="TS\ScheduleList.ts" />
-    <TypeScriptCompile Include="TS\schedulePage.ts" />
+    <TypeScriptCompile Include="TS\SchedulePage.ts" />
     <TypeScriptCompile Include="TS\SideMenu.ts" />
     <TypeScriptCompile Include="TS\TopMenu.ts" />
   </ItemGroup>
@@ -110,7 +111,6 @@
       <DependentUpon>web.config</DependentUpon>
     </None>
   </ItemGroup>
-  <ItemGroup />
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">12.0</VisualStudioVersion>
   </PropertyGroup>
