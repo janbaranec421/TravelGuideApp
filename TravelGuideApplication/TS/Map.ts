@@ -934,7 +934,7 @@
                         point.x += this.mapData[j].positionX;
                         point.y += this.mapData[j].positionY;
 
-                        context.fillStyle = '#CEFF0000';
+                        context.fillStyle = '#FF0000';
                         context.strokeStyle = '#3B3B3B';
                         context.lineWidth = 1;
                         context.beginPath();

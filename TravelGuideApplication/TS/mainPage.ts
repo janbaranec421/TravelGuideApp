@@ -55,15 +55,15 @@ class MainPage {
                     var placeItemCoords = JSON.parse(window.sessionStorage.getItem("placeItemCoordinates"));
                     this.latitude = parseFloat(placeItemCoords.lat);
                     this.longitude = parseFloat(placeItemCoords.lon);
+                    this.zoomLvl = 14;
                     window.sessionStorage.removeItem("placeItemCoordinates");
                 }
                 if (!this.latitude && !this.longitude) {
                     this.latitude = 49.828526;
                     this.longitude = 18.173270;
+                    this.zoomLvl = 14;
                 }
-
                 this.map.displayPlace(this.latitude, this.longitude, this.zoomLvl, this.layers);
-
                 window.addEventListener('resize', this.adjustMapToViewport.bind(this), false);
                 this.adjustMapToViewport();
             })

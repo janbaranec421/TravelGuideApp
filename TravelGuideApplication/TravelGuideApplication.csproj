@@ -70,7 +70,6 @@
     <Content Include="CSS\Fonts\Roboto\Roboto-Thin.ttf" />
     <Content Include="CSS\Fonts\Roboto\Roboto-ThinItalic.ttf" />
     <Content Include="CSS\Fonts\Roboto\Roboto-Regular.ttf" />
-    <Content Include="ClassDiagram1.cd" />
     <None Include="Scripts\jquery-2.2.3.intellisense.js" />
     <Content Include="Resources\schedules.png" />
     <Content Include="Resources\search.png" />

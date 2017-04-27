@@ -31,29 +31,8 @@
         var placeSubmit = $("<button>", {
             "id": "placeSubmit", "type": "button"
         })
-            .on("click", (evt) => {
-                var text = $("#placeInput").val();
-                var coords = this.map.getCoordinatesAtCenter();
-                // Search for entered place
-                this.searchLocationByName(text)
-                    .then((locations) => {
-                        this.map.displayPlace(locations.features[0].geometry.coordinates[1], locations.features[0].geometry.coordinates[0], 14, 1007);
-                        $(".detailedInfoSegment:eq(0)").fadeIn(1000);
-                        $("#PlaceName").html(locations.features[0].properties.name);
-                        $("#PlaceRegionCountry").html(locations.features[0].properties.region + ", " + locations.features[0].properties.country);
-                        $("#PlaceGPS").html("GPS: [" + locations.features[0].geometry.coordinates[1].toFixed(2) + ", " + locations.features[0].geometry.coordinates[0].toFixed(2) + "]");
-
-                        this.fetchWeather(locations.features[0].properties.name, locations.features[0].properties.country)
-                            .then((weather) => {
-                                this.setWeather(weather);
-                                $(".detailedInfoSegment:eq(1)").fadeIn(1500);
-                            });
-                        this.fetchForecast(locations.features[0].properties.name, locations.features[0].properties.country)
-                            .then((forecast) => {
-                                this.setForecast(forecast);
-                                $(".detailedInfoSegment:eq(1)").fadeIn(1500);
-                            })
-                    });
+            .on("click", () => {
+                this.handleSearchSubmit();
             })
             .append($("<img>", { "src": "/Resources/search.png" })
                 .css({
@@ -66,9 +45,13 @@
             "width": "95%",
             "margin": "10px auto",
         })
-            .append(placeInput)
-            .append(suggestionList)
-            .append(placeSubmit);
+            .append($("<form>").submit((e) => {
+                e.preventDefault();
+                this.handleSearchSubmit();
+            })
+                .append(placeInput)
+                .append(suggestionList)
+                .append(placeSubmit));
 
         var detailedInfo = $("<div>", { "id": "detailedInfo" });
         // Place details
@@ -97,7 +80,7 @@
                     $("#list-forecast").css("display", "block");
                 })
             )
-            .append($("<table>", { "id": "table-weather"})
+            .append($("<table>", { "id": "table-weather" })
                 .append($("<tr>")
                     .append($("<td>", { "id": "weatherImg" }).append($("<img>")))
                     .append($("<td>", { "id": "weatherTemperature" }))
@@ -131,7 +114,7 @@
                         .append($("<div>"))
                         .append($("<div>")))
                     .append($("<td>", { "class": "forecastDescription" }))
-                    
+
                 )
                 .append($("<tr>")
                     .append($("<td>", { "class": "forecastWind" }))
@@ -139,7 +122,7 @@
                     .append($("<td>", { "class": "forecastPressure" }))
                 ));
         }
-        
+
         this.root
             .append(placeDiv)
             .append(detailedInfo);
@@ -148,7 +131,7 @@
     }
 
     public throttle(fn: Function, delay: number) {
-        var wait = false;                           
+        var wait = false;
         return () => {
             if (!wait) {
                 fn();
@@ -271,5 +254,31 @@
                 $("#suggestionList").append($("<option>", { "value": suggestions.features[i].properties.label }))
             }
         }
+    }
+
+    private handleSearchSubmit() {
+        var text = $("#placeInput").val();
+        var coords = this.map.getCoordinatesAtCenter();
+        // Search for entered place
+        this.searchLocationByName(text)
+            .then((locations) => {
+                this.map.displayPlace(locations.features[0].geometry.coordinates[1], locations.features[0].geometry.coordinates[0], 14, 1007);
+                $(".detailedInfoSegment:eq(0)").fadeIn(1000);
+                $("#PlaceName").html(locations.features[0].properties.name);
+                $("#PlaceRegionCountry").html(locations.features[0].properties.region + ", " + locations.features[0].properties.country);
+                $("#PlaceGPS").html("GPS: [" + locations.features[0].geometry.coordinates[1].toFixed(2) + ", " + locations.features[0].geometry.coordinates[0].toFixed(2) + "]");
+
+                this.fetchWeather(locations.features[0].properties.name, locations.features[0].properties.country)
+                    .then((weather) => {
+                        this.setWeather(weather);
+                        $(".detailedInfoSegment:eq(1)").fadeIn(1500);
+                    });
+                this.fetchForecast(locations.features[0].properties.name, locations.features[0].properties.country)
+                    .then((forecast) => {
+                        this.setForecast(forecast);
+                        $(".detailedInfoSegment:eq(1)").fadeIn(1500);
+                    })
+            });
+            
     }
 }
