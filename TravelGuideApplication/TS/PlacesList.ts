@@ -270,6 +270,9 @@
         $.getJSON("../Resources/Projects/project-" + ID + ".json", (projectData) => {
             var schedulePlacesCollection = this.getPlacesByScheduleName(scheduleName, projectData);
 
+            $("#placesListHeader-project").html("Project: " + projectData.name);
+            $("#placesListHeader-selector").html("Schedule: " + scheduleName);
+
             if (schedulePlacesCollection.length <= 0) {
                 $("#placesListHeader > ul")
                     .append($("<li>", { "class": "emptyList" }).html("<List doesn't contain anything yet>"));
