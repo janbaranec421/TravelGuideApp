@@ -1,0 +1,163 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!--
+This file is used by the publish/package process of your Web project. You can customize the behavior of this process
+by editing this MSBuild file. In order to learn more about this please visit http://go.microsoft.com/fwlink/?LinkID=208121. 
+-->
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <TimeStampOfAssociatedLegacyPublishXmlFile />
+    <_PublishTargetUrl>E:\TravelGuideApp</_PublishTargetUrl>
+  </PropertyGroup>
+  <ItemGroup>
+    <File Include="bin/TravelGuideApplication.dll">
+      <publishTime>10/11/2016 13:01:06</publishTime>
+    </File>
+    <File Include="CSS/CSS.css">
+      <publishTime>10/11/2016 10:07:55</publishTime>
+    </File>
+    <File Include="font-awesome-4.5.0/css/font-awesome.css">
+      <publishTime>03/05/2016 13:19:40</publishTime>
+    </File>
+    <File Include="font-awesome-4.5.0/css/font-awesome.min.css">
+      <publishTime>03/05/2016 13:19:40</publishTime>
+    </File>
+    <File Include="font-awesome-4.5.0/fonts/fontawesome-webfont.eot">
+      <publishTime>03/05/2016 13:19:40</publishTime>
+    </File>
+    <File Include="font-awesome-4.5.0/fonts/fontawesome-webfont.svg">
+      <publishTime>03/05/2016 13:19:40</publishTime>
+    </File>
+    <File Include="font-awesome-4.5.0/fonts/fontawesome-webfont.ttf">
+      <publishTime>03/05/2016 13:19:40</publishTime>
+    </File>
+    <File Include="font-awesome-4.5.0/fonts/fontawesome-webfont.woff">
+      <publishTime>03/05/2016 13:19:40</publishTime>
+    </File>
+    <File Include="font-awesome-4.5.0/fonts/fontawesome-webfont.woff2">
+      <publishTime>03/05/2016 13:19:40</publishTime>
+    </File>
+    <File Include="font-awesome-4.5.0/fonts/FontAwesome.otf">
+      <publishTime>03/05/2016 13:19:40</publishTime>
+    </File>
+    <File Include="font-awesome-4.5.0/HELP-US-OUT.txt">
+      <publishTime>03/05/2016 13:19:40</publishTime>
+    </File>
+    <File Include="font-awesome-4.5.0/less/animated.less">
+      <publishTime>03/05/2016 13:19:40</publishTime>
+    </File>
+    <File Include="font-awesome-4.5.0/less/bordered-pulled.less">
+      <publishTime>03/05/2016 13:19:40</publishTime>
+    </File>
+    <File Include="font-awesome-4.5.0/less/core.less">
+      <publishTime>03/05/2016 13:19:40</publishTime>
+    </File>
+    <File Include="font-awesome-4.5.0/less/fixed-width.less">
+      <publishTime>03/05/2016 13:19:40</publishTime>
+    </File>
+    <File Include="font-awesome-4.5.0/less/font-awesome.less">
+      <publishTime>03/05/2016 13:19:40</publishTime>
+    </File>
+    <File Include="font-awesome-4.5.0/less/icons.less">
+      <publishTime>03/05/2016 13:19:40</publishTime>
+    </File>
+    <File Include="font-awesome-4.5.0/less/larger.less">
+      <publishTime>03/05/2016 13:19:40</publishTime>
+    </File>
+    <File Include="font-awesome-4.5.0/less/list.less">
+      <publishTime>03/05/2016 13:19:40</publishTime>
+    </File>
+    <File Include="font-awesome-4.5.0/less/mixins.less">
+      <publishTime>03/05/2016 13:19:40</publishTime>
+    </File>
+    <File Include="font-awesome-4.5.0/less/path.less">
+      <publishTime>03/05/2016 13:19:40</publishTime>
+    </File>
+    <File Include="font-awesome-4.5.0/less/rotated-flipped.less">
+      <publishTime>03/05/2016 13:19:40</publishTime>
+    </File>
+    <File Include="font-awesome-4.5.0/less/stacked.less">
+      <publishTime>03/05/2016 13:19:40</publishTime>
+    </File>
+    <File Include="font-awesome-4.5.0/less/variables.less">
+      <publishTime>03/05/2016 13:19:40</publishTime>
+    </File>
+    <File Include="font-awesome-4.5.0/scss/font-awesome.scss">
+      <publishTime>03/05/2016 13:19:40</publishTime>
+    </File>
+    <File Include="font-awesome-4.5.0/scss/_animated.scss">
+      <publishTime>03/05/2016 13:19:40</publishTime>
+    </File>
+    <File Include="font-awesome-4.5.0/scss/_bordered-pulled.scss">
+      <publishTime>03/05/2016 13:19:40</publishTime>
+    </File>
+    <File Include="font-awesome-4.5.0/scss/_core.scss">
+      <publishTime>03/05/2016 13:19:40</publishTime>
+    </File>
+    <File Include="font-awesome-4.5.0/scss/_fixed-width.scss">
+      <publishTime>03/05/2016 13:19:40</publishTime>
+    </File>
+    <File Include="font-awesome-4.5.0/scss/_icons.scss">
+      <publishTime>03/05/2016 13:19:40</publishTime>
+    </File>
+    <File Include="font-awesome-4.5.0/scss/_larger.scss">
+      <publishTime>03/05/2016 13:19:40</publishTime>
+    </File>
+    <File Include="font-awesome-4.5.0/scss/_list.scss">
+      <publishTime>03/05/2016 13:19:40</publishTime>
+    </File>
+    <File Include="font-awesome-4.5.0/scss/_mixins.scss">
+      <publishTime>03/05/2016 13:19:40</publishTime>
+    </File>
+    <File Include="font-awesome-4.5.0/scss/_path.scss">
+      <publishTime>03/05/2016 13:19:40</publishTime>
+    </File>
+    <File Include="font-awesome-4.5.0/scss/_rotated-flipped.scss">
+      <publishTime>03/05/2016 13:19:40</publishTime>
+    </File>
+    <File Include="font-awesome-4.5.0/scss/_stacked.scss">
+      <publishTime>03/05/2016 13:19:40</publishTime>
+    </File>
+    <File Include="font-awesome-4.5.0/scss/_variables.scss">
+      <publishTime>03/05/2016 13:19:40</publishTime>
+    </File>
+    <File Include="index.html">
+      <publishTime>10/11/2016 10:02:23</publishTime>
+    </File>
+    <File Include="packages.config">
+      <publishTime>05/23/2016 15:46:19</publishTime>
+    </File>
+    <File Include="Resources/avatar.jpg">
+      <publishTime>03/08/2016 09:39:29</publishTime>
+    </File>
+    <File Include="Scripts/jquery-2.2.3.js">
+      <publishTime>05/23/2016 15:46:19</publishTime>
+    </File>
+    <File Include="Scripts/jquery-2.2.3.min.js">
+      <publishTime>05/23/2016 15:46:19</publishTime>
+    </File>
+    <File Include="Scripts/jquery-2.2.3.min.map">
+      <publishTime>05/23/2016 15:46:19</publishTime>
+    </File>
+    <File Include="TS/app.js">
+      <publishTime>10/11/2016 12:34:02</publishTime>
+    </File>
+    <File Include="TS/Layer.js">
+      <publishTime>10/11/2016 12:34:02</publishTime>
+    </File>
+    <File Include="TS/Map.js">
+      <publishTime>10/11/2016 12:34:02</publishTime>
+    </File>
+    <File Include="TS/MapTile.js">
+      <publishTime>10/11/2016 12:34:02</publishTime>
+    </File>
+    <File Include="TS/SideMenu.js">
+      <publishTime>10/11/2016 12:34:02</publishTime>
+    </File>
+    <File Include="TS/TopMenu.js">
+      <publishTime>10/11/2016 12:34:02</publishTime>
+    </File>
+    <File Include="web.config">
+      <publishTime>10/11/2016 12:58:40</publishTime>
+    </File>
+  </ItemGroup>
+</Project>
