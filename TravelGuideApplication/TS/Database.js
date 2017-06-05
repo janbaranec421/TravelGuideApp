@@ -70,9 +70,9 @@ var Database = (function () {
             };
         });
     };
-    Database.databaseName = "TileDB";
-    Database.databaseVersion = 1;
-    Database.isSupportedByBrowser = true;
     return Database;
-})();
+}());
+Database.databaseName = "TileDB";
+Database.databaseVersion = 1;
+Database.isSupportedByBrowser = true;
 //# sourceMappingURL=Database.js.map

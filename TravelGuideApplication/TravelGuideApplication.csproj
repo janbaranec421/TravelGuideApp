@@ -22,10 +22,6 @@
     <Service Include="{4A0DDDB5-7A95-4FBF-97CC-616D07737A77}" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Content\Slick\ajax-loader.gif" />
-    <Content Include="Content\Slick\fonts\slick.svg" />
-    <Content Include="Content\Slick\slick-theme.css" />
-    <Content Include="Content\Slick\slick.css" />
     <Content Include="CSS\CSS.css" />
     <Content Include="index.html" />
     <Content Include="places.html" />
@@ -59,12 +55,6 @@
     <Content Include="Resources\Projects\project-2.json" />
     <Content Include="Resources\projects.png" />
     <Content Include="Resources\Projects\projects.json" />
-    <Content Include="app.appcache" />
-    <Content Include="Content\Slick\slick.scss" />
-    <Content Include="Content\Slick\slick-theme.scss" />
-    <Content Include="Content\Slick\fonts\slick.woff" />
-    <Content Include="Content\Slick\fonts\slick.ttf" />
-    <Content Include="Content\Slick\fonts\slick.eot" />
     <Content Include="CSS\Fonts\Roboto\Roboto-Light.ttf" />
     <Content Include="CSS\Fonts\Roboto\Roboto-LightItalic.ttf" />
     <Content Include="CSS\Fonts\Roboto\Roboto-Thin.ttf" />

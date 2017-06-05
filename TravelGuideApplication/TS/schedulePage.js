@@ -55,5 +55,5 @@ var SchedulePage = (function () {
         this.isSwipeFired = false;
     };
     return SchedulePage;
-})();
+}());
 //# sourceMappingURL=SchedulePage.js.map

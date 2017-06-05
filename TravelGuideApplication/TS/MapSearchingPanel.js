@@ -243,5 +243,5 @@ var MapSearchingPanel = (function () {
         });
     };
     return MapSearchingPanel;
-})();
+}());
 //# sourceMappingURL=MapSearchingPanel.js.map

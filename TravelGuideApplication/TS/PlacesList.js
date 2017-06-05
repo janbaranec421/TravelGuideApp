@@ -441,5 +441,5 @@ var PlacesList = (function () {
         return placesCollection;
     };
     return PlacesList;
-})();
+}());
 //# sourceMappingURL=PlacesList.js.map

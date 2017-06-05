@@ -77,5 +77,5 @@ var ScheduleList = (function () {
         });
     };
     return ScheduleList;
-})();
+}());
 //# sourceMappingURL=ScheduleList.js.map

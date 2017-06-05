@@ -145,7 +145,6 @@ var Map = (function () {
                         _this.drawTile(tileFromDB);
                         _this.drawPath(_this.currentRoute);
                         _this.markCollectionRedraw();
-                        //console.log("Tile from DB: " + tileFromDB.tileX + "  " + tileFromDB.tileY + " " + tileFromDB.zoom);
                     }
                     else {
                         _this.mapData[i].isRequested = true;
@@ -163,7 +162,6 @@ var Map = (function () {
                                     _this.drawTile(MapTileData);
                                     _this.drawPath(_this.currentRoute);
                                     _this.markCollectionRedraw();
-                                    //console.log("Tile from server: " + MapTileData.tileX + "  " + MapTileData.tileY);
                                 }
                             }
                         });

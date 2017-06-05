@@ -68,5 +68,5 @@ var PlacesPage = (function () {
         this.isSwipeFired = false;
     };
     return PlacesPage;
-})();
+}());
 //# sourceMappingURL=PlacesPage.js.map
