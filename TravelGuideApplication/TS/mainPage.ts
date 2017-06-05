@@ -32,7 +32,7 @@ class MainPage {
     public latitude: number;
     public longitude: number;
     public zoomLvl: number = 14;
-    public layers: Layer = Layer.Boundaries | Layer.Roads | Layer.Buildings | Layer.Earth | Layer.Landuse | Layer.Water;
+    public layers: Layer = Layer.Water | Layer.Earth | Layer.Boundaries | Layer.Buildings | Layer.Roads | Layer.Transit | Layer.Landuse | Layer.Pois | Layer.Places;
 
     constructor() {
         this.sideMenu = new SideMenu();
@@ -59,8 +59,8 @@ class MainPage {
                     window.sessionStorage.removeItem("placeItemCoordinates");
                 }
                 if (!this.latitude && !this.longitude) {
-                    this.latitude = 49.833683;
-                    this.longitude = 18.163609;
+                    this.latitude = 49.828526;
+                    this.longitude = 18.173270;
                     this.zoomLvl = 14;
                 }
                 this.map.displayPlace(this.latitude, this.longitude, this.zoomLvl, this.layers);

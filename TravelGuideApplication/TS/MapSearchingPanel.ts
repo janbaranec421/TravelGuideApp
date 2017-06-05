@@ -25,7 +25,8 @@
             }, 250));
 
         // List of suggested places
-        var suggestionList = $("<datalist>", { "id": "suggestionList" });
+        var suggestionList = $("<datalist>", { "id": "suggestionList" })
+            .append($("<option>", { "value": "some city" }));
         // Submit button
         var placeSubmit = $("<button>", {
             "id": "placeSubmit", "type": "button"
