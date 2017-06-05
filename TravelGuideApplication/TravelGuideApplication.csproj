@@ -10,7 +10,7 @@
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <DebugType>full</DebugType>
     <DebugSymbols>true</DebugSymbols>
-    <TypeScriptToolsVersion>1.6</TypeScriptToolsVersion>
+    <TypeScriptToolsVersion>2.2</TypeScriptToolsVersion>
     <UseIISExpress>true</UseIISExpress>
     <IISExpressSSLPort />
     <IISExpressAnonymousAuthentication />
@@ -22,10 +22,10 @@
     <Service Include="{4A0DDDB5-7A95-4FBF-97CC-616D07737A77}" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Scripts\Slick\Slick\ajax-loader.gif" />
-    <Content Include="Scripts\Slick\Slick\fonts\slick.svg" />
-    <Content Include="Scripts\Slick\Slick\slick-theme.css" />
-    <Content Include="Scripts\Slick\Slick\slick.css" />
+    <Content Include="Content\Slick\ajax-loader.gif" />
+    <Content Include="Content\Slick\fonts\slick.svg" />
+    <Content Include="Content\Slick\slick-theme.css" />
+    <Content Include="Content\Slick\slick.css" />
     <Content Include="CSS\CSS.css" />
     <Content Include="index.html" />
     <Content Include="places.html" />
@@ -59,16 +59,17 @@
     <Content Include="Resources\Projects\project-2.json" />
     <Content Include="Resources\projects.png" />
     <Content Include="Resources\Projects\projects.json" />
-    <Content Include="Scripts\Slick\Slick\slick.scss" />
-    <Content Include="Scripts\Slick\Slick\slick-theme.scss" />
-    <Content Include="Scripts\Slick\Slick\fonts\slick.woff" />
-    <Content Include="Scripts\Slick\Slick\fonts\slick.ttf" />
-    <Content Include="Scripts\Slick\Slick\fonts\slick.eot" />
-    <Content Include="Resources\fonts\Roboto\Roboto-Light.ttf" />
-    <Content Include="Resources\fonts\Roboto\Roboto-LightItalic.ttf" />
-    <Content Include="Resources\fonts\Roboto\Roboto-Thin.ttf" />
-    <Content Include="Resources\fonts\Roboto\Roboto-ThinItalic.ttf" />
-    <Content Include="Resources\fonts\Roboto\Roboto-Regular.ttf" />
+    <Content Include="app.appcache" />
+    <Content Include="Content\Slick\slick.scss" />
+    <Content Include="Content\Slick\slick-theme.scss" />
+    <Content Include="Content\Slick\fonts\slick.woff" />
+    <Content Include="Content\Slick\fonts\slick.ttf" />
+    <Content Include="Content\Slick\fonts\slick.eot" />
+    <Content Include="CSS\Fonts\Roboto\Roboto-Light.ttf" />
+    <Content Include="CSS\Fonts\Roboto\Roboto-LightItalic.ttf" />
+    <Content Include="CSS\Fonts\Roboto\Roboto-Thin.ttf" />
+    <Content Include="CSS\Fonts\Roboto\Roboto-ThinItalic.ttf" />
+    <Content Include="CSS\Fonts\Roboto\Roboto-Regular.ttf" />
     <Content Include="Resources\schedules.png" />
     <Content Include="Resources\search.png" />
     <Content Include="Resources\tags.png" />
@@ -93,7 +94,6 @@
     <TypeScriptCompile Include="TS\Layer.ts" />
     <TypeScriptCompile Include="TS\Map.ts" />
     <TypeScriptCompile Include="TS\MapSearchingPanel.ts" />
-    <TypeScriptCompile Include="TS\MapStyler.ts" />
     <TypeScriptCompile Include="TS\MapTile.ts" />
     <TypeScriptCompile Include="TS\PlacesList.ts" />
     <TypeScriptCompile Include="TS\PlacesPage.ts" />
@@ -105,7 +105,6 @@
   <ItemGroup>
     <Content Include="Scripts\jquery-3.1.1.slim.min.map" />
     <Content Include="Scripts\jquery-3.1.1.min.map" />
-    <None Include="TravelGuideApp.pubxml" />
     <None Include="web.Debug.config">
       <DependentUpon>web.config</DependentUpon>
     </None>

@@ -210,5 +210,5 @@ var SideMenu = (function () {
         }
     };
     return SideMenu;
-})();
+}());
 //# sourceMappingURL=SideMenu.js.map
