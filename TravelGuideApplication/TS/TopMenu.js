@@ -21,5 +21,5 @@ var TopMenu = (function () {
         })));
     }
     return TopMenu;
-})();
+}());
 //# sourceMappingURL=TopMenu.js.map

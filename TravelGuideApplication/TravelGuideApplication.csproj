@@ -10,7 +10,7 @@
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <DebugType>full</DebugType>
     <DebugSymbols>true</DebugSymbols>
-    <TypeScriptToolsVersion>1.6</TypeScriptToolsVersion>
+    <TypeScriptToolsVersion>2.2</TypeScriptToolsVersion>
     <UseIISExpress>true</UseIISExpress>
     <IISExpressSSLPort />
     <IISExpressAnonymousAuthentication />
@@ -70,13 +70,15 @@
     <Content Include="CSS\Fonts\Roboto\Roboto-Thin.ttf" />
     <Content Include="CSS\Fonts\Roboto\Roboto-ThinItalic.ttf" />
     <Content Include="CSS\Fonts\Roboto\Roboto-Regular.ttf" />
-    <None Include="Scripts\jquery-2.2.3.intellisense.js" />
     <Content Include="Resources\schedules.png" />
     <Content Include="Resources\search.png" />
     <Content Include="Resources\tags.png" />
     <Content Include="schedules.html" />
-    <Content Include="Scripts\jquery-2.2.3.js" />
-    <Content Include="Scripts\jquery-2.2.3.min.js" />
+    <None Include="Scripts\jquery-3.1.1.intellisense.js" />
+    <Content Include="Scripts\jquery-3.1.1.js" />
+    <Content Include="Scripts\jquery-3.1.1.min.js" />
+    <Content Include="Scripts\jquery-3.1.1.slim.js" />
+    <Content Include="Scripts\jquery-3.1.1.slim.min.js" />
     <Content Include="Scripts\promise-7.0.4.min.js" />
     <Content Include="Scripts\Slick\slick.js" />
     <Content Include="Scripts\Slick\slick.min.js" />
@@ -101,8 +103,8 @@
     <TypeScriptCompile Include="TS\TopMenu.ts" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Scripts\jquery-2.2.3.min.map" />
-    <None Include="TravelGuideApp.pubxml" />
+    <Content Include="Scripts\jquery-3.1.1.slim.min.map" />
+    <Content Include="Scripts\jquery-3.1.1.min.map" />
     <None Include="web.Debug.config">
       <DependentUpon>web.config</DependentUpon>
     </None>
