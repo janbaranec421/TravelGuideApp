@@ -19,7 +19,7 @@ var ScheduleList = (function () {
     ScheduleList.prototype.addSchedules = function () {
         var _this = this;
         var ID = window.sessionStorage.getItem("currentProjectID");
-        $.getJSON("../Resources/Projects/project-" + ID + ".json", function (projectData) {
+        $.getJSON("./Resources/Projects/project-" + ID + ".json", function (projectData) {
             $("#scheduleListHeader-project").html("Project: " + projectData.name);
             $(_this.root).children().fadeOut(700, function () {
                 if (projectData.schedule != null) {
@@ -77,5 +77,5 @@ var ScheduleList = (function () {
         });
     };
     return ScheduleList;
-}());
+})();
 //# sourceMappingURL=ScheduleList.js.map

@@ -33,7 +33,7 @@
             .on("click", () => {
                 this.handleSearchSubmit();
             })
-            .append($("<img>", { "src": "/Resources/search.png" })
+            .append($("<img>", { "src": "./Resources/search.png" })
                 .css({
                     "height": "20px",
                     "width": "20px",
@@ -221,7 +221,7 @@
     }
 
     private setWeather(weather: any) {
-        $("#weatherImg > img").attr("src", "/Resources/forecast/" + weather.weather[0].icon + ".png");
+        $("#weatherImg > img").attr("src", "./Resources/forecast/" + weather.weather[0].icon + ".png");
         $("#weatherTemperature").text(weather.main.temp.toFixed(0) + "°C");
         $("#windLabel").text("Wind: ");
         $("#wind").text(weather.wind.speed + " m/s  ");
@@ -234,7 +234,7 @@
     private setForecast(forecast: any) {
         for (var i = 0; i < forecast.list.length; i += 8) {
             var table = $("#list-forecast").find("table:eq(" + i / 8 + ")");
-            table.find(".forecastImg > img").attr("src", "/Resources/forecast/" + forecast.list[i].weather[0].icon + ".png");
+            table.find(".forecastImg > img").attr("src", "./Resources/forecast/" + forecast.list[i].weather[0].icon + ".png");
             table.find(".forecastTempExtremes> div:eq(0)").text(forecast.list[i].main.temp_max.toFixed(1) + "°C");
             table.find(".forecastTempExtremes > div:eq(1)").text(forecast.list[i].main.temp_min.toFixed(1) + "°C");
             table.find(".forecastDescription").text(forecast.list[i].weather[0].main);

@@ -20,7 +20,7 @@ var PlacesList = (function () {
     PlacesList.prototype.addPlacesWithTagName = function (tagName) {
         var _this = this;
         var ID = window.sessionStorage.getItem("currentProjectID");
-        $.getJSON("../Resources/Projects/project-" + ID + ".json", function (projectData) {
+        $.getJSON("./Resources/Projects/project-" + ID + ".json", function (projectData) {
             var tagID = _this.getTagIDbyTagName(tagName, projectData);
             var taggedPlacesCollection = _this.getPlacesByTagID(tagID, projectData);
             $("#placesListHeader-project").html("Project: " + projectData.name);
@@ -50,7 +50,7 @@ var PlacesList = (function () {
                     }
                     else {
                         firstRow.children().children()
-                            .append($("<div>", { "class": "slickImage" }).append($("<img>", { "src": "../Resources/image-not-found.png" })));
+                            .append($("<div>", { "class": "slickImage" }).append($("<img>", { "src": "./Resources/image-not-found.png" })));
                     }
                     firstRow.children().children().slick({
                         dots: false,
@@ -82,7 +82,7 @@ var PlacesList = (function () {
                     var secondRow = $("<tr>", { "id": "placesListItemSecondRow" })
                         .append($("<td>").html(title))
                         .append($("<td>")
-                        .append($("<img>", { "src": "../Resources/clock.png" }))
+                        .append($("<img>", { "src": "./Resources/clock.png" }))
                         .append($("<span>").html(time + " min").css("vertical-align", "super")))
                         .append($("<td>")
                         .append($("<div>", { "class": "showOnMapButton" }).html("Show on map")
@@ -131,7 +131,7 @@ var PlacesList = (function () {
     PlacesList.prototype.addPlacesWithCollectionName = function (collectionName) {
         var _this = this;
         var ID = window.sessionStorage.getItem("currentProjectID");
-        $.getJSON("../Resources/Projects/project-" + ID + ".json", function (projectData) {
+        $.getJSON("./Resources/Projects/project-" + ID + ".json", function (projectData) {
             var collectionPlacesCollection = _this.getPlacesByCollectionName(collectionName, projectData);
             $("#placesListHeader-project").html("Project: " + projectData.name);
             $("#placesListHeader-selector").html("Collection: " + collectionName);
@@ -160,7 +160,7 @@ var PlacesList = (function () {
                     }
                     else {
                         firstRow.children().children()
-                            .append($("<div>", { "class": "slickImage" }).append($("<img>", { "src": "../Resources/image-not-found.png" })));
+                            .append($("<div>", { "class": "slickImage" }).append($("<img>", { "src": "./Resources/image-not-found.png" })));
                     }
                     firstRow.children().children().slick({
                         dots: false,
@@ -192,7 +192,7 @@ var PlacesList = (function () {
                     var secondRow = $("<tr>", { "id": "placesListItemSecondRow" })
                         .append($("<td>").html(title))
                         .append($("<td>")
-                        .append($("<img>", { "src": "../Resources/clock.png" }))
+                        .append($("<img>", { "src": "./Resources/clock.png" }))
                         .append($("<span>").html(time + " min").css("vertical-align", "super")))
                         .append($("<td>")
                         .append($("<div>", { "class": "showOnMapButton" }).html("Show on map")
@@ -241,7 +241,7 @@ var PlacesList = (function () {
     PlacesList.prototype.addPlacesWithScheduleName = function (scheduleName) {
         var _this = this;
         var ID = window.sessionStorage.getItem("currentProjectID");
-        $.getJSON("../Resources/Projects/project-" + ID + ".json", function (projectData) {
+        $.getJSON("./Resources/Projects/project-" + ID + ".json", function (projectData) {
             var schedulePlacesCollection = _this.getPlacesByScheduleName(scheduleName, projectData);
             $("#placesListHeader-project").html("Project: " + projectData.name);
             $("#placesListHeader-selector").html("Schedule: " + scheduleName);
@@ -270,7 +270,7 @@ var PlacesList = (function () {
                     }
                     else {
                         firstRow.children().children()
-                            .append($("<div>", { "class": "slickImage" }).append($("<img>", { "src": "../Resources/image-not-found.png" })));
+                            .append($("<div>", { "class": "slickImage" }).append($("<img>", { "src": "./Resources/image-not-found.png" })));
                     }
                     firstRow.children().children().slick({
                         dots: false,
@@ -302,7 +302,7 @@ var PlacesList = (function () {
                     var secondRow = $("<tr>", { "id": "placesListItemSecondRow" })
                         .append($("<td>").html(title))
                         .append($("<td>")
-                        .append($("<img>", { "src": "../Resources/clock.png" }))
+                        .append($("<img>", { "src": "./Resources/clock.png" }))
                         .append($("<span>").html(time + " min").css("vertical-align", "super")))
                         .append($("<td>")
                         .append($("<div>", { "class": "showOnMapButton" }).html("Show on map")
@@ -441,5 +441,5 @@ var PlacesList = (function () {
         return placesCollection;
     };
     return PlacesList;
-}());
+})();
 //# sourceMappingURL=PlacesList.js.map

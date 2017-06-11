@@ -43,7 +43,7 @@
             if (names[i] == "Projects" || names[i] == "Collections" || names[i] == "Tags") {
                 a.append($("<img>", {
                     "id": names[i].toLowerCase() + "-more-icon",
-                    "src": "Resources/more.png"
+                    "src": "./Resources/more.png"
                 })
                     .css({
                         "width": "22px",
@@ -148,7 +148,7 @@
     }
 
     public loadProjectFromJSON(ID: number) {
-        $.getJSON("../Resources/Projects/project-" + ID + ".json", (projectData) => {
+        $.getJSON("./Resources/Projects/project-" + ID + ".json", (projectData) => {
             window.sessionStorage.setItem("currentProjectID", ID.toString());
 
             $("#selectedProject").fadeOut(300, () => {

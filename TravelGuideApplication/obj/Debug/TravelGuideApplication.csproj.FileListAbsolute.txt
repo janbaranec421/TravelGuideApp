@@ -1,1 +1,2 @@
 C:\Users\baranjan\TGA\TravelGuideApp\TravelGuideApplication\obj\Debug\TravelGuideApplication.csprojResolveAssemblyReference.cache
+C:\Users\Admin\Documents\GitHubVisualStudio\BakalarskaPraca\TravelGuideApplication\obj\Debug\TravelGuideApplication.csprojResolveAssemblyReference.cache

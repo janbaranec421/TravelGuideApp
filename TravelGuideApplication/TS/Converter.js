@@ -132,5 +132,5 @@ var Converter = (function () {
         return date + ' ' + month + ' ' + year;
     };
     return Converter;
-}());
+})();
 //# sourceMappingURL=Converter.js.map

@@ -36,7 +36,7 @@ var SideMenu = (function () {
             if (names[i] == "Projects" || names[i] == "Collections" || names[i] == "Tags") {
                 a.append($("<img>", {
                     "id": names[i].toLowerCase() + "-more-icon",
-                    "src": "Resources/more.png"
+                    "src": "./Resources/more.png"
                 })
                     .css({
                     "width": "22px",
@@ -129,7 +129,7 @@ var SideMenu = (function () {
         this.isOpen = false;
     }
     SideMenu.prototype.loadProjectFromJSON = function (ID) {
-        $.getJSON("../Resources/Projects/project-" + ID + ".json", function (projectData) {
+        $.getJSON("./Resources/Projects/project-" + ID + ".json", function (projectData) {
             window.sessionStorage.setItem("currentProjectID", ID.toString());
             $("#selectedProject").fadeOut(300, function () {
                 $("#selectedProject").html(projectData.name).fadeIn(300);
@@ -210,5 +210,5 @@ var SideMenu = (function () {
         }
     };
     return SideMenu;
-}());
+})();
 //# sourceMappingURL=SideMenu.js.map

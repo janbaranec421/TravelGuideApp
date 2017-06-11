@@ -146,5 +146,5 @@ var MapTile = (function () {
         });
     };
     return MapTile;
-}());
+})();
 //# sourceMappingURL=MapTile.js.map

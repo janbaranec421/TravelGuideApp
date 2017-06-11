@@ -24,7 +24,7 @@
     public addSchedules() {
         var ID = window.sessionStorage.getItem("currentProjectID");
 
-        $.getJSON("../Resources/Projects/project-" + ID + ".json", (projectData) => {
+        $.getJSON("./Resources/Projects/project-" + ID + ".json", (projectData) => {
             $("#scheduleListHeader-project").html("Project: " + projectData.name);
 
             $(this.root).children().fadeOut(700, () =>

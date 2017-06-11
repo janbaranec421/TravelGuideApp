@@ -221,5 +221,5 @@ var MainPage = (function () {
         this.map.displayPlace(coords.latitude, coords.longitude, this.zoomLvl, this.layers);
     };
     return MainPage;
-}());
+})();
 //# sourceMappingURL=MainPage.js.map

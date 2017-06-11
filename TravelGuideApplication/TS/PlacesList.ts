@@ -25,7 +25,7 @@
     public addPlacesWithTagName(tagName: string) {
         var ID = window.sessionStorage.getItem("currentProjectID");
 
-        $.getJSON("../Resources/Projects/project-" + ID + ".json",(projectData) =>
+        $.getJSON("./Resources/Projects/project-" + ID + ".json",(projectData) =>
         {
             var tagID = this.getTagIDbyTagName(tagName, projectData);
             var taggedPlacesCollection = this.getPlacesByTagID(tagID, projectData);
@@ -61,7 +61,7 @@
                     }
                     else {
                         firstRow.children().children()
-                            .append($("<div>", { "class": "slickImage" }).append($("<img>", { "src": "../Resources/image-not-found.png" })));
+                            .append($("<div>", { "class": "slickImage" }).append($("<img>", { "src": "./Resources/image-not-found.png" })));
                     }
                     firstRow.children().children().slick({
                         dots: false,
@@ -94,7 +94,7 @@
                     var secondRow = $("<tr>", { "id": "placesListItemSecondRow" })
                         .append($("<td>").html(title))
                         .append($("<td>")
-                            .append($("<img>", { "src": "../Resources/clock.png" }))
+                            .append($("<img>", { "src": "./Resources/clock.png" }))
                             .append($("<span>").html(time + " min").css("vertical-align", "super")))
                         .append($("<td>")
                             .append($("<div>", { "class": "showOnMapButton" }).html("Show on map")
@@ -147,7 +147,7 @@
     public addPlacesWithCollectionName(collectionName: string) {
         var ID = window.sessionStorage.getItem("currentProjectID");
 
-        $.getJSON("../Resources/Projects/project-" + ID + ".json", (projectData) => {
+        $.getJSON("./Resources/Projects/project-" + ID + ".json", (projectData) => {
             var collectionPlacesCollection = this.getPlacesByCollectionName(collectionName, projectData);
 
             $("#placesListHeader-project").html("Project: " + projectData.name);
@@ -180,7 +180,7 @@
                     }
                     else {
                         firstRow.children().children()
-                            .append($("<div>", { "class": "slickImage" }).append($("<img>", { "src": "../Resources/image-not-found.png" })));
+                            .append($("<div>", { "class": "slickImage" }).append($("<img>", { "src": "./Resources/image-not-found.png" })));
                     }
                     firstRow.children().children().slick({
                         dots: false,
@@ -213,7 +213,7 @@
                     var secondRow = $("<tr>", { "id": "placesListItemSecondRow" })
                         .append($("<td>").html(title))
                         .append($("<td>")
-                            .append($("<img>", { "src": "../Resources/clock.png" }))
+                            .append($("<img>", { "src": "./Resources/clock.png" }))
                             .append($("<span>").html(time + " min").css("vertical-align", "super")))
                         .append($("<td>")
                             .append($("<div>", {"class" : "showOnMapButton"}).html("Show on map")
@@ -267,7 +267,7 @@
     public addPlacesWithScheduleName(scheduleName: string) {
         var ID = window.sessionStorage.getItem("currentProjectID");
 
-        $.getJSON("../Resources/Projects/project-" + ID + ".json", (projectData) => {
+        $.getJSON("./Resources/Projects/project-" + ID + ".json", (projectData) => {
             var schedulePlacesCollection = this.getPlacesByScheduleName(scheduleName, projectData);
 
             $("#placesListHeader-project").html("Project: " + projectData.name);
@@ -300,7 +300,7 @@
                     }
                     else {
                         firstRow.children().children()
-                            .append($("<div>", { "class": "slickImage" }).append($("<img>", { "src": "../Resources/image-not-found.png" })));
+                            .append($("<div>", { "class": "slickImage" }).append($("<img>", { "src": "./Resources/image-not-found.png" })));
                     }
                     firstRow.children().children().slick({
                         dots: false,
@@ -333,7 +333,7 @@
                     var secondRow = $("<tr>", { "id": "placesListItemSecondRow" })
                         .append($("<td>").html(title))
                         .append($("<td>")
-                            .append($("<img>", { "src": "../Resources/clock.png" }))
+                            .append($("<img>", { "src": "./Resources/clock.png" }))
                             .append($("<span>").html(time + " min").css("vertical-align", "super")))
                         .append($("<td>")
                             .append($("<div>", { "class": "showOnMapButton" }).html("Show on map")
