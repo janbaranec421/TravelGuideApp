@@ -84,6 +84,7 @@
     <TypeScriptCompile Include="TS\Layer.ts" />
     <TypeScriptCompile Include="TS\Map.ts" />
     <TypeScriptCompile Include="TS\MapSearchingPanel.ts" />
+    <TypeScriptCompile Include="TS\MapStyler.ts" />
     <TypeScriptCompile Include="TS\MapTile.ts" />
     <TypeScriptCompile Include="TS\PlacesList.ts" />
     <TypeScriptCompile Include="TS\PlacesPage.ts" />

@@ -16,6 +16,9 @@ var MainPage = (function () {
         this.topMenu = new TopMenu(this.sideMenu);
         this.map = new Map();
         this.searchPanel = new MapSearchingPanel(this.map);
+        this.topMenu.setNavigationPath([
+            { txt: "Home", href: "index.html" }
+        ]);
         this.db = new Database();
         this.db.initializeDB()
             .then(function (value) {
@@ -31,7 +34,6 @@ var MainPage = (function () {
                 _this.latitude = parseFloat(placeItemCoords.lat);
                 _this.longitude = parseFloat(placeItemCoords.lon);
                 _this.zoomLvl = 14;
-                window.sessionStorage.removeItem("placeItemCoordinates");
             }
             if (!_this.latitude && !_this.longitude) {
                 _this.latitude = 49.833683;

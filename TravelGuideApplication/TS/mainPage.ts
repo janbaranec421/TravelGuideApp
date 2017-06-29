@@ -40,6 +40,10 @@ class MainPage {
         this.map = new Map();
         this.searchPanel = new MapSearchingPanel(this.map);
 
+        this.topMenu.setNavigationPath([
+            { txt: "Home", href: "index.html" }
+        ]);
+
         this.db = new Database();
         this.db.initializeDB()
             .then((value) => {
@@ -56,7 +60,6 @@ class MainPage {
                     this.latitude = parseFloat(placeItemCoords.lat);
                     this.longitude = parseFloat(placeItemCoords.lon);
                     this.zoomLvl = 14;
-                    window.sessionStorage.removeItem("placeItemCoordinates");
                 }
                 if (!this.latitude && !this.longitude) {
                     this.latitude = 49.833683;

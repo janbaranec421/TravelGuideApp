@@ -13,13 +13,22 @@ var PlacesPage = (function () {
             this.sideMenu.loadProjectFromJSON(this.selections.currentProjectID);
         }
         if (this.selections.currentTag) {
-            this.placesList.addPlacesWithTagName(this.selections.currentTag);
+            this.placesList.displayPlacesWithTagName(this.selections.currentTag);
+            this.topMenu.setNavigationPath([
+                { txt: "Home", href: "index.html" },
+                { txt: this.selections.currentTag, href: "places.html" }]);
         }
         else if (this.selections.currentCollection) {
-            this.placesList.addPlacesWithCollectionName(this.selections.currentCollection);
+            this.placesList.displayPlacesWithCollectionName(this.selections.currentCollection);
+            this.topMenu.setNavigationPath([
+                { txt: "Home", href: "index.html" },
+                { txt: this.selections.currentCollection, href: "places.html" }]);
         }
         else if (this.selections.currentSchedule) {
-            this.placesList.addPlacesWithScheduleName(this.selections.currentSchedule);
+            this.placesList.displayPlacesWithScheduleName(this.selections.currentSchedule);
+            this.topMenu.setNavigationPath([
+                { txt: "Home", href: "index.html" },
+                { txt: this.selections.currentSchedule, href: "places.html" }]);
         }
         window.sessionStorage.setItem("selections", JSON.stringify(this.selections));
         var pageContent = document.getElementById("pageContent");

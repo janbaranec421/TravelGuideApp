@@ -34,49 +34,46 @@ div#topMenu {
     box-shadow: 0px -6px 40px 0px #404040;
     z-index: 9000;
     background-color: #5b6e7d;
-    text-align: center;
-    height: 53px;
-    padding-top: 2px;
+    height: 55px;
 }
 
-ul#topMenuList {
-    display: inline-block;
+.topMenuList {
     list-style-type: none;
-    margin: 0px;
-    width: 90%; 
+    padding: 0%;
+    margin: 0%;
+    height: 100%;
+    display: inline-table;
 }
 
-ul#topMenuList > li {
-    float: right;
-    width: 19%;
-    min-width: 100px;
-}
-
-.topMenuButton {
-    color: #f5fefa;
-    vertical-align: middle;
+#TopMenuButton {
+    height: 35px;
+    width: 35px;
     display: table-cell;
-    height: 50px;
-    padding: 0% 10% 0% 10%;
-    text-decoration: none;
-    border-radius: 3px;
-    min-width: 90px;
-}
-
-.topMenuButton:hover {
-    background-color: #7f92a0;
+    padding: 2px 4px 2px 4px;
+    margin: 0px 5px;
+    border-radius: 7px;
+    border: 1px solid rgb(69, 79, 86);
 }
 
 div#sideMenu {
     z-index: 9999;
     position: fixed;
     width: 235px;
-    height: 100%;
+    height: calc(100% - 55px);
     top: 55px;
     left: -250px;
     opacity: 0.95;
     background-color: #36424c;
     box-shadow: 4px 0px 10px grey;
+    overflow: scroll;
+}
+
+#sideMenuList {
+    list-style-type: none;
+    color: mintcream;
+    margin: 0% 2% 2%;
+    padding: 0%;
+    display: list-item;
 }
 
 li.sideMenuButton {
@@ -95,6 +92,9 @@ li.sideMenuButton > a > img{
 li.sideMenuButton > a {
     text-decoration: none;
     padding-top: 5px;
+    display: table;
+    vertical-align: middle;
+    width: 100%;
 }
 
 li.sideMenuButton > a:visited {
@@ -127,24 +127,34 @@ div#pageContent > table {
 div#placesListHeader {
     text-align: left;
     padding: 10px 25px 10px 25px;
-    max-width: 550px;
-    min-width: 550px;
     margin: auto;
     background: #E3E5E8;
     font-size: xx-large;
     box-shadow: 0 4px 5px 0 rgba(0,0,0,0.14), 0 1px 10px 0 rgba(0,0,0,0.12), 0 2px 4px -1px rgba(0,0,0,0.3);
 }
 
-li.placesListItem {
+div#placesListHeader > ul {
+    clear: both;
+    width: 90%;
     display: table;
-    margin-left: auto;
-    margin-right: auto;
-    margin-top: 4%;
-    margin-bottom: 4%;
-    max-width: 511px;
+}
+
+li.placesListItem {
+    width: 90%;
+    margin: 2% 1%;
+    float: left;
+    max-width: 450px;
+    border: 1px solid #b9b9b9;
     box-shadow: 0 8px 10px 1px rgba(0,0,0,0.14), 0 3px 14px 2px rgba(0,0,0,0.12), 0 5px 5px -3px rgba(0,0,0,0.3);
     text-align: left;
     font-size: initial;
+}
+@media (max-width: 941px ) {
+    li.placesListItem {
+        float: none;
+        margin: 2% auto;
+        position:relative;
+    }
 }
 
 #placesListItemFirstRow > td > img{
@@ -213,12 +223,18 @@ li.placesListItem {
 }
 
 .slickImage > img {
-    height: 250px;
-    width: 500px;
+    max-height: 210px;
+    width: 100%;
+    max-width: 451px
 }
 
 .slick-slider {
     margin: -1px !important;
+}
+
+.slick-track .slick-list {
+    width: 90% !important;
+    max-height: 210px !important;
 }
 
 #scheduleList > ul {
@@ -295,7 +311,6 @@ div#selectedProject {
     float: left;
     width: 70%;
 }
-
 
 #mapContent:after {
     content: "";
@@ -479,12 +494,15 @@ ul#list-forecast > table {
     box-shadow: inset 0px 0px 2px 0px #88bde2;
 }
 
+.forecastDate {
+    text-align: center;
+}
 
 @media (max-width: 677px ), (max-height: 380px) {
     #map {
         width: 100% !important;
     }
-    #mapCanvas {
+    #mapCanvas { 
         height: calc(70vh - 55px) !important;
     }
     #mapPanel {
@@ -502,4 +520,170 @@ ul#list-forecast > table {
         max-height: calc(95vh - 275px) !important;
     }
 
+}
+
+.tabOptions {
+    padding: 3px 0px 0px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    position: relative;
+    background: #bfc9ce;
+    border-bottom: 1px solid #828282;
+}
+
+.tabOption {
+    display: inline-block;
+    padding: 1% 2%;
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+}
+
+.indicator {
+    height: 2px;
+    background: rgba(0, 0, 0, 0.45);
+    position: relative;
+    border-radius: 5px;
+}
+
+.InfoMain {
+    display: table;
+    width: 100%;
+    background: #dedede;
+    overflow-x: auto;
+    overflow-y: hidden;
+}
+
+.InfoTitle {
+    width: 43%;
+    padding: 2%;
+    display: table-cell;
+    vertical-align: middle;
+    border-top: 1px solid #bbbbbb;
+    border-right: 1px solid #bbbbbb;
+    border-bottom: 1px solid #bbbbbb;
+}
+.InfoTime {
+    width: calc(22% - 1px);
+    padding: 2%;
+    display: table-cell;
+    vertical-align: middle;
+    border-top: 1px solid #bbbbbb;
+    border-right: 1px solid #bbbbbb;
+    border-bottom: 1px solid #bbbbbb;
+}
+.InfoGPS {
+    width: calc(29% - 1px);
+    text-align: center;
+    padding: 2%;
+    display: table-cell;
+    vertical-align: middle;
+    border-top: 1px solid #bbbbbb;
+    border-bottom: 1px solid #bbbbbb;
+}
+.InfoGPS > span {
+    font-size: small;
+}
+
+.ShowOnMapButton {
+    box-shadow: 0px 0px 1px 1px #888888;
+    padding: 5px 3px;
+    border-radius: 4px;
+    font-size: medium;
+    background: #cecece;
+    margin-bottom: 2px;
+}
+.InfoDescription {
+    padding: 1% 2%;
+    background: #e3e5e8;
+    width: 96%;
+}
+
+.InfoTags {
+    text-align: right;
+    padding: 1%;
+    border-top: 1px solid #bbbbbb;
+    background: #dedede;
+    width: 98%;
+}
+
+.weatherList {
+    list-style-type: none;
+    padding: 0%;
+    overflow: auto;
+    white-space: nowrap;
+}
+
+.weatherListTitle {
+    padding: 2% 1%;
+    background: #dedede;
+}
+
+.weatherListItem {
+    display: inline-table;
+    text-align: center;
+    padding: 1%;
+    margin-right: -1px;
+    background: #e8e9ea;
+    border: 1px solid #bdbdbc;
+}
+
+.forecastDate {
+    font-style: italic;
+    font-size: medium;
+}
+
+.forecastTempMax {
+    background: #FFEB3B;
+    padding: 2px;
+    border-radius: 5px;
+    font-size: small;
+}
+.forecastTempMin {
+    background: rgb(151, 223, 255);
+    padding: 2px;
+    border-radius: 5px;
+    font-size: small;
+}
+.forecastWind {
+    font-size: small;
+    font-style: italic;
+    padding-left: 5px;
+}
+.forecastHumidity {
+    font-size: small;
+    font-style: italic;
+    padding-left: 5px;
+}
+.forecastPressure {
+    font-size: small;
+    font-style: italic;
+    padding-left: 5px;
+}
+
+.forecastDescription {
+    font-size: medium;
+}
+
+.box-shadow-highlight {
+    box-shadow: 0px 0px 6px 1px #585858
+}
+
+.topMenuItem {
+    display: table-cell;
+    vertical-align: middle;
+    height: 100%;
+}
+
+.breadcrumbList {
+    padding: 0px 3%;
+    color: #e4e4e4;
+    font-weight: bold;
+    font-family: Roboto_Thin_Italic;
+}
+
+.breadcrumbListItem {
+    padding: 0px 4px;
+}
+.breadcrumbListItem:visited {
+    color: #e4e4e4;
 }

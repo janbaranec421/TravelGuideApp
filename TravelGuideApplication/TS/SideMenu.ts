@@ -20,12 +20,7 @@
 
         // List
         $(this.root)
-            .append($("<ul>", { "id": "sideMenuList"}).css({
-                "listStyleType": "none",
-                "color": "mintcream",
-                "margin": "0% 2% 2%",
-                "padding": "0%"
-            }));
+            .append($("<ul>", { "id": "sideMenuList"}));
 
         // List Items
         var names = [ "Projects", "Map", "Schedules", "Collections", "Tags"];
@@ -43,12 +38,14 @@
             if (names[i] == "Projects" || names[i] == "Collections" || names[i] == "Tags") {
                 a.append($("<img>", {
                     "id": names[i].toLowerCase() + "-more-icon",
-                    "src": "./Resources/more.png"
-                })
+                    "src": "./Resources/more.png",
+                    })
                     .css({
                         "width": "22px",
                         "height": "22px",
-                        "float": "right"
+                        "float": "right",
+                        "transform": "rotate(90deg)",
+                        "padding": "2px 5px"
                     })
                     .fadeIn(1).fadeOut(1)
                 )

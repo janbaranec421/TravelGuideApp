@@ -29,7 +29,7 @@ var ScheduleList = (function () {
                             var listItem = $("<li>", { "class": "scheduleListItem" });
                             var table = $("<table>", { "cellspacing": "0" })
                                 .on('click', function (evt) {
-                                var value = $(evt.currentTarget).find("> tbody > tr#scheduleListItemFirstRow > td").html();
+                                var value = $(evt.currentTarget).find("> tr#scheduleListItemFirstRow > td").html();
                                 var selections = JSON.parse(window.sessionStorage.getItem("selections"));
                                 selections.currentSchedule = value;
                                 selections.currentTag = null;
