@@ -102,7 +102,7 @@
         $(".sideMenuButton > a:contains('Projects')").parent()
             .on('click', () => {
             $("#projectsSubMenu").stop(true, true).slideToggle(300, () => {
-                $("#projectsSubMenu").css("display") == "none" && $("#projectsSubMenu").children().length > 0?
+                $("#projectsSubMenu").css("display") == "none" && $("#projectsSubMenu").children().length > 0 ?
                     $("#projects-more-icon").stop(true, true).fadeIn(100)
                     : $("#projects-more-icon").stop(true, true).fadeOut(100);
             });

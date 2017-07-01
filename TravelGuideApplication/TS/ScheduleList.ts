@@ -2,23 +2,8 @@
     private root: JQuery
 
     constructor() {
-        this.root = $("#scheduleList");
-
-        $(this.root)
-            .append($("<div>", { "id": "scheduleListHeader" }).html("Schedules")
-                .append($("<div>", { "id": "scheduleListHeader-project" })
-                    .css({
-                        "font-size": "large",
-                        "border-top": "1px solid #5b6e7d"
-                    })
-                    .html("Project: none"))
-                .append($("<div>", { "id": "scheduleListHeader-tip" })
-                    .css("font-size", "large"))
-                .append($("<ul>").css({
-                    "padding": "0px",
-                    "list-style-type": "none"
-                }))
-        );
+        this.root = $("#scheduleList")
+            .append($("<ul>"));
     }
 
     public addSchedules() {

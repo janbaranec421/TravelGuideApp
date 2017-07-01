@@ -20,6 +20,10 @@ class SchedulePage {
         this.topMenu = new TopMenu(this.sideMenu);
         this.scheduleList = new ScheduleList();
 
+        this.topMenu.setNavigationPath([
+            { txt: "Home", href: "index.html" },
+            { txt: "Schedules" }]);
+
         this.scheduleList.addSchedules();
 
         var pageContent = document.getElementById("pageContent");

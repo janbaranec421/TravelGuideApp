@@ -31,7 +31,7 @@ class MainPage {
 
     public latitude: number;
     public longitude: number;
-    public zoomLvl: number = 14;
+    public zoomLvl: number = 15;
     public layers: Layer = Layer.Boundaries | Layer.Roads | Layer.Buildings | Layer.Earth | Layer.Landuse | Layer.Water;
 
     constructor() {
@@ -39,6 +39,7 @@ class MainPage {
         this.topMenu = new TopMenu(this.sideMenu);
         this.map = new Map();
         this.searchPanel = new MapSearchingPanel(this.map);
+        this.map.setMapSearchingPanel(this.searchPanel);
 
         this.topMenu.setNavigationPath([
             { txt: "Home", href: "index.html" }
@@ -59,14 +60,14 @@ class MainPage {
                     var placeItemCoords = JSON.parse(window.sessionStorage.getItem("placeItemCoordinates"));
                     this.latitude = parseFloat(placeItemCoords.lat);
                     this.longitude = parseFloat(placeItemCoords.lon);
-                    this.zoomLvl = 14;
+                    this.zoomLvl = 15;
                 }
                 if (!this.latitude && !this.longitude) {
                     this.latitude = 49.833683;
                     this.longitude = 18.163609;
-                    this.zoomLvl = 14;
+                    this.zoomLvl = 15;
                 }
-                this.map.displayPlace(this.latitude, this.longitude, this.zoomLvl, this.layers);
+                this.map.displayPlace(this.latitude, this.longitude, this.zoomLvl, this.layers, true);
                 window.addEventListener('resize', this.adjustMapToViewport.bind(this), false);
                 this.adjustMapToViewport();
             })
@@ -236,7 +237,13 @@ class MainPage {
             var rect = canvas.getBoundingClientRect();
             var x = Math.round((evt.changedTouches[0].clientX - rect.left) / (rect.right - rect.left) * canvas.width);
             var y = Math.round((evt.changedTouches[0].clientY - rect.top) / (rect.bottom - rect.top) * canvas.height);
-            this.map.markMap(x, y);
+            if (evt.shiftKey) {
+                this.map.markPathPoint(x, y);
+            }
+            else {
+                this.map.markPlace(x, y);
+            }
+            
         }
         this.isSwipeFired = false;
     }

@@ -43,16 +43,15 @@ div#topMenu {
     margin: 0%;
     height: 100%;
     display: inline-table;
+    white-space: nowrap;
 }
 
 #TopMenuButton {
-    height: 35px;
-    width: 35px;
+    height: 40px;
+    width: 40px;
     display: table-cell;
-    padding: 2px 4px 2px 4px;
     margin: 0px 5px;
-    border-radius: 7px;
-    border: 1px solid rgb(69, 79, 86);
+    border-radius: 20px;
 }
 
 div#sideMenu {
@@ -141,20 +140,21 @@ div#placesListHeader > ul {
 
 li.placesListItem {
     width: 90%;
-    margin: 2% 1%;
-    float: left;
+    margin: 1%;
     max-width: 450px;
     border: 1px solid #b9b9b9;
     box-shadow: 0 8px 10px 1px rgba(0,0,0,0.14), 0 3px 14px 2px rgba(0,0,0,0.12), 0 5px 5px -3px rgba(0,0,0,0.3);
-    text-align: left;
     font-size: initial;
+    text-align: left;
+    display: inline-block;
+    vertical-align: top;
 }
-@media (max-width: 941px ) {
-    li.placesListItem {
-        float: none;
-        margin: 2% auto;
-        position:relative;
-    }
+
+#placesList > ul {
+    padding: 0px;
+    margin: 0px auto;
+    list-style-type: none;
+    text-align: center;
 }
 
 #placesListItemFirstRow > td > img{
@@ -238,16 +238,19 @@ li.placesListItem {
 }
 
 #scheduleList > ul {
+    padding: 0px;
+    margin: 0px auto;
+    text-align: center;
     list-style-type: none;
 }
 
 .scheduleListItem {
-    margin-left: auto;
-    margin-right: auto;
-    margin-top: 3%;
-    margin-bottom: 3%;
-    max-width: 500px;
-    min-width: 500px;
+    display: inline-block;
+    vertical-align: top;
+    text-align: left;
+    margin: 15px;
+    max-width: 450px;
+    width: 90%;
     box-shadow: 0 6px 10px 0 rgba(0,0,0,0.14), 0 1px 18px 0 rgba(0,0,0,0.12), 0 3px 5px -1px rgba(0,0,0,0.3);
 }
 
@@ -258,10 +261,9 @@ li.placesListItem {
 
 #scheduleListItemFirstRow > td {
     background: #a7b1c1;
-    width: 65%;
     height: 65px;
     text-align: left;
-    padding: 2%;
+    padding: 5px 10px;
     font-weight: bold;
     font-size: x-large;
     border-bottom: 0.5px solid #cecece;
@@ -310,12 +312,35 @@ div#selectedProject {
 #map {
     float: left;
     width: 70%;
+    position: relative;
 }
 
 #mapContent:after {
     content: "";
     clear: both;
     display: table;
+}
+
+#mapPlusButton {
+    position: absolute;
+    width: 25px;
+    height: 25px;
+    padding: 5px;
+    background: rgba(202, 202, 202, 0.51);
+    box-shadow: 0px 0px 3px 1px #4a4a4a;
+    top: calc(100% - 45px);
+    left: calc(100% - 95px);
+}
+
+#mapMinusButton {
+    position: absolute;
+    width: 25px;
+    height: 25px;
+    padding: 5px;
+    background: rgba(202, 202, 202, 0.51);
+    box-shadow: 0px 0px 3px 1px #4a4a4a;
+    top: calc(100% - 45px);
+    left: calc(100% - 45px);
 }
 
 #projectsSubMenu, #collectionsSubMenu, #tagsSubMenu {
@@ -330,18 +355,6 @@ div#selectedProject {
     box-shadow: rgb(43, 43, 43) 0px 0px 3px 1px;
     margin: 1px;
     border-bottom-left-radius: 10px;
-}
-
-#scheduleListHeader {
-    text-align: left;
-    padding: 10px 25px 10px 25px;
-    max-width: 550px;
-    min-width: 550px;
-    margin: auto;
-    background: #E3E5E8;
-    font-size: xx-large;
-    box-shadow: 0 4px 5px 0 rgba(0,0,0,0.14), 0 1px 10px 0 rgba(0,0,0,0.12), 0 2px 4px -1px rgba(0,0,0,0.3);
-    list-style-type: none;
 }
 
 #emptyList {
@@ -397,6 +410,7 @@ div.detailedInfoSegment {
         margin: auto;
         font-size: small;
         box-shadow: inset 0px 0px 2px 0px #88bde2;
+        text-align: center;
     }
     div.detailedInfoSegment:nth-of-type(1) {
         position: relative;
@@ -407,6 +421,7 @@ div.detailedInfoSegment {
         height: calc(95vh - 223px);
         position: relative;
         margin-top: 7px;
+
     }
     .detailedInfoSegment > table > tbody > tr {
         text-align: center;
@@ -527,7 +542,7 @@ ul#list-forecast > table {
     overflow-x: auto;
     overflow-y: hidden;
     position: relative;
-    background: #bfc9ce;
+    background: #b9b9b9;
     border-bottom: 1px solid #828282;
 }
 
@@ -665,7 +680,7 @@ ul#list-forecast > table {
 }
 
 .box-shadow-highlight {
-    box-shadow: 0px 0px 6px 1px #585858
+    box-shadow: 0px 0px 5px 1px #bbbaba;
 }
 
 .topMenuItem {
@@ -677,8 +692,7 @@ ul#list-forecast > table {
 .breadcrumbList {
     padding: 0px 3%;
     color: #e4e4e4;
-    font-weight: bold;
-    font-family: Roboto_Thin_Italic;
+    font-family: Roboto_Regular;
 }
 
 .breadcrumbListItem {

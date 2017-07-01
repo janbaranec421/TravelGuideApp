@@ -8,6 +8,9 @@ var SchedulePage = (function () {
         this.sideMenu = new SideMenu();
         this.topMenu = new TopMenu(this.sideMenu);
         this.scheduleList = new ScheduleList();
+        this.topMenu.setNavigationPath([
+            { txt: "Home", href: "index.html" },
+            { txt: "Schedules" }]);
         this.scheduleList.addSchedules();
         var pageContent = document.getElementById("pageContent");
         pageContent.addEventListener('touchmove', this.HandleTouchMove.bind(this), false);

@@ -242,6 +242,29 @@ var MapSearchingPanel = (function () {
             });
         });
     };
+    MapSearchingPanel.prototype.displayMarkedPointInfo = function (lat, lon) {
+        var _this = this;
+        this.searchLocationByCoords(lat, lon)
+            .then(function (locations) {
+            $(".detailedInfoSegment:eq(0)").fadeIn(400);
+            $("#PlaceName").html(locations.features[0].properties.name);
+            $("#PlaceRegionCountry").html(locations.features[0].properties.region + ", " + locations.features[0].properties.country);
+            $("#PlaceGPS").html("GPS: [" + locations.features[0].geometry.coordinates[1].toFixed(2) + ", " + locations.features[0].geometry.coordinates[0].toFixed(2) + "]");
+            _this.fetchWeather(locations.features[0].properties.name, locations.features[0].properties.country)
+                .then(function (weather) {
+                _this.setWeather(weather);
+                $(".detailedInfoSegment:eq(1)").fadeIn(400);
+            });
+            _this.fetchForecast(locations.features[0].properties.name, locations.features[0].properties.country)
+                .then(function (forecast) {
+                _this.setForecast(forecast);
+                $(".detailedInfoSegment:eq(1)").fadeIn(400);
+            });
+        });
+    };
+    MapSearchingPanel.prototype.hideMarkedPointInfo = function () {
+        $("#detailedInfo > .detailedInfoSegment").fadeOut(250);
+    };
     return MapSearchingPanel;
 })();
 //# sourceMappingURL=MapSearchingPanel.js.map

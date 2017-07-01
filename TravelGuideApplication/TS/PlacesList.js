@@ -1,10 +1,7 @@
 var PlacesList = (function () {
     function PlacesList() {
         this.root = $("#placesList")
-            .append($("<ul>").css({
-            "padding": "0px",
-            "list-style-type": "none"
-        }));
+            .append($("<ul>"));
     }
     PlacesList.prototype.displayPlacesWithTagName = function (tagName) {
         var _this = this;
@@ -147,9 +144,7 @@ var PlacesList = (function () {
         }))
             .append($("<span>").text("[" + place.gps.lat.toFixed(3) + ", " + place.gps.lng.toFixed(3) + "]"))))
             .append($("<div>", { "class": "InfoDescription" }).html(place.desc))
-            .append($("<div>", { "class": "InfoTags" }))
-            .append($("<div>"))
-            .append($("<div>"));
+            .append($("<div>", { "class": "InfoTags" }));
         if (tags != null) {
             for (var k = 0; k < tags.length; k++) {
                 $(infoTab).find(".InfoTags")

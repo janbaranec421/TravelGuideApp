@@ -5,8 +5,10 @@
 
     public database: Database;
     private mapStyler: MapStyler;
+    private mapPanel: MapSearchingPanel;
     private mapData: Array<MapTile> = [];
-    private user_marks: { latitude: number, longitude: number, positionX: number, positionY: number, radius: number, touchRadius: number }[] = [];
+    private placeMark: { latitude: number, longitude: number, positionX: number, positionY: number, width: number, height: number, touchRadius: number };
+    private user_marks: { latitude: number, longitude: number, positionX: number, positionY: number, width: number, height: number, touchRadius: number }[] = [];
 
     private tileWidth: number;
     private tileHeight: number;
@@ -42,6 +44,16 @@
                     "height": "calc(100vh - 55px)",
                     "display": "block",
                     "padding": "0px",
+                }))
+            .append($("<img>", { "id": "mapPlusButton", "src": "./Resources/plus.png" })
+                .on("click", (evt) => {
+                    var coords = this.getCoordinatesAtCenter();
+                    this.displayPlace(coords.latitude, coords.longitude, this.currentZoom + 1, this.currentLayers);
+                }))
+            .append($("<img>", { "id": "mapMinusButton", "src": "./Resources/minus.png" })
+                .on("click", (evt) => {
+                    var coords = this.getCoordinatesAtCenter();
+                    this.displayPlace(coords.latitude, coords.longitude, this.currentZoom - 1, this.currentLayers);
                 }));
 
         this.canvas = <HTMLCanvasElement>document.getElementById('mapCanvas');
@@ -59,8 +71,12 @@
         this.mapHeight = mapHeight;
     }
 
-    public displayPlace(latitude: number, longitude: number, zoom: number, layers: Layer) {
-        this.clear();
+    public setMapSearchingPanel(mapPanel: MapSearchingPanel) {
+        this.mapPanel = mapPanel;
+    }
+
+    public displayPlace(latitude: number, longitude: number, zoom: number, layers: Layer, mark: boolean = false) {
+        this.clearCanvas();
         this.mapData = [];
 
         // [X,Y] Position in map tiles scope
@@ -71,11 +87,11 @@
         this.currentZoom = zoom;
         this.currentLayers = layers;
 
+        // Variables to calculate centerX, centerY
         var boundingBox = Converter.tile2boundingBox(this.currentTileX, this.currentTileY, this.currentZoom);
         var xScale = this.tileWidth / Math.abs(boundingBox.xMax - boundingBox.xMin);
         var yScale = this.tileHeight / Math.abs(boundingBox.yMax - boundingBox.yMin);
         var scale = xScale < yScale ? xScale : yScale;
-
         var point = {
             x: (longitude - boundingBox.xMin) * xScale,
             y: (boundingBox.yMax - latitude) * yScale
@@ -95,6 +111,9 @@
                 }
             }
         }
+        if (mark) {
+            this.markPlace(this.mapWidth / 2, this.mapHeight / 2);
+        }
     }
 
     public shiftMap(shiftX: number, shiftY: number) {
@@ -102,12 +121,12 @@
             this.mapData[i].positionX += shiftX;
             this.mapData[i].positionY += shiftY;
         }
-        this.clear();
+        this.clearCanvas();
         for (var i = 0; i < this.mapData.length; i++) {
             this.drawTile(this.mapData[i]);
         }
         this.drawPath(this.currentRoute);
-        this.markCollectionRedraw();
+        this.redrawAllMarks();
         this.updateMap();
     }
 
@@ -167,7 +186,7 @@
                             this.mapData.splice(i, 1, tileFromDB);
                             this.drawTile(tileFromDB);
                             this.drawPath(this.currentRoute);
-                            this.markCollectionRedraw();
+                            this.redrawAllMarks();
                         }
                         else {
                             this.mapData[i].isRequested = true;
@@ -184,7 +203,7 @@
                                         this.mapData.splice(j, 1, MapTileData);
                                         this.drawTile(MapTileData);
                                         this.drawPath(this.currentRoute);
-                                        this.markCollectionRedraw();
+                                        this.redrawAllMarks();
                                     }
                                 }
                             });
@@ -555,8 +574,7 @@
                     }
                 }
             }
-        }
-        
+        } 
         context.strokeStyle = '#ff0000';
         context.lineWidth = 3;
         context.stroke();
@@ -566,7 +584,7 @@
         context.lineWidth = 1;
 
         this.currentRoute = routes;
-        this.markCollectionRedraw();
+        this.redrawAllMarks();
     }
 
 
@@ -601,7 +619,7 @@
         }
     }
 
-    public markMap(x: number, y: number)
+    public markPathPoint(x: number, y: number, remove: boolean = true)
     {
         var markedTile;
         for (var i = 0; i < this.mapData.length; i++)
@@ -616,7 +634,6 @@
                 markedTile = this.mapData[i];
             }
         }
-
         if (markedTile != null)
         {
             var latLeft = markedTile.boundingBox.xMin;
@@ -628,21 +645,23 @@
             var latitude = lonBot - (onTileY / markedTile.yScale);
 
             var didRemove = false;
-            // Remove mark if there is already one
-            for (var i = 0; i < this.user_marks.length; i++) {
-                var markPositionX = this.user_marks[i].positionX;
-                var markPositionY = this.user_marks[i].positionY;
-                var touchRadius = this.user_marks[i].touchRadius;
+            if (remove) {
+                // Remove mark if there is already one
+                for (var i = 0; i < this.user_marks.length; i++) {
+                    var markPositionX = this.user_marks[i].positionX;
+                    var markPositionY = this.user_marks[i].positionY;
+                    var touchRadius = this.user_marks[i].touchRadius;
+                    var height = this.user_marks[i].height;
 
-                if (Math.abs(markPositionX - x) <= touchRadius && Math.abs(markPositionY - y) <= touchRadius) {
-                    this.user_marks.splice(i, 1);
-                    didRemove = true;
-                    this.shiftMap(0, 0);
+                    if (Math.abs(markPositionX - x) <= touchRadius && Math.abs((markPositionY - (height / 3)) - y) <= touchRadius) {
+                        this.user_marks.splice(i, 1);
+                        didRemove = true;
+                        this.shiftMap(0, 0);
+                    }
                 }
             }
             // If didnt removed mark, draw mark here
-            if (!didRemove)
-            {
+            if (!didRemove) {
                 var canvas = <HTMLCanvasElement>$("#mapCanvas")[0];
                 var context = canvas.getContext('2d');
                 var point = {
@@ -650,26 +669,36 @@
                     longitude: longitude,
                     positionX: x,
                     positionY: y,
-                    radius: 10,
+                    width: 32,
+                    height: 32,
                     touchRadius: 20
                 };
-
-                context.fillStyle = '#ff0000';
-                context.lineWidth = 1;
-                context.strokeStyle = '#3B3B3B';
                 context.beginPath();
-                context.arc(x, y, point.radius, 0, 2 * Math.PI);
-                context.fill();
-                context.strokeText((this.user_marks.length + 1).toString(), x - point.radius / 3, y + point.radius / 3);
+                // Mark
+                context.fillStyle = 'red';
+                context.strokeStyle = '#616161';
+                context.lineWidth = 0.5;
+                context.moveTo(x, y - 32);
+                context.quadraticCurveTo(x - 18, y - 32, x, y);
                 context.stroke();
+                context.moveTo(x, y - 32);
+                context.quadraticCurveTo(x + 18, y - 32, x, y);
+                context.stroke();
+                context.fill();
+
+                context.beginPath();
+                // Mark number
+                context.fillStyle = 'white';
+                context.font = "bold 18px Roboto_Light";
+                context.fillText((i + 1).toString(), x - 5, y - 16);
 
                 this.user_marks.push(point);
+                this.mapPanel.displayMarkedPointInfo(point.latitude, point.longitude);
             }
         }
-
-        var marks = new Array();
-        if (this.user_marks.length >= 2)
-        {
+        
+        if (this.user_marks.length >= 2) {
+            var marks = new Array();
             for (var i = 0; i < this.user_marks.length; i++)
             {
                 marks.push({ lat: this.user_marks[i].latitude, lon: this.user_marks[i].longitude });
@@ -678,15 +707,76 @@
         }
     }
 
-    public markCollectionRedraw()
+    public markPlace(x: number, y: number) {
+        var markedTile;
+        for (var i = 0; i < this.mapData.length; i++) {
+            var top = this.mapData[i].positionY;
+            var bot = this.mapData[i].positionY + this.tileHeight;
+            var left = this.mapData[i].positionX;
+            var right = this.mapData[i].positionX + this.tileWidth;
+            // if touch is in this tile...
+            if (left <= x && x <= right && top <= y && y <= bot) {
+                markedTile = this.mapData[i];
+            }
+        }
+        if (markedTile != null) {
+            var longitude = ((x - markedTile.positionX) / markedTile.xScale) + markedTile.boundingBox.xMin;
+            var latitude = markedTile.boundingBox.yMax - ((y - markedTile.positionY) / markedTile.yScale);
+
+            // If placeMark exists, check if needs to be removed
+            if (this.placeMark && (Math.abs(this.placeMark.positionX - x) <= this.placeMark.touchRadius) && (Math.abs((this.placeMark.positionY - (this.placeMark.height / 3)) - y) <= this.placeMark.touchRadius)) {
+                this.placeMark = null;
+                this.mapPanel.hideMarkedPointInfo();
+            }
+            else {
+                // If didnt removed mark, draw mark here
+                var canvas = <HTMLCanvasElement>$("#mapCanvas")[0];
+                var context = canvas.getContext('2d');
+                var point = {
+                    latitude: latitude,
+                    longitude: longitude,
+                    positionX: x,
+                    positionY: y,
+                    width: 32,
+                    height: 32,
+                    touchRadius: 20
+                };
+                // Mark
+                context.beginPath();
+                context.fillStyle = '#ff0000';
+                context.strokeStyle = '#616161';
+                context.lineWidth = 0.5;
+                context.moveTo(x, y - 32);
+                context.quadraticCurveTo(x - 18, y - 32, x, y);
+                context.stroke();
+                context.moveTo(x, y - 32);
+                context.quadraticCurveTo(x + 18, y - 32, x, y);
+                context.stroke();
+                context.fill();
+                context.moveTo(x, y - 24);
+                context.fillStyle = "#FFF288";
+                context.arc(x, y - 23, 6, 0, 2 * Math.PI);
+                context.fill();
+
+                this.placeMark = point;
+                this.mapPanel.hideMarkedPointInfo();
+                this.mapPanel.displayMarkedPointInfo(point.latitude, point.longitude);
+            }
+            this.shiftMap(0, 0);
+        }
+    }
+
+    public redrawAllMarks() {
+        this.redrawPathMarks();
+        this.redrawPlaceMark();
+    }
+
+    private redrawPathMarks()
     {
         var canvas = <HTMLCanvasElement>$("#mapCanvas")[0];
         var context = canvas.getContext('2d');
-
-        for (var i = 0; i < this.user_marks.length; i++)
-        {
-            for (var j = 0; j < this.mapData.length; j++)
-            {
+        for (var i = 0; i < this.user_marks.length; i++) {
+            for (var j = 0; j < this.mapData.length; j++) {
                 var latLeft = this.mapData[j].boundingBox.yMin;
                 var latRight = this.mapData[j].boundingBox.yMax;
                 var lonTop = this.mapData[j].boundingBox.xMin;
@@ -696,8 +786,7 @@
                 var markLon = this.user_marks[i].longitude;
 
                 // If mark is in [latitude, longitude] bounds of tile..
-                if ((latLeft <= markLat) && (markLat <= latRight))
-                {
+                if ((latLeft <= markLat) && (markLat <= latRight)) {
                     if ((lonTop <= markLon) && (markLon <= lonBot)) {
                         var point = Converter.MercatorProjection(this.user_marks[i].latitude, this.user_marks[i].longitude);
 
@@ -705,20 +794,27 @@
                             x: (this.user_marks[i].longitude - lonTop) * this.mapData[j].xScale,
                             y: (latRight - this.user_marks[i].latitude) * this.mapData[j].yScale
                         };
-
                         point.x += this.mapData[j].positionX;
                         point.y += this.mapData[j].positionY;
 
-                        context.fillStyle = '#FF0000';
-                        context.strokeStyle = '#3B3B3B';
-                        context.lineWidth = 1;
                         context.beginPath();
-                        context.arc(point.x, point.y, this.user_marks[i].radius, 0, 2 * Math.PI);
-                        context.fill();
-                        context.strokeText((i + 1).toString(), point.x - this.user_marks[i].radius / 3, point.y + this.user_marks[i].radius / 3);
+                        // Mark
+                        context.fillStyle = 'red';
+                        context.strokeStyle = '#616161';
                         context.lineWidth = 0.5;
+                        context.moveTo(point.x, point.y - 32);
+                        context.quadraticCurveTo(point.x - 18, point.y - 32, point.x, point.y);
                         context.stroke();
-                        context.lineWidth = 1;
+                        context.moveTo(point.x, point.y - 32);
+                        context.quadraticCurveTo(point.x + 18, point.y - 32, point.x, point.y);
+                        context.stroke();
+                        context.fill();
+
+                        context.beginPath();
+                        // Mark number
+                        context.fillStyle = 'white';
+                        context.font = "bold 18px Roboto_Light";
+                        context.fillText((i + 1).toString(), point.x - 5, point.y - 16);
 
                         this.user_marks[i].positionX = point.x;
                         this.user_marks[i].positionY = point.y;
@@ -728,7 +824,62 @@
         }
     }
 
-    public clear(): void {
+    private redrawPlaceMark() {
+        var canvas = <HTMLCanvasElement>$("#mapCanvas")[0];
+        var context = canvas.getContext('2d');
+        if (this.placeMark)
+        {
+            for (var j = 0; j < this.mapData.length; j++) {
+                var latLeft = this.mapData[j].boundingBox.yMin;
+                var latRight = this.mapData[j].boundingBox.yMax;
+                var lonTop = this.mapData[j].boundingBox.xMin;
+                var lonBot = this.mapData[j].boundingBox.xMax;
+
+                var markLat = this.placeMark.latitude;
+                var markLon = this.placeMark.longitude;
+
+                // If mark is in [latitude, longitude] bounds of tile..
+                if ((latLeft <= markLat) && (markLat <= latRight)) {
+                    if ((lonTop <= markLon) && (markLon <= lonBot)) {
+                        var point = Converter.MercatorProjection(this.placeMark.latitude, this.placeMark.longitude);
+                        point = {
+                            x: (this.placeMark.longitude - lonTop) * this.mapData[j].xScale,
+                            y: (latRight - this.placeMark.latitude) * this.mapData[j].yScale
+                        };
+                        point.x += this.mapData[j].positionX;
+                        point.y += this.mapData[j].positionY;
+
+                        context.beginPath();
+                        // Mark
+                        context.fillStyle = '#ff0000';
+                        context.strokeStyle = '#616161';
+                        context.lineWidth = 0.5;
+                        context.moveTo(point.x, point.y - 32);
+                        context.quadraticCurveTo(point.x - 18, point.y - 32, point.x, point.y);
+                        context.stroke();
+                        context.moveTo(point.x, point.y - 32);
+                        context.quadraticCurveTo(point.x + 18, point.y - 32, point.x, point.y);
+                        context.stroke();
+                        context.fill();
+                        context.beginPath();
+                        context.moveTo(point.x, point.y - 24);
+                        context.fillStyle = "#FFF288";
+                        context.arc(point.x, point.y - 23, 6, 0, 2 * Math.PI, false);
+                        context.fill();
+
+                        this.placeMark.positionX = point.x;
+                        this.placeMark.positionY = point.y;
+                    }
+                }
+            }
+        }
+    }
+
+    public clearPathPoints() {
+        this.user_marks = [];
+    }
+
+    public clearCanvas(): void {
         var canvas = <HTMLCanvasElement>$("#mapCanvas")[0];
         var context = canvas.getContext('2d');
 

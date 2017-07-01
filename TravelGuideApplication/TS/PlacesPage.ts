@@ -28,19 +28,20 @@ class PlacesPage {
             this.placesList.displayPlacesWithTagName(this.selections.currentTag);
             this.topMenu.setNavigationPath([
                 { txt: "Home", href: "index.html" },
-                { txt: this.selections.currentTag, href: "places.html" } ]);
+                { txt: "Tags (" + this.selections.currentTag + ")" } ]);
         }
         else if (this.selections.currentCollection) {
             this.placesList.displayPlacesWithCollectionName(this.selections.currentCollection);
             this.topMenu.setNavigationPath([
                 { txt: "Home", href: "index.html" },
-                { txt: this.selections.currentCollection, href: "places.html" } ]);
+                { txt: "Collection ("+this.selections.currentCollection+")" } ]);
         }
         else if (this.selections.currentSchedule) {
             this.placesList.displayPlacesWithScheduleName(this.selections.currentSchedule);
             this.topMenu.setNavigationPath([
                 { txt: "Home", href: "index.html" },
-                { txt: this.selections.currentSchedule, href: "places.html" } ]);
+                { txt: "Schedules", href: "schedules.html"},
+                { txt: this.selections.currentSchedule } ]);
         }
         window.sessionStorage.setItem("selections", JSON.stringify(this.selections));
 

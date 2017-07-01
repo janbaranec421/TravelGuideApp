@@ -49,7 +49,6 @@
     <Content Include="Resources\forecast\50n.png" />
     <Content Include="Resources\image-not-found.png" />
     <Content Include="Resources\map.png" />
-    <Content Include="Resources\more-1.png" />
     <Content Include="Resources\more.png" />
     <Content Include="Resources\Projects\project-1.json" />
     <Content Include="Resources\Projects\project-2.json" />

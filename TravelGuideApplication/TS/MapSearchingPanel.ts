@@ -280,4 +280,29 @@
             });
             
     }
+
+    public displayMarkedPointInfo(lat: number, lon: number) {
+        this.searchLocationByCoords(lat, lon)
+            .then((locations) => {
+                $(".detailedInfoSegment:eq(0)").fadeIn(400);
+                $("#PlaceName").html(locations.features[0].properties.name);
+                $("#PlaceRegionCountry").html(locations.features[0].properties.region + ", " + locations.features[0].properties.country);
+                $("#PlaceGPS").html("GPS: [" + locations.features[0].geometry.coordinates[1].toFixed(2) + ", " + locations.features[0].geometry.coordinates[0].toFixed(2) + "]");
+
+                this.fetchWeather(locations.features[0].properties.name, locations.features[0].properties.country)
+                    .then((weather) => {
+                        this.setWeather(weather);
+                        $(".detailedInfoSegment:eq(1)").fadeIn(400);
+                    });
+                this.fetchForecast(locations.features[0].properties.name, locations.features[0].properties.country)
+                    .then((forecast) => {
+                        this.setForecast(forecast);
+                        $(".detailedInfoSegment:eq(1)").fadeIn(400);
+                    })
+            });
+    }
+
+    public hideMarkedPointInfo() {
+        $("#detailedInfo > .detailedInfoSegment").fadeOut(250);
+    }
 }

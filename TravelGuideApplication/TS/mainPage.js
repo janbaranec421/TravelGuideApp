@@ -10,12 +10,13 @@ var MainPage = (function () {
         // Used to count delta of touch movement on canvas
         this.lastTouchPositionX = 0;
         this.lastTouchPositionY = 0;
-        this.zoomLvl = 14;
+        this.zoomLvl = 15;
         this.layers = Layer.Boundaries | Layer.Roads | Layer.Buildings | Layer.Earth | Layer.Landuse | Layer.Water;
         this.sideMenu = new SideMenu();
         this.topMenu = new TopMenu(this.sideMenu);
         this.map = new Map();
         this.searchPanel = new MapSearchingPanel(this.map);
+        this.map.setMapSearchingPanel(this.searchPanel);
         this.topMenu.setNavigationPath([
             { txt: "Home", href: "index.html" }
         ]);
@@ -33,14 +34,14 @@ var MainPage = (function () {
                 var placeItemCoords = JSON.parse(window.sessionStorage.getItem("placeItemCoordinates"));
                 _this.latitude = parseFloat(placeItemCoords.lat);
                 _this.longitude = parseFloat(placeItemCoords.lon);
-                _this.zoomLvl = 14;
+                _this.zoomLvl = 15;
             }
             if (!_this.latitude && !_this.longitude) {
                 _this.latitude = 49.833683;
                 _this.longitude = 18.163609;
-                _this.zoomLvl = 14;
+                _this.zoomLvl = 15;
             }
-            _this.map.displayPlace(_this.latitude, _this.longitude, _this.zoomLvl, _this.layers);
+            _this.map.displayPlace(_this.latitude, _this.longitude, _this.zoomLvl, _this.layers, true);
             window.addEventListener('resize', _this.adjustMapToViewport.bind(_this), false);
             _this.adjustMapToViewport();
         })
@@ -190,7 +191,12 @@ var MainPage = (function () {
             var rect = canvas.getBoundingClientRect();
             var x = Math.round((evt.changedTouches[0].clientX - rect.left) / (rect.right - rect.left) * canvas.width);
             var y = Math.round((evt.changedTouches[0].clientY - rect.top) / (rect.bottom - rect.top) * canvas.height);
-            this.map.markMap(x, y);
+            if (evt.shiftKey) {
+                this.map.markPathPoint(x, y);
+            }
+            else {
+                this.map.markPlace(x, y);
+            }
         }
         this.isSwipeFired = false;
     };
