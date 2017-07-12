@@ -105,12 +105,6 @@ li.sideMenuButton:hover {
     background-color: #565554;
 }
 
-img#avatar {
-    object-fit:cover;
-    height: 15%;
-    width: 100%;
-}
-
 div#pageContent {
     position: absolute;
     top: 55px;
@@ -303,15 +297,14 @@ div#selectedProject {
     box-shadow: 0px 0px 3px 1px #888787;
     min-width: 200px;
     margin-left: 3px;
-    width: 29%;
+    width: 31%;
     height: calc(100vh - 55px);
-    float: left;
-    min-height: 380px;
+    display: inline-block;
 }
 
 #map {
     float: left;
-    width: 70%;
+    width: 68%;
     position: relative;
 }
 
@@ -362,43 +355,10 @@ div#selectedProject {
     font-size: x-large;
 }
 
-#placeInput {
-    display: block;
-    margin: 2% auto 1%;
-    height: 30px;
-    width: calc(90% - 33px);
-    padding: 2px 6px;
-    float: left;
-    border: 1px solid rgb(182, 181, 181);
-    font-family: Roboto_Light;
-    font-size: smaller;
-}
-
-#placeInput:focus {
-    outline: none;
-    box-shadow: 0px 0px 1px 1px #cacaca;
-}
-
-#placeSubmit {
-    margin: 2% -1px 1%;
-    width: 40px;
-    height: 36px;
-    padding: 2px 6px;
-    border: 1px solid rgb(190, 190, 190);
-    background: #d6dbdf;
-}
-
 input::-webkit-calendar-picker-indicator {
   display: none;
 }
 
-div#detailedInfo {
-    height: calc(100% - 68px);
-    width: 95%;
-    position: relative;
-    margin: auto;
-    box-shadow: 0px 0px 1px 0px #9b9b9b;
-}
 div.detailedInfoSegment {
     width: 100%;
     float:left;
@@ -427,114 +387,28 @@ div.detailedInfoSegment {
         text-align: center;
     }
 
-#PlaceDetails {
-    width: 85%;
-    margin: auto;
-    padding: 1% 2%;
-    font-size: smaller;
-    box-shadow: inset 0px 0px 10px 0px #cccccc;
-    background: #e8e8e8;
-}
-#PlaceGPS {
-    margin-top: 3%;
-}
-#PlaceName {
-    font-size: larger !important;
-    padding: 2% 2% 0%;
-    margin: auto;
-    width: 88%;
-    font-size: medium;
-    border-bottom: 1px solid #848587;
-}
-
-#weatherButton, #forecastButton {
-    width: 45% !important;
-    font-family: Roboto_light;
-    border-top: none;
-    border-bottom: 1px solid #848587;
-    border-left: none;
-    border-right: none;
-    font-size: medium;
-    background: #f1f1f1;
-    box-shadow: 0px 0px 1px 1px #cacaca;
-}
-#weatherButton {
-    margin: 0% 1px 0% 4%;
-}
-#weatherButton:focus, #forecastButton:focus {
-    outline: none;
-    box-shadow: 0px 0px 5px 1px #848587!important;
-}
-
-#forecastButton {
-    margin: 0% 4% 0% 1px;
-}
-
-#weatherTemperature {
-    font-size: xx-large;
-}
-#wind, #humidity, #pressure {
-    text-align: center;
-}
-
-td.forecastTempExtremes > div:nth-of-type(1) {
-    background: #FFEB3B;
-    padding: 2px;
-    border-radius: 5px;
-}
-
-td.forecastTempExtremes > div:nth-of-type(2) {
-    background: rgb(151, 223, 255);
-    padding: 2px;
-    border-radius: 5px;
-}
-
-ul#list-forecast {
-    display: none;
-    font-size: small;
-    text-align: center;
-    padding: 0px;
-    margin: auto;
-    width: 90%;
-    overflow: hidden;
-    overflow-y: scroll;
-    position: relative;
-    max-height: calc(95vh - 235px);
-    min-height: 150px;
-}
-ul#list-forecast > table {
-    width: 100%;
-    padding: 1% 5%;
-    background: #e2ecf3;
-    box-shadow: inset 0px 0px 2px 0px #88bde2;
-}
-
-.forecastDate {
-    text-align: center;
-}
-
-@media (max-width: 677px ), (max-height: 380px) {
-    #map {
+@media (max-width: 750px ), (max-height: 385px) {
+    #map, #mapCanvasLabels{
         width: 100% !important;
     }
-    #mapCanvas { 
+    #mapCanvas, #mapCanvasLabels{ 
         height: calc(70vh - 55px) !important;
     }
     #mapPanel {
         width: 100% !important;
         margin-left: 0px;
         margin-top: 3px;
+        height: calc(100vh - 45px) !important;
     }
-    #detailedInfo {
-        height: calc(100% - 85px) !important;
+    #mapMinusButton, #mapPlusButton {
+        top: 10px;
     }
-    div.detailedInfoSegment:nth-of-type(2) {
-        margin-top: 15px;
+    #returnOnItemButton {
+        left: calc(100% - 140px) !important;
     }
-    #list-forecast {
-        max-height: calc(95vh - 275px) !important;
+    #routePointsList {
+        min-height: 90px !important;
     }
-
 }
 
 .tabOptions {
@@ -642,6 +516,205 @@ ul#list-forecast > table {
     border: 1px solid #bdbdbc;
 }
 
+.box-shadow-highlight {
+    box-shadow: 0px 0px 5px 1px #bbbaba;
+}
+
+.topMenuItem {
+    display: table-cell;
+    vertical-align: middle;
+    height: 100%;
+}
+
+.breadcrumbList {
+    padding: 0px 3%;
+    color: #e4e4e4;
+    font-family: Roboto_Regular;
+}
+
+.breadcrumbListItem {
+    padding: 0px 4px;
+}
+.breadcrumbListItem:visited {
+    color: #e4e4e4;
+}
+
+.mapPanelContent {
+    list-style-type: none;
+    padding: 0px;
+    margin: 0px auto;
+    height: 100%;
+}
+.mapPanelContentItem {
+    margin: 0px auto;
+    width: 95%;
+}
+
+#InfoCardButton {
+    margin: 5px 1px 0% -1px;
+    font-family: Roboto_light;
+    font-size: medium;
+    background: #f1f1f1;
+    border: 1px solid #b7b4b4;
+    min-width: 60px;
+    width: calc(30%);
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    outline: none;
+}
+#WeatherCardButton {
+    margin: 5px 0px 0% 0px;
+    font-family: Roboto_light;
+    font-size: medium;
+    background: #f1f1f1;
+    border: 1px solid #b7b4b4;
+    min-width: 60px;
+    width: calc(35%);
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    outline: none;
+}
+#RouteCardButton {
+    margin: 5px 0px 0% 1px;
+    font-family: Roboto_light;
+    font-size: medium;
+    background: #f1f1f1;
+    border: 1px solid #b7b4b4;
+    min-width: 60px;
+    width: calc(30%);
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    outline: none;
+}
+
+#placeSearch {
+    margin: 10px auto;
+    width: 95%;
+}
+
+#placeSearchForm {
+    width: 100%;
+    padding: 5px 5px 5px 0px;
+}
+
+#placeInput {
+    height: 32px;
+    width: calc(100% - 51px);
+    margin-right: -1px;
+    padding: 1px 5px;
+    float: left;
+    border: 1px solid rgb(182, 181, 181);
+    font-family: Roboto_Light;
+    font-size: smaller;
+}
+
+#placeInput:focus {
+    outline: none;
+    box-shadow: 0px 0px 1px 1px #cacaca;
+}
+
+#placeSubmit {
+    width: 40px;
+    height: 36px;
+    padding: 0px;
+    border: 1px solid rgb(190, 190, 190);
+    background: #d6dbdf;
+}
+    #placeSubmit > img {
+        height: 24px;
+        width: 24px;
+        vertical-align: middle;
+    }
+
+#detailedInfoCard, #weatherCard, #routeCard {
+    list-style-type: none;
+    padding: 0px;
+    box-shadow: 0px 0px 1px 0px #232323;
+    height: calc(100% - 35px);
+    border-radius: 3px;
+    border-top-left-radius: 0px;
+}
+
+#placeName {
+    font-size: larger;
+    margin: 0% 2%;
+    padding: 4px 2% 0px;
+    min-height: 25px;
+    max-height: calc(50% - 25px);
+    overflow-y: scroll;
+    border-bottom: 1px solid #848587;
+}
+#placeDetails {
+    margin: 0% 3%;
+    padding: 0% 2%;
+    min-height: 45px;
+    max-height: calc(50% - 25px);
+    overflow-y: scroll;
+    box-shadow: inset 0px 0px 10px 0px #cccccc;
+    background: #e8e8e8;
+    font-size: smaller;
+}
+
+#weatherButton {
+    width: calc(50% - 1px);
+    margin-right: 1px;
+    font-family: Roboto_light;
+    font-size: medium;
+    background: #f1f1f1;
+    box-shadow: 0px 0px 1px 1px #afafaf;
+    border-top: none;
+    border-bottom: 1px solid #eaeaea;
+    border-left: none;
+    border-right: none;
+}
+#forecastButton {
+    width: calc(50% - 1px);
+    margin-left: 1px;
+    font-family: Roboto_light;
+    font-size: medium;
+    background: #f1f1f1;
+    box-shadow: 0px 0px 1px 1px #afafaf;
+    border-top: none;
+    border-bottom: 1px solid #eaeaea;
+    border-left: none;
+    border-right: none;
+}
+
+#weatherButton:focus, #forecastButton:focus {
+    outline: none;
+    box-shadow: 0px 0px 4px 2px #989797 !important;
+}
+
+#weatherTable {
+    display: none;
+    background: #e2ecf3;
+    width: 98%;
+    margin: 0% 1%;
+    font-size: small;
+    box-shadow: inset 0px 0px 2px 0px #88bde2;
+    text-align: center;
+}
+#weatherTemperature {
+    font-size: xx-large;
+}
+
+#forecastList {
+    font-size: small;
+    text-align: center;
+    padding: 0px;
+    width: 98%;
+    margin: 1px 1%;
+    overflow: hidden;
+    overflow-y: scroll;
+    max-height: calc(100% - 25px);
+}
+#forecastList > table {
+    width: 100%;
+    padding: 1% 5%;
+    background: #e2ecf3;
+    box-shadow: inset 0px 0px 2px 0px #88bde2;
+}
+
 .forecastDate {
     font-style: italic;
     font-size: medium;
@@ -679,25 +752,157 @@ ul#list-forecast > table {
     font-size: medium;
 }
 
-.box-shadow-highlight {
-    box-shadow: 0px 0px 5px 1px #bbbaba;
+.forecastDate {
+    text-align: center;
 }
 
-.topMenuItem {
-    display: table-cell;
-    vertical-align: middle;
+.SelectedCardButton {
+    border-bottom-color: #f1f1f1 !important;
+    background: #f1f1f1 !important;
+}
+.notSelectedCardButton {
+    border-bottom: 1px solid #b7b4b4 !important;
+    background: #e8e8e8 !important;
+    box-shadow: inset 0 0 8px -4px #656060;
+}
+
+#navigateMeButton {
+    margin: 10px auto;
+    width: 70%;
+    max-width: 150px;
+    height: 30px;
+    display: block;
+    border: none;
+    box-shadow: 0px 0px 2px 1px #6f6e6e;
+    background: #e8e8e8;
+    outline: none;
+    border-radius: 3px;
+}
+
+#routePointsList {
+    list-style-type: none;
+    padding: 0px 0px 3px;
+    width: 98%;
+    margin: 10px 1% 0px;
+    min-height: 90px;
+    border: 1px solid #d2d2d2;
+    max-height: calc(100% - 140px);
+    overflow-y: scroll;
     height: 100%;
 }
 
-.breadcrumbList {
-    padding: 0px 3%;
-    color: #e4e4e4;
-    font-family: Roboto_Regular;
+.deletePointIcon {
+    vertical-align: middle;
+    width: 15px;
+    height: 15px;
+    padding: 8px 0px 3px 10px;
 }
 
-.breadcrumbListItem {
-    padding: 0px 4px;
+.routePointIcon {
+    vertical-align: middle;
+    width: 16px;
+    height: 16px;
+    padding: 2px;
+    margin-right: 5px;
+    min-height: 16px;
 }
-.breadcrumbListItem:visited {
-    color: #e4e4e4;
+.routePoint {
+    padding: 5px 0px 0px;
+    margin: 0px;
+}
+.routePoint > span {
+    vertical-align: middle;
+    padding: 2px;
+}
+
+.routePointDots {
+    position: relative;
+    transform: translateY(9px);
+    width: 20px;
+    height: 20px;
+    margin: -9px 0px 0px;
+    display: block;
+}
+
+.routePointInput {
+    border: none;
+    background: #f1f1f1;
+    padding: 5px 5px 2px;
+    width: calc(100% - 70px);
+    height: 24px;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    outline: none;
+    border-bottom: 1px solid dimgrey;
+}
+
+.routeButton {
+    display: inline;
+    margin: 7px 8px;
+    max-width: 150px;
+    width: 43%;
+    height: 30px;
+    border: none;
+    box-shadow: 0px 0px 2px 1px #6f6e6e;
+    background: #e8e8e8;
+    outline: none;
+    border-radius: 3px;
+}
+
+.routeDetailInfo {
+    margin: 15px auto 10px;
+    width: 85%;
+    font-size: 15px;
+    text-align: center;
+    font-weight: bold;
+}
+
+.routeTravelTypeIcon {
+    padding: 3px;
+    margin: 2px 5px;
+    width: 30px;
+    height: 30px;
+    border: 1px solid #9e9e9e;
+    border-radius: 3px;
+    background: #e4e4e4;
+}
+
+#returnOnItemButton {
+    position: absolute;
+    width: 130px;
+    height: 35px;
+    padding: 5px;
+    background: rgba(202, 202, 202, 0.83);
+    box-shadow: 0px 0px 3px 1px #827c7c;
+    border: 1px solid #5f5f5f;
+    top: calc(100% - 45px);
+    left: calc(50% - 65px);
+    outline: 0px solid #FF9800;
+    animation: returnButton-highlight 5s;
+}
+@keyframes returnButton-highlight {
+    0%  { box-shadow: 0px 0px 3px 1px #FF9507; }
+    50%  { box-shadow: 0px 0px 3px 1px #A59666; }
+    100% { box-shadow: 0px 0px 3px 1px #827c7c; } 
+}
+
+@keyframes box-highlight {
+    0%   { box-shadow: 0 8px 10px 1px rgba(0,0,0,0.14), 0 3px 14px 2px rgba(0,0,0,0.12), 0 5px 5px -3px rgba(0,0,0,0.3); }
+    35%  { box-shadow: 0 3px 14px 2px rgba(249, 228, 128, 0.14), 0 3px 14px 2px #FF9507, 0 5px 5px -3px #FF9507; }
+    100% { box-shadow: 0 5px 5px -3px rgba(0,0,0,0.14), 0 3px 14px 2px rgba(0,0,0,0.12), 0 5px 5px -3px rgba(0,0,0,0.3); } 
+}
+
+
+@keyframes routePoint-highlight {
+    0% { background: #f1f1f1}
+    40% { background: #E4BDC0; }
+    100% { background: #f1f1f1}
+}
+
+.blink-item-highlight {
+    animation: box-highlight 1.5s;
+}
+
+.routePoint-highlight {
+    animation: routePoint-highlight 2s;
 }

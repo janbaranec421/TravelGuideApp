@@ -8,22 +8,28 @@
     private mapPanel: MapSearchingPanel;
     private mapData: Array<MapTile> = [];
     private placeMark: { latitude: number, longitude: number, positionX: number, positionY: number, width: number, height: number, touchRadius: number };
-    private user_marks: { latitude: number, longitude: number, positionX: number, positionY: number, width: number, height: number, touchRadius: number }[] = [];
+    private routeMarks: { latitude: number, longitude: number, positionX: number, positionY: number, width: number, height: number, touchRadius: number }[] = [];
 
     private tileWidth: number;
     private tileHeight: number;
     private mapWidth: number;
     private mapHeight: number;
 
-    // Properties of the Tile in center
-    private currentLatitude: number;
-    private currentLongitude: number;
-    private currentTileX: number;
-    private currentTileY: number;
+    private labelsCanvas: HTMLCanvasElement;
+    private labelsContext: CanvasRenderingContext2D;
 
-    private currentRoute: any;
-    private currentZoom: number;
-    private currentLayers: Layer;
+    private initialDrawTileNumber = 0;
+
+    // Properties of the Tile in center
+    public currentLatitude: number;
+    public currentLongitude: number;
+    public currentTileX: number;
+    public currentTileY: number;
+
+    public currentRoute: any;
+    public currentZoom: number;
+    public currentLayers: Layer;
+
 
 
     constructor(tileWidth: number = 200, tileHeight: number = 200, mapWidth: number = 700, mapHeight = 700) {
@@ -45,6 +51,20 @@
                     "display": "block",
                     "padding": "0px",
                 }))
+            .append($("<canvas>")
+                .attr("id", "mapCanvasLabels")
+                .attr("width", mapWidth + "px")
+                .attr("height", mapHeight + "px")
+                .css({
+                    "width": "100%",
+                    "height": "calc(100vh - 55px)",
+                    "display": "block",
+                    "padding": "0px",
+                    "position": "absolute",
+                    "top": "0px",
+                    "left": "0px"
+                }))
+
             .append($("<img>", { "id": "mapPlusButton", "src": "./Resources/plus.png" })
                 .on("click", (evt) => {
                     var coords = this.getCoordinatesAtCenter();
@@ -59,11 +79,16 @@
         this.canvas = <HTMLCanvasElement>document.getElementById('mapCanvas');
         this.context = this.canvas.getContext('2d');
 
+        this.labelsCanvas = <HTMLCanvasElement>document.getElementById('mapCanvasLabels');
+        this.labelsContext = this.labelsCanvas.getContext('2d');
+
         this.mapStyler = new MapStyler();
         this.mapWidth = mapWidth;
         this.mapHeight = mapHeight;
         this.tileWidth = tileWidth;
         this.tileHeight = tileHeight;
+
+        this.makeReturnOnItemButton();
     }
 
     public setMapDimensions(mapWidth: number, mapHeight: number) {
@@ -101,6 +126,7 @@
         var centerY = (this.mapHeight / 2) - point.y;
 
         var box = this.tilesFittingMapBoundingBox(centerX, centerY);
+        this.initialDrawTileNumber = 0;
         for (var x = box.negativeBoundX - 1; x <= box.positiveBoundX + 1; x++) {
             for (var y = box.negativeBoundY - 1; y <= box.positiveBoundY + 1; y++) {
                 var MapTileData = new MapTile(null, this.currentTileX + x, this.currentTileY + y, zoom, layers, centerX - (this.tileWidth * (-1 * x)), centerY - (this.tileHeight * (-1 * y)), this.tileWidth, this.tileHeight);
@@ -108,6 +134,7 @@
                 // Outer ring is not filled with data, due to dynamic loading mechanism
                 if (!(x == box.positiveBoundX + 1 || x == box.negativeBoundX - 1 || y == box.positiveBoundY + 1 || y == box.negativeBoundY - 1)) {
                     this.fillPlaceholder(MapTileData);
+                    this.initialDrawTileNumber++;
                 }
             }
         }
@@ -120,6 +147,7 @@
         for (var i = 0; i < this.mapData.length; i++) {
             this.mapData[i].positionX += shiftX;
             this.mapData[i].positionY += shiftY;
+            this.mapData[i].isRendered = false;
         }
         this.clearCanvas();
         for (var i = 0; i < this.mapData.length; i++) {
@@ -296,7 +324,7 @@
             (i + 1 == points.length) ? fetchURL += "]," : fetchURL += ",";
         }
         fetchURL += "\"costing\":\"auto\", \"units\":\"mi\"}&api_key=mapzen-eES7bmW";
-        
+
         $.getJSON(fetchURL)
             .then((routeObject) => {
                 console.log(routeObject);
@@ -310,10 +338,15 @@
                         });
                     }
                 }
+                var hours = Math.floor((routeObject.trip.summary.time / 60) / 60);
+                var mins = ((routeObject.trip.summary.time / 60) - (60 * hours)).toFixed(0);
+                var timeString = hours > 0 ? hours + "h " + mins + " " + "min" : mins + "min";
+                var units = routeObject.trip.units == "kilometers" ? "Km" : "m";
+                $(".routeDetailInfo").text("Distance: " + routeObject.trip.summary.length.toFixed(1) + " " + units + ", " + "Time: " + timeString);
                 this.drawPath(route);
             })
     }
-    
+
 
     private drawTile(mapTile: MapTile): void {
         // Placeholders aren't drawn
@@ -328,14 +361,12 @@
             mapTile.context.strokeStyle = '#333333';
             mapTile.context.canvas.width = mapTile.tileWidth;
             mapTile.context.canvas.height = mapTile.tileHeight;
-
+            
             for (var i = 0; i < mapTile.sortedData.length; i++) {
-                if (mapTile.sortedData[i].geometry.type == "Point")             { this.drawPoint(mapTile.sortedData[i], mapTile); }
-                if (mapTile.sortedData[i].geometry.type == "MultiPoint")        { this.drawMultiPoint(mapTile.sortedData[i], mapTile); }
-                if (mapTile.sortedData[i].geometry.type == "LineString")        { this.drawLineString(mapTile.sortedData[i], mapTile); }
-                if (mapTile.sortedData[i].geometry.type == "MultiLineString")   { this.drawMultiLineString(mapTile.sortedData[i], mapTile); }
-                if (mapTile.sortedData[i].geometry.type == "Polygon")           { this.drawPolygon(mapTile.sortedData[i], mapTile); }
-                if (mapTile.sortedData[i].geometry.type == "MultiPolygon")      { this.drawMultiPolygon(mapTile.sortedData[i], mapTile); }
+                if (mapTile.sortedData[i].geometry.type == "LineString") { this.drawLineString(mapTile.sortedData[i], mapTile); }
+                if (mapTile.sortedData[i].geometry.type == "MultiLineString") { this.drawMultiLineString(mapTile.sortedData[i], mapTile); }
+                if (mapTile.sortedData[i].geometry.type == "Polygon") { this.drawPolygon(mapTile.sortedData[i], mapTile); }
+                if (mapTile.sortedData[i].geometry.type == "MultiPolygon") { this.drawMultiPolygon(mapTile.sortedData[i], mapTile); }
             }
             mapTile.didChange = false;
             this.context.drawImage(mapTile.canvas, mapTile.positionX, mapTile.positionY, mapTile.tileWidth, mapTile.tileHeight);
@@ -344,8 +375,69 @@
         else {
             this.context.drawImage(mapTile.canvas, mapTile.positionX, mapTile.positionY);
         }
+        
+        // Draw labels when are rendered all tiles with data
+        mapTile.isRendered = true;
+        var withDataCount = 0;
+        var alreadyRenderedCount = 0;
+        for (var i = 0; i < this.mapData.length; i++){
+            if (this.mapData[i].rawData) { withDataCount++;  }
+            if (this.mapData[i].isRendered) { alreadyRenderedCount++;  }
+        }
+        if (alreadyRenderedCount == withDataCount) {
+            this.drawLabels();
+        }
     }
 
+    private drawLabels() {
+        this.labelsContext.beginPath();
+        this.labelsContext.strokeStyle = '#333333';
+        this.labelsContext.canvas.width = this.mapWidth;
+        this.labelsContext.canvas.height = this.mapHeight;
+        this.labelsContext.save();
+        
+        for (var i = 0; i < this.mapData.length; i++) {
+            if (this.mapData[i].rawData) {
+                var mapTile = {
+                    context: this.labelsContext,
+                    boundingBox: this.mapData[i].boundingBox,
+                    xScale: this.mapData[i].xScale,
+                    yScale: this.mapData[i].yScale
+                }
+                for (var j = 0; j < this.mapData[i].sortedData.length; j++) {
+                    if (this.mapData[i].sortedData[j].geometry.type == "Point" || this.mapData[i].sortedData[j].geometry.type == "MultiPoint") {
+                        this.drawLabel(this.mapData[i].sortedData[j], mapTile, this.mapData[i].positionX, this.mapData[i].positionY);
+                    }
+                }
+            }
+        }
+        this.labelsContext.drawImage(this.labelsCanvas, 0, 0, this.mapWidth, this.mapHeight);
+    }
+
+    private drawLabel(shape: any, mapTile: any, posX: number, posY: number): void {
+        var longitude, latitude, point;
+        mapTile.context.save();
+
+        longitude = shape.geometry.coordinates[0];
+        latitude = shape.geometry.coordinates[1];
+
+        point = Converter.MercatorProjection(latitude, longitude);
+        // Scale the points of the coordinate
+        // to fit inside bounding box
+        point = {
+            x: (longitude - mapTile.boundingBox.xMin) * mapTile.xScale,
+            y: (mapTile.boundingBox.yMax - latitude) * mapTile.yScale
+        };
+        point.x += posX;
+        point.y += posY;
+
+        mapTile.context.beginPath();
+        this.mapStyler.stylePoint(shape, mapTile.context, this.currentZoom, point.x, point.y);
+        mapTile.context.stroke();
+        mapTile.context.restore();
+        mapTile.context.closePath();
+    }
+    
     private drawLineString(shape: any, mapTile: MapTile): void {
         var longitude, latitude, point;
         mapTile.context.save();
@@ -370,11 +462,10 @@
                 mapTile.context.lineTo(point.x, point.y);
             }
         }
-        this.mapStyler.styleLine(shape, mapTile.context);
+        this.mapStyler.styleLine(shape, mapTile.context, this.currentZoom);
         mapTile.context.stroke();
         mapTile.context.restore();
-
-        this.context.drawImage(mapTile.canvas, mapTile.positionX, mapTile.positionY, mapTile.tileWidth, mapTile.tileHeight);
+        mapTile.context.closePath();
     }
 
     private drawMultiLineString(shape: any, mapTile: MapTile): void {
@@ -402,13 +493,14 @@
                     mapTile.context.lineTo(point.x, point.y);
                 }
             }
-            this.mapStyler.styleLine(shape, mapTile.context);
+            this.mapStyler.styleLine(shape, mapTile.context, this.currentZoom);
             mapTile.context.stroke();
             mapTile.context.restore();
+            mapTile.context.closePath();
         }
     }
 
-    private drawPoint(shape: any, mapTile: MapTile): void {
+    private drawPoint(shape: any, mapTile: any): void {
         var longitude, latitude, point;
         mapTile.context.save();
 
@@ -422,11 +514,11 @@
             x: (longitude - mapTile.boundingBox.xMin) * mapTile.xScale,
             y: (mapTile.boundingBox.yMax - latitude) * mapTile.yScale
         };
-
         mapTile.context.beginPath();
-        this.mapStyler.stylePoint(shape, mapTile.context, point.x, point.y);
+        this.mapStyler.stylePoint(shape, mapTile.context, this.currentZoom, point.x, point.y);
         mapTile.context.stroke();
         mapTile.context.restore();
+        mapTile.context.closePath();
     }
 
     private drawMultiPoint(shape: any, mapTile: MapTile): void {
@@ -446,10 +538,11 @@
                 y: (mapTile.boundingBox.yMax - latitude) * mapTile.yScale
             };
 
-            this.mapStyler.stylePoint(shape, mapTile.context, point.x, point.y);
+            this.mapStyler.stylePoint(shape, mapTile.context, this.currentZoom, point.x, point.y);
         }
         mapTile.context.stroke();
         mapTile.context.restore();
+        mapTile.context.closePath();
     }
 
     private drawPolygon(shape: any, mapTile: MapTile): void {
@@ -482,7 +575,7 @@
         this.mapStyler.stylePolygon(shape, mapTile.context);
         mapTile.context.stroke();
         mapTile.context.restore();
-        this.context.drawImage(mapTile.canvas, mapTile.positionX, mapTile.positionY, mapTile.tileWidth, mapTile.tileHeight);
+        mapTile.context.closePath();
     }
 
     private drawMultiPolygon(shape: any, mapTile: MapTile): void {
@@ -517,9 +610,10 @@
             this.mapStyler.stylePolygon(shape, mapTile.context);
             mapTile.context.stroke();
             mapTile.context.restore();
+            mapTile.context.closePath();
         }
     }
-    
+
     private drawPath(routes: any) {
         if (routes == undefined) {
             return;
@@ -528,9 +622,8 @@
         for (var i = 0; i < routes.length; i++) {
             var numOfPoints = 0;
             for (var j = 0; j < routes[i].endpoints.length; j++) {
-                
-                for (var k = 0; k < this.user_marks.length; k++) {
-                    if (routes[i].endpoints[j].lat == this.user_marks[k].latitude && routes[i].endpoints[j].lon == this.user_marks[k].longitude) {
+                for (var k = 0; k < this.routeMarks.length; k++) {
+                    if (routes[i].endpoints[j].lat == this.routeMarks[k].latitude && routes[i].endpoints[j].lon == this.routeMarks[k].longitude) {
                         ++numOfPoints;
                     }
                 }
@@ -538,7 +631,6 @@
             // Mark paths whose don't have endpoints, so we don't draw them
             (numOfPoints == routes[i].endpoints.length) ? routes[i].drawIt = true : routes[i].drawIt = false;
         }
-        
         var canvas = <HTMLCanvasElement>$("#mapCanvas")[0];
         var context = canvas.getContext('2d');
         context.beginPath();
@@ -574,7 +666,7 @@
                     }
                 }
             }
-        } 
+        }
         context.strokeStyle = '#ff0000';
         context.lineWidth = 3;
         context.stroke();
@@ -582,14 +674,14 @@
         context.strokeStyle = 'yellow';
         context.stroke();
         context.lineWidth = 1;
+        context.closePath();
 
         this.currentRoute = routes;
         this.redrawAllMarks();
     }
 
 
-    public getCoordinatesAtCenter(): { latitude: number, longitude: number }
-    {
+    public getCoordinatesAtCenter(): { latitude: number, longitude: number } {
         var x = this.mapWidth / 2;
         var y = this.mapHeight / 2;
         // Get tile which is in center of map
@@ -619,11 +711,85 @@
         }
     }
 
-    public markPathPoint(x: number, y: number, remove: boolean = true)
-    {
+    public markPathPointByGPS(lat: number, lon: number, remove: boolean = true) {
         var markedTile;
-        for (var i = 0; i < this.mapData.length; i++)
-        {
+        for (var i = 0; i < this.mapData.length; i++) {
+            var latLeft = this.mapData[i].boundingBox.yMin;
+            var latRight = this.mapData[i].boundingBox.yMax;
+            var lonTop = this.mapData[i].boundingBox.xMin;
+            var lonBot = this.mapData[i].boundingBox.xMax;
+            // if touch is in this tile...
+            if (latLeft <= lat && lat <= latRight && lonTop <= lon && lon <= lonBot) {
+                markedTile = this.mapData[i];
+            }
+        }
+        if (markedTile != null) {
+            var newMark = Converter.MercatorProjection(markedTile.latitude, markedTile.longitude);
+
+            newMark = {
+                x: (lon - markedTile.boundingBox.xMin) * markedTile.xScale,
+                y: (markedTile.boundingBox.yMax - lat) * markedTile.yScale
+            };
+
+            newMark.x += markedTile.positionX;
+            newMark.y += markedTile.positionY;
+
+            var didRemove = false;
+            if (remove) {
+                // Remove mark if there is already one
+                for (var i = 0; i < this.routeMarks.length; i++) {
+                    var markPositionX = this.routeMarks[i].positionX;
+                    var markPositionY = this.routeMarks[i].positionY;
+                    var touchRadius = this.routeMarks[i].touchRadius;
+                    var height = this.routeMarks[i].height;
+
+                    if (Math.abs(markPositionX - newMark.x) <= touchRadius && Math.abs((markPositionY - (height / 3)) - newMark.y) <= touchRadius) {
+                        this.routeMarks.splice(i, 1);
+                        didRemove = true;
+                        this.shiftMap(0, 0);
+                    }
+                }
+            }
+            // If didnt removed mark, draw mark here
+            if (!didRemove) {
+                var canvas = <HTMLCanvasElement>$("#mapCanvas")[0];
+                var context = canvas.getContext('2d');
+                var point = {
+                    latitude: lat,
+                    longitude: lon,
+                    positionX: newMark.x,
+                    positionY: newMark.y,
+                    width: 32,
+                    height: 32,
+                    touchRadius: 20
+                };
+                context.beginPath();
+                // Mark
+                context.fillStyle = 'red';
+                context.strokeStyle = '#616161';
+                context.lineWidth = 0.5;
+                context.moveTo(point.positionX, point.positionY - 32);
+                context.quadraticCurveTo(point.positionX - 18, point.positionY - 32, point.positionX, point.positionY);
+                context.stroke();
+                context.moveTo(point.positionX, point.positionY - 32);
+                context.quadraticCurveTo(point.positionX + 18, point.positionY - 32, point.positionX, point.positionY);
+                context.stroke();
+                context.fill();
+
+                context.beginPath();
+                // Mark number
+                context.fillStyle = 'white';
+                context.font = "bold 18px Roboto_Light";
+                context.fillText((i + 1).toString(), point.positionX - 5, point.positionY - 16);
+
+                this.routeMarks.push(point);
+            }
+        }
+    }
+
+    public markPathPoint(x: number, y: number, remove: boolean = true) {
+        var markedTile;
+        for (var i = 0; i < this.mapData.length; i++) {
             var top = this.mapData[i].positionY;
             var bot = this.mapData[i].positionY + this.tileHeight;
             var left = this.mapData[i].positionX;
@@ -634,8 +800,7 @@
                 markedTile = this.mapData[i];
             }
         }
-        if (markedTile != null)
-        {
+        if (markedTile != null) {
             var latLeft = markedTile.boundingBox.xMin;
             var lonBot = markedTile.boundingBox.yMax;
             var onTileX = x - markedTile.positionX;
@@ -647,14 +812,14 @@
             var didRemove = false;
             if (remove) {
                 // Remove mark if there is already one
-                for (var i = 0; i < this.user_marks.length; i++) {
-                    var markPositionX = this.user_marks[i].positionX;
-                    var markPositionY = this.user_marks[i].positionY;
-                    var touchRadius = this.user_marks[i].touchRadius;
-                    var height = this.user_marks[i].height;
+                for (var i = 0; i < this.routeMarks.length; i++) {
+                    var markPositionX = this.routeMarks[i].positionX;
+                    var markPositionY = this.routeMarks[i].positionY;
+                    var touchRadius = this.routeMarks[i].touchRadius;
+                    var height = this.routeMarks[i].height;
 
                     if (Math.abs(markPositionX - x) <= touchRadius && Math.abs((markPositionY - (height / 3)) - y) <= touchRadius) {
-                        this.user_marks.splice(i, 1);
+                        this.routeMarks.splice(i, 1);
                         didRemove = true;
                         this.shiftMap(0, 0);
                     }
@@ -692,18 +857,9 @@
                 context.font = "bold 18px Roboto_Light";
                 context.fillText((i + 1).toString(), x - 5, y - 16);
 
-                this.user_marks.push(point);
-                this.mapPanel.displayMarkedPointInfo(point.latitude, point.longitude);
+                this.routeMarks.push(point);
             }
-        }
-        
-        if (this.user_marks.length >= 2) {
-            var marks = new Array();
-            for (var i = 0; i < this.user_marks.length; i++)
-            {
-                marks.push({ lat: this.user_marks[i].latitude, lon: this.user_marks[i].longitude });
-            }
-            this.fetchRoute(marks);
+
         }
     }
 
@@ -766,33 +922,99 @@
         }
     }
 
+    public markPlaceByGPS(lat: number, lon: number) {
+        var markedTile;
+        for (var i = 0; i < this.mapData.length; i++) {
+            var latLeft = this.mapData[i].boundingBox.yMin;
+            var latRight = this.mapData[i].boundingBox.yMax;
+            var lonTop = this.mapData[i].boundingBox.xMin;
+            var lonBot = this.mapData[i].boundingBox.xMax;
+            // if touch is in this tile...
+            if (latLeft <= lat && lat <= latRight && lonTop <= lon && lon <= lonBot) {
+                markedTile = this.mapData[i];
+            }
+        }
+        if (markedTile != null) {
+            var newMark = Converter.MercatorProjection(markedTile.latitude, markedTile.longitude);
+
+            newMark = {
+                x: (lon - markedTile.boundingBox.xMin) * markedTile.xScale,
+                y: (markedTile.boundingBox.yMax - lat) * markedTile.yScale
+            };
+
+            newMark.x += markedTile.positionX;
+            newMark.y += markedTile.positionY;
+
+            // If placeMark exists, check if needs to be removed
+            if (Math.abs(this.placeMark.positionX - newMark.x) <= this.placeMark.touchRadius && Math.abs((this.placeMark.positionY - (this.placeMark.height / 3)) - newMark.y) <= this.placeMark.touchRadius) {
+                this.placeMark = null;
+                this.mapPanel.hideMarkedPointInfo();
+                this.shiftMap(0, 0);
+            }
+            // If didnt removed mark, draw mark here
+            else {
+                var canvas = <HTMLCanvasElement>$("#mapCanvas")[0];
+                var context = canvas.getContext('2d');
+                var point = {
+                    latitude: lat,
+                    longitude: lon,
+                    positionX: newMark.x,
+                    positionY: newMark.y,
+                    width: 32,
+                    height: 32,
+                    touchRadius: 20
+                };
+                // Mark
+                context.beginPath();
+                context.fillStyle = '#ff0000';
+                context.strokeStyle = '#616161';
+                context.lineWidth = 0.5;
+                context.moveTo(newMark.x, newMark.y - 32);
+                context.quadraticCurveTo(newMark.x - 18, newMark.y - 32, newMark.x, newMark.y);
+                context.stroke();
+                context.moveTo(newMark.x, newMark.y - 32);
+                context.quadraticCurveTo(newMark.x + 18, newMark.y - 32, newMark.x, newMark.y);
+                context.stroke();
+                context.fill();
+                context.moveTo(newMark.x, newMark.y - 24);
+                context.fillStyle = "#FFF288";
+                context.arc(newMark.x, newMark.y - 23, 6, 0, 2 * Math.PI);
+                context.fill();
+
+                this.placeMark = point;
+                this.mapPanel.hideMarkedPointInfo();
+                this.mapPanel.displayMarkedPointInfo(point.latitude, point.longitude);
+            }
+            this.shiftMap(0, 0);
+        }
+    }
+
     public redrawAllMarks() {
         this.redrawPathMarks();
         this.redrawPlaceMark();
     }
 
-    private redrawPathMarks()
-    {
+    private redrawPathMarks() {
         var canvas = <HTMLCanvasElement>$("#mapCanvas")[0];
         var context = canvas.getContext('2d');
-        for (var i = 0; i < this.user_marks.length; i++) {
+        for (var i = 0; i < this.routeMarks.length; i++) {
             for (var j = 0; j < this.mapData.length; j++) {
                 var latLeft = this.mapData[j].boundingBox.yMin;
                 var latRight = this.mapData[j].boundingBox.yMax;
                 var lonTop = this.mapData[j].boundingBox.xMin;
                 var lonBot = this.mapData[j].boundingBox.xMax;
 
-                var markLat = this.user_marks[i].latitude;
-                var markLon = this.user_marks[i].longitude;
+                var markLat = this.routeMarks[i].latitude;
+                var markLon = this.routeMarks[i].longitude;
 
                 // If mark is in [latitude, longitude] bounds of tile..
                 if ((latLeft <= markLat) && (markLat <= latRight)) {
                     if ((lonTop <= markLon) && (markLon <= lonBot)) {
-                        var point = Converter.MercatorProjection(this.user_marks[i].latitude, this.user_marks[i].longitude);
+                        var point = Converter.MercatorProjection(this.routeMarks[i].latitude, this.routeMarks[i].longitude);
 
                         point = {
-                            x: (this.user_marks[i].longitude - lonTop) * this.mapData[j].xScale,
-                            y: (latRight - this.user_marks[i].latitude) * this.mapData[j].yScale
+                            x: (this.routeMarks[i].longitude - lonTop) * this.mapData[j].xScale,
+                            y: (latRight - this.routeMarks[i].latitude) * this.mapData[j].yScale
                         };
                         point.x += this.mapData[j].positionX;
                         point.y += this.mapData[j].positionY;
@@ -816,8 +1038,8 @@
                         context.font = "bold 18px Roboto_Light";
                         context.fillText((i + 1).toString(), point.x - 5, point.y - 16);
 
-                        this.user_marks[i].positionX = point.x;
-                        this.user_marks[i].positionY = point.y;
+                        this.routeMarks[i].positionX = point.x;
+                        this.routeMarks[i].positionY = point.y;
                     }
                 }
             }
@@ -827,8 +1049,7 @@
     private redrawPlaceMark() {
         var canvas = <HTMLCanvasElement>$("#mapCanvas")[0];
         var context = canvas.getContext('2d');
-        if (this.placeMark)
-        {
+        if (this.placeMark) {
             for (var j = 0; j < this.mapData.length; j++) {
                 var latLeft = this.mapData[j].boundingBox.yMin;
                 var latRight = this.mapData[j].boundingBox.yMax;
@@ -875,14 +1096,66 @@
         }
     }
 
+    public getPlaceMarkGPS() {
+        if (this.placeMark) {
+            return { lat: this.placeMark.latitude, lon: this.placeMark.longitude };
+        }
+    }
+
+    public replacePlaceWithRouteMark() {
+        if (this.placeMark) {
+            var mark = this.placeMark;
+            this.markPlace(mark.positionX, mark.positionY);
+            this.markPathPoint(mark.positionX, mark.positionY);
+        }
+    }
+
     public clearPathPoints() {
-        this.user_marks = [];
+        this.routeMarks = [];
+    }
+
+    public clearPlaceMark() {
+        this.placeMark = null;
     }
 
     public clearCanvas(): void {
-        var canvas = <HTMLCanvasElement>$("#mapCanvas")[0];
-        var context = canvas.getContext('2d');
+        this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    }
 
-        context.clearRect(0, 0, canvas.width, canvas.height);
+    public areGPSonScreen(lat: number, lon: number) {
+        for (var i = 0; i < this.mapData.length; i++) {
+            var latLeft = this.mapData[i].boundingBox.yMin;
+            var latRight = this.mapData[i].boundingBox.yMax;
+            var lonTop = this.mapData[i].boundingBox.xMin;
+            var lonBot = this.mapData[i].boundingBox.xMax;
+            // if touch is in this tile...
+            if (latLeft <= lat && lat <= latRight && lonTop <= lon && lon <= lonBot) {
+                var right = this.mapData[i].positionX + this.mapData[i].tileWidth;
+                var left = this.mapData[i].positionX;
+                var top = this.mapData[i].positionY;
+                var bot = this.mapData[i].positionY + this.mapData[i].tileHeight;
+                if (0 < right && this.mapWidth > left && 0 < bot && this.mapHeight > top) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public makeReturnOnItemButton() {
+        $(this.root)
+            .append($("<button>", { "id": "returnOnItemButton" }).text("Return to project")
+                .click((evt) => {
+                    if (window.sessionStorage.getItem("placeItemCoordinates")) {
+                        var obj = JSON.parse(window.sessionStorage.getItem("placeItemCoordinates"));
+                        obj.returnButton = true;
+                        window.sessionStorage.setItem("placeItemCoordinates", JSON.stringify(obj));
+                        window.location.href = "places.html";
+                    }
+                }).addClass("returnButton-highlight"));
+    }
+
+    public removeReturnOnItemButton() {
+        $("#returnOnItemButton").remove();
     }
 }

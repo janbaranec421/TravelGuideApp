@@ -32,7 +32,7 @@ class MainPage {
     public latitude: number;
     public longitude: number;
     public zoomLvl: number = 15;
-    public layers: Layer = Layer.Boundaries | Layer.Roads | Layer.Buildings | Layer.Earth | Layer.Landuse | Layer.Water;
+    public layers: Layer = Layer.Boundaries | Layer.Roads | Layer.Buildings | Layer.Earth | Layer.Landuse | Layer.Water | Layer.Places | Layer.Pois;
 
     constructor() {
         this.sideMenu = new SideMenu();
@@ -61,6 +61,10 @@ class MainPage {
                     this.latitude = parseFloat(placeItemCoords.lat);
                     this.longitude = parseFloat(placeItemCoords.lon);
                     this.zoomLvl = 15;
+                    this.map.makeReturnOnItemButton();
+                }
+                else {
+                    this.map.removeReturnOnItemButton();
                 }
                 if (!this.latitude && !this.longitude) {
                     this.latitude = 49.833683;
@@ -75,7 +79,7 @@ class MainPage {
                 console.log(err);
             });
 
-        var canvas = document.getElementById("mapCanvas");
+        var canvas = document.getElementById("mapCanvasLabels");
         canvas.addEventListener('wheel', this.HandleCanvasWheel.bind(this));
         canvas.addEventListener('touchmove', this.HandleCanvasTouchMove.bind(this), false);
         canvas.addEventListener('touchstart', this.HandleCanvasTouchStart.bind(this), false);
@@ -88,6 +92,7 @@ class MainPage {
 
         $(window).bind('beforeunload', () => {
             var obj = this.map.getCoordinatesAtCenter();
+            this.zoomLvl = this.map.currentZoom;
             var item = {
                 latitude: obj.latitude,
                 longitude: obj.longitude,
@@ -181,6 +186,7 @@ class MainPage {
             var coords = this.map.getCoordinatesAtCenter();
             this.latitude = coords.latitude;
             this.longitude = coords.longitude;
+            this.zoomLvl = this.map.currentZoom;
             // Horizontal double swipe
             if (Math.abs(xDiff) > Math.abs(yDiff) && Math.abs(xDiff_second) > Math.abs(yDiff_second)) {
                 if (xDiff > this.swipe_threshold && xDiff_second < -this.swipe_threshold && this.touchXstart < this.touchXstart_second) {
@@ -237,13 +243,7 @@ class MainPage {
             var rect = canvas.getBoundingClientRect();
             var x = Math.round((evt.changedTouches[0].clientX - rect.left) / (rect.right - rect.left) * canvas.width);
             var y = Math.round((evt.changedTouches[0].clientY - rect.top) / (rect.bottom - rect.top) * canvas.height);
-            if (evt.shiftKey) {
-                this.map.markPathPoint(x, y);
-            }
-            else {
-                this.map.markPlace(x, y);
-            }
-            
+            this.map.markPlace(x, y);         
         }
         this.isSwipeFired = false;
     }
@@ -257,6 +257,7 @@ class MainPage {
         var coords = this.map.getCoordinatesAtCenter();
         this.latitude = coords.latitude;
         this.longitude = coords.longitude;
+        this.zoomLvl = this.map.currentZoom;
         if (evt.deltaY > 0)
             this.map.displayPlace(coords.latitude, coords.longitude, --this.zoomLvl, this.layers);
         else
@@ -275,6 +276,8 @@ class MainPage {
         // Set canvas coordinates accordingly to canvas element dimensions
         $("#mapCanvas").attr('width', width);
         $("#mapCanvas").attr('height', height);
+        $("#mapCanvasLabels").attr('width', width);
+        $("#mapCanvasLabels").attr('height', height);
         this.map.setMapDimensions(width, height);
 
         // Display adjusted map to coordinates, whose were in center before adjusting.

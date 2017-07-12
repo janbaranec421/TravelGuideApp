@@ -3,7 +3,9 @@ var MapTile = (function () {
         if (tileWidth === void 0) { tileWidth = 260; }
         if (tileHeight === void 0) { tileHeight = 260; }
         this.didChange = true;
+        this.isRendered = false;
         this.isRequested = false;
+        this.labelsRendered = false;
         this.sortedData = [];
         this._rawData = data;
         this.tileX = tileX;
@@ -29,9 +31,11 @@ var MapTile = (function () {
             return this._rawData;
         },
         set: function (data) {
-            this._rawData = data;
-            this.sortedData = this.prepareData(data, this.layers);
-            this.didChange = true;
+            if (data) {
+                this._rawData = data;
+                this.sortedData = this.prepareData(data, this.layers);
+                this.didChange = true;
+            }
         },
         enumerable: true,
         configurable: true
@@ -47,7 +51,6 @@ var MapTile = (function () {
                 this.yScale = this.tileHeight / Math.abs(this.boundingBox.yMax - this.boundingBox.yMin);
                 this.scale = this.xScale < this.yScale ? this.xScale : this.yScale;
             }
-            console.log(this.scale);
             this.didChange = true;
         },
         enumerable: true,
@@ -64,7 +67,6 @@ var MapTile = (function () {
                 this.yScale = this.tileHeight / Math.abs(this.boundingBox.yMax - this.boundingBox.yMin);
                 this.scale = this.xScale < this.yScale ? this.xScale : this.yScale;
             }
-            console.log(this.scale);
             this.didChange = true;
         },
         enumerable: true,

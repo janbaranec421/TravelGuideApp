@@ -25,10 +25,12 @@
     <Content Include="CSS\CSS.css" />
     <Content Include="index.html" />
     <Content Include="places.html" />
-    <Content Include="Resources\avatar.jpg" />
     <Content Include="packages.config" />
+    <Content Include="Resources\bicycle.png" />
+    <Content Include="Resources\car.png" />
     <Content Include="Resources\clock.png" />
     <Content Include="Resources\collections.png" />
+    <Content Include="Resources\delete.png" />
     <Content Include="Resources\forecast\01d.png" />
     <Content Include="Resources\forecast\01n.png" />
     <Content Include="Resources\forecast\02d.png" />
@@ -50,6 +52,9 @@
     <Content Include="Resources\image-not-found.png" />
     <Content Include="Resources\map.png" />
     <Content Include="Resources\more.png" />
+    <Content Include="Resources\pedestrian.png" />
+    <Content Include="Resources\point.png" />
+    <Content Include="Resources\point_dots.png" />
     <Content Include="Resources\Projects\project-1.json" />
     <Content Include="Resources\Projects\project-2.json" />
     <Content Include="Resources\projects.png" />

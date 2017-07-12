@@ -5,9 +5,11 @@
         return this._rawData;
     }
     set rawData(data: any) {
-        this._rawData = data;
-        this.sortedData = this.prepareData(data, this.layers);
-        this.didChange = true;
+        if (data) {
+            this._rawData = data;
+            this.sortedData = this.prepareData(data, this.layers);
+            this.didChange = true;
+        }
     }
 
     public boundingBox: { xMin: number, xMax: number, yMin: number, yMax: number };
@@ -19,7 +21,9 @@
     public canvas: HTMLCanvasElement;
     public context: CanvasRenderingContext2D;
     public didChange = true;
+    public isRendered = false;
     public isRequested = false;
+    public labelsRendered = false;
 
     public sortedData: any[] = [];
 
@@ -37,7 +41,6 @@
             this.yScale = this.tileHeight / Math.abs(this.boundingBox.yMax - this.boundingBox.yMin);
             this.scale = this.xScale < this.yScale ? this.xScale : this.yScale;
         }
-        console.log(this.scale);
         this.didChange = true;
     }
 
@@ -52,7 +55,6 @@
             this.yScale = this.tileHeight / Math.abs(this.boundingBox.yMax - this.boundingBox.yMin);
             this.scale = this.xScale < this.yScale ? this.xScale : this.yScale;
         }
-        console.log(this.scale);
         this.didChange = true;
     }
 

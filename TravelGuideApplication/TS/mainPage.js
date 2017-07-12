@@ -11,7 +11,7 @@ var MainPage = (function () {
         this.lastTouchPositionX = 0;
         this.lastTouchPositionY = 0;
         this.zoomLvl = 15;
-        this.layers = Layer.Boundaries | Layer.Roads | Layer.Buildings | Layer.Earth | Layer.Landuse | Layer.Water;
+        this.layers = Layer.Boundaries | Layer.Roads | Layer.Buildings | Layer.Earth | Layer.Landuse | Layer.Water | Layer.Places | Layer.Pois;
         this.sideMenu = new SideMenu();
         this.topMenu = new TopMenu(this.sideMenu);
         this.map = new Map();
@@ -35,6 +35,10 @@ var MainPage = (function () {
                 _this.latitude = parseFloat(placeItemCoords.lat);
                 _this.longitude = parseFloat(placeItemCoords.lon);
                 _this.zoomLvl = 15;
+                _this.map.makeReturnOnItemButton();
+            }
+            else {
+                _this.map.removeReturnOnItemButton();
             }
             if (!_this.latitude && !_this.longitude) {
                 _this.latitude = 49.833683;
@@ -48,7 +52,7 @@ var MainPage = (function () {
             .catch(function (err) {
             console.log(err);
         });
-        var canvas = document.getElementById("mapCanvas");
+        var canvas = document.getElementById("mapCanvasLabels");
         canvas.addEventListener('wheel', this.HandleCanvasWheel.bind(this));
         canvas.addEventListener('touchmove', this.HandleCanvasTouchMove.bind(this), false);
         canvas.addEventListener('touchstart', this.HandleCanvasTouchStart.bind(this), false);
@@ -59,6 +63,7 @@ var MainPage = (function () {
         pageContent.addEventListener('touchend', this.HandleTouchEnd.bind(this), false);
         $(window).bind('beforeunload', function () {
             var obj = _this.map.getCoordinatesAtCenter();
+            _this.zoomLvl = _this.map.currentZoom;
             var item = {
                 latitude: obj.latitude,
                 longitude: obj.longitude,
@@ -140,6 +145,7 @@ var MainPage = (function () {
             var coords = this.map.getCoordinatesAtCenter();
             this.latitude = coords.latitude;
             this.longitude = coords.longitude;
+            this.zoomLvl = this.map.currentZoom;
             // Horizontal double swipe
             if (Math.abs(xDiff) > Math.abs(yDiff) && Math.abs(xDiff_second) > Math.abs(yDiff_second)) {
                 if (xDiff > this.swipe_threshold && xDiff_second < -this.swipe_threshold && this.touchXstart < this.touchXstart_second) {
@@ -191,12 +197,7 @@ var MainPage = (function () {
             var rect = canvas.getBoundingClientRect();
             var x = Math.round((evt.changedTouches[0].clientX - rect.left) / (rect.right - rect.left) * canvas.width);
             var y = Math.round((evt.changedTouches[0].clientY - rect.top) / (rect.bottom - rect.top) * canvas.height);
-            if (evt.shiftKey) {
-                this.map.markPathPoint(x, y);
-            }
-            else {
-                this.map.markPlace(x, y);
-            }
+            this.map.markPlace(x, y);
         }
         this.isSwipeFired = false;
     };
@@ -209,6 +210,7 @@ var MainPage = (function () {
         var coords = this.map.getCoordinatesAtCenter();
         this.latitude = coords.latitude;
         this.longitude = coords.longitude;
+        this.zoomLvl = this.map.currentZoom;
         if (evt.deltaY > 0)
             this.map.displayPlace(coords.latitude, coords.longitude, --this.zoomLvl, this.layers);
         else
@@ -224,6 +226,8 @@ var MainPage = (function () {
         // Set canvas coordinates accordingly to canvas element dimensions
         $("#mapCanvas").attr('width', width);
         $("#mapCanvas").attr('height', height);
+        $("#mapCanvasLabels").attr('width', width);
+        $("#mapCanvasLabels").attr('height', height);
         this.map.setMapDimensions(width, height);
         // Display adjusted map to coordinates, whose were in center before adjusting.
         this.map.displayPlace(coords.latitude, coords.longitude, this.zoomLvl, this.layers);

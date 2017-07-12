@@ -17,7 +17,17 @@ var PlacesList = (function () {
                     _this.createPlacesListItem(placesCollection[i], tags);
                 }
             });
-            $(_this.root).fadeIn(1000);
+            $(_this.root).fadeIn(1000, function () {
+                if (window.sessionStorage.getItem("placeItemCoordinates")) {
+                    var placeItemCoords = JSON.parse(window.sessionStorage.getItem("placeItemCoordinates"));
+                    if (placeItemCoords.returnButton) {
+                        placeItemCoords.returnButton = false;
+                        window.sessionStorage.setItem("placeItemCoordinates", JSON.stringify(placeItemCoords));
+                        window.sessionStorage.removeItem("placeItemCoordinates");
+                        _this.findShowedPlaceByGPS(placeItemCoords.lat, placeItemCoords.lon);
+                    }
+                }
+            });
         });
     };
     PlacesList.prototype.displayPlacesWithCollectionName = function (collectionName) {
@@ -33,7 +43,17 @@ var PlacesList = (function () {
                     _this.createPlacesListItem(placesCollection[i], tags);
                 }
             });
-            $(_this.root).fadeIn(1000);
+            $(_this.root).fadeIn(1000, function () {
+                if (window.sessionStorage.getItem("placeItemCoordinates")) {
+                    var placeItemCoords = JSON.parse(window.sessionStorage.getItem("placeItemCoordinates"));
+                    if (placeItemCoords.returnButton) {
+                        placeItemCoords.returnButton = false;
+                        window.sessionStorage.setItem("placeItemCoordinates", JSON.stringify(placeItemCoords));
+                        window.sessionStorage.removeItem("placeItemCoordinates");
+                        _this.findShowedPlaceByGPS(placeItemCoords.lat, placeItemCoords.lon);
+                    }
+                }
+            });
         });
     };
     PlacesList.prototype.displayPlacesWithScheduleName = function (scheduleName) {
@@ -49,7 +69,17 @@ var PlacesList = (function () {
                     _this.createPlacesListItem(placesCollection[i], tags);
                 }
             });
-            $(_this.root).fadeIn(1000);
+            $(_this.root).fadeIn(1000, function () {
+                if (window.sessionStorage.getItem("placeItemCoordinates")) {
+                    var placeItemCoords = JSON.parse(window.sessionStorage.getItem("placeItemCoordinates"));
+                    if (placeItemCoords.returnButton) {
+                        placeItemCoords.returnButton = false;
+                        window.sessionStorage.setItem("placeItemCoordinates", JSON.stringify(placeItemCoords));
+                        window.sessionStorage.removeItem("placeItemCoordinates");
+                        _this.findShowedPlaceByGPS(placeItemCoords.lat, placeItemCoords.lon);
+                    }
+                }
+            });
         });
     };
     PlacesList.prototype.createPlacesListItem = function (place, tags) {
@@ -135,11 +165,12 @@ var PlacesList = (function () {
             .append($("<div>", { "class": "ShowOnMapButton" }).text("Show on Map")
             .click(function (evt) {
             var text = $(evt.currentTarget).find("~ span").text().replace("[", "").replace("]", "").replace(" ", "").split(",");
-            var coords = {
+            var obj = {
                 lat: text[0],
-                lon: text[1]
+                lon: text[1],
+                returnButton: false
             };
-            window.sessionStorage.setItem("placeItemCoordinates", JSON.stringify(coords));
+            window.sessionStorage.setItem("placeItemCoordinates", JSON.stringify(obj));
             window.location.href = "index.html";
         }))
             .append($("<span>").text("[" + place.gps.lat.toFixed(3) + ", " + place.gps.lng.toFixed(3) + "]"))))
@@ -367,6 +398,17 @@ var PlacesList = (function () {
             table.find(".forecastWind").text(forecast.list[i].wind.speed + " m/s");
             table.find(".forecastHumidity").text(forecast.list[i].main.humidity + " %");
             table.find(".forecastPressure").text(forecast.list[i].main.pressure + " hpa");
+        }
+    };
+    PlacesList.prototype.findShowedPlaceByGPS = function (lat, lon) {
+        var InfoGPS = $(".InfoGPS > span");
+        for (var i = 0; i < InfoGPS.length; i++) {
+            if ($(InfoGPS[i]).text().search(lat) > 0 && $(InfoGPS[i]).text().search(lon)) {
+                var item = $(InfoGPS[i]).parentsUntil("ul > li.placesListItem").parent(":eq(4)");
+                $(document.body).animate({ 'scrollTop': $(item).offset().top - 60 }, 1500, function () {
+                    $(item).addClass("blink-item-highlight");
+                });
+            }
         }
     };
     return PlacesList;

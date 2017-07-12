@@ -3,104 +3,179 @@
     public map: Map;
     public suggestionsList: Array<any> = [];
 
+    private pathPointsGPS: Array<any>;
+
+    private pedestrianType: boolean;
+    private carType: boolean;
+    private bicycleType: boolean;
+
+
     constructor(map: Map) {
         this.root = $("#mapPanel");
         this.map = map;
 
-        // Input for searching places
-        var placeInput = $("<input>", {
-            "id": "placeInput",
-            "type": "text",
-            "placeholder": "Type to find places...",
-            "autocomplete": "on",
-            "list": "suggestionList"
-        })
-            .on("keyup", this.throttle(() => {
-                var text = $("#placeInput").val();
-                var coords = this.map.getCoordinatesAtCenter();
-                this.fetchSuggestions(text, coords.latitude, coords.longitude)
-                    .then((suggestions) => {
-                        this.setSuggestions(suggestions);
-                    })
-            }, 250));
-
-        // List of suggested places
-        var suggestionList = $("<datalist>", { "id": "suggestionList" });
-        // Submit button
-        var placeSubmit = $("<button>", {
-            "id": "placeSubmit", "type": "button"
-        })
-            .on("click", () => {
-                this.handleSearchSubmit();
-            })
-            .append($("<img>", { "src": "./Resources/search.png" })
-                .css({
-                    "height": "20px",
-                    "width": "20px",
-                    "vertical-align": "middle"
-                }));
-
-        var placeDiv = $("<div>").css({
-            "width": "95%",
-            "margin": "10px auto",
-        })
-            .append($("<form>").submit((e) => {
+        // First part - search input
+        var searchInputPart = $("<li>", { "class": "mapPanelContentItem" })
+            .append($("<form>", { "id": "placeSearchForm" }).submit((e) => {
                 e.preventDefault();
                 this.handleSearchSubmit();
             })
-                .append(placeInput)
-                .append(suggestionList)
-                .append(placeSubmit));
+                .append($("<input>", { "id": "placeInput", "type": "text", "placeholder": "Type to find places...", "autocomplete": "on", "list": "suggestionList" })
+                    .on("keyup", this.throttle(() => {
+                        var text = $("#placeInput").val();
+                        var coords = this.map.getCoordinatesAtCenter();
+                        this.fetchSuggestions(text, coords.latitude, coords.longitude)
+                            .then((suggestions) => {
+                                this.setSuggestions(suggestions, $("#suggestionList"));
+                            });
+                    }, 250)))
+                .append($("<datalist>", { "id": "suggestionList" }))
+                .append($("<button>", { "id": "placeSubmit", "type": "button" })
+                    .on("click", () => { this.handleSearchSubmit(); })
+                    .append($("<img>", { "src": "./Resources/search.png" })
+                        .css({
+                            "height": "20px",
+                            "width": "20px",
+                            "vertical-align": "middle"
+                        }))
+            ))
 
-        var detailedInfo = $("<div>", { "id": "detailedInfo" });
-        // Place details
-        detailedInfo.append($("<div>", { "class": "detailedInfoSegment" })
-            .append($("<div>", { "id": "PlaceName" })
-            )
-            .append($("<div>", { "id": "PlaceDetails" })
-                .append($("<div>", { "id": "PlaceRegionCountry" })
-                )
-                .append($("<div>", { "id": "PlaceGPS" })
-                )
-            )
-        );
-        var forecastList = $("<ul>", { "id": "list-forecast" });
-        // Weather
-        detailedInfo.append($("<div>", { "class": "detailedInfoSegment" })
-            .append($("<button>", { "id": "weatherButton" }).text("Weather")
-                .on("click", () => {
-                    $("#list-forecast").css("display", "none");
-                    $("#table-weather").css("display", "table");
-                })
-            )
-            .append($("<button>", { "id": "forecastButton" }).text("Forecast")
-                .on("click", () => {
-                    $("#table-weather").css("display", "none");
-                    $("#list-forecast").css("display", "block");
-                })
-            )
-            .append($("<table>", { "id": "table-weather" })
-                .append($("<tr>")
-                    .append($("<td>", { "id": "weatherImg" }).append($("<img>")))
-                    .append($("<td>", { "id": "weatherTemperature" }))
-                )
-                .append($("<tr>")
-                    .append($("<td>", { "id": "windLabel" }))
-                    .append($("<td>", { "id": "wind", "colspan": "2" }))
-                )
-                .append($("<tr>")
-                    .append($("<td>", { "id": "humidityLabel" }))
-                    .append($("<td>", { "id": "humidity", "colspan": "2" }))
-                )
-                .append($("<tr>")
-                    .append($("<td>", { "id": "pressureLabel" }))
-                    .append($("<td>", { "id": "pressure", "colspan": "2" }))
-                )
-            )
-            .append(forecastList)
-        );
+        var forecastList = ($("<ul>", { "id": "forecastList" }));
+        var detailedInfoPart = $("<li>", { "class": "mapPanelContentItem" }).css({ "height": "calc(100% - 46px)" })
+            .append($("<button>", { "id": "InfoCardButton" }).text("Info")
+                .click(() => {
+                    $("#InfoCardButton").removeClass("notSelectedCardButton").addClass("SelectedCardButton");
+                    $("#WeatherCardButton").removeClass("SelectedCardButton").addClass("notSelectedCardButton");
+                    $("#RouteCardButton").removeClass("SelectedCardButton").addClass("notSelectedCardButton");
+                    $("#detailedInfoCard").css({ "display": "block" });
+                    $("#weatherCard").css({ "display": "none" });
+                    $("#routeCard").css({ "display": "none" });
+                }))
+            .append($("<button>", { "id": "WeatherCardButton" }).text("Weather")
+                .click(() => {
+                    $("#WeatherCardButton").removeClass("notSelectedCardButton").addClass("SelectedCardButton");
+                    $("#InfoCardButton").removeClass("SelectedCardButton").addClass("notSelectedCardButton");
+                    $("#RouteCardButton").removeClass("SelectedCardButton").addClass("notSelectedCardButton");
+                    $("#weatherCard").css({ "display": "block" });
+                    $("#detailedInfoCard").css({ "display": "none" });
+                    $("#routeCard").css({ "display": "none" });
+                }))
+            .append($("<button>", { "id": "RouteCardButton" }).text("Route")
+                .click(() => {
+                    $("#RouteCardButton").removeClass("notSelectedCardButton").addClass("SelectedCardButton");
+                    $("#WeatherCardButton").removeClass("SelectedCardButton").addClass("notSelectedCardButton");
+                    $("#InfoCardButton").removeClass("SelectedCardButton").addClass("notSelectedCardButton");
+                    $("#routeCard").css({ "display": "block" });
+                    $("#weatherCard").css({ "display": "none" });
+                    $("#detailedInfoCard").css({ "display": "none" });
+                }))
+            .append($("<ul>", { "id": "detailedInfoCard" })
+                .append($("<li>").css({ "min-height": "75px", "height": "calc(100% - 30px)", "padding": "15px 5px" })
+                    .append($("<div>", { "id": "placeName" }))
+                    .append($("<div>", { "id": "placeDetails" })
+                        .append($("<div>", { "id": "placeRegionCountry" }))
+                        .append($("<div>", { "id": "placeGPS" })))
+                    .append($("<button>", { "id": "navigateMeButton" }).text("How do i get there")
+                        .click(() => {
+                            this.handleNavigateMeButtonEvent();
+                        }))))
+            .append($("<ul>", { "id": "weatherCard" })
+                .append($("<li>").css({ "height": "calc(100% - 30px)", "margin": "0% 2%", "padding": "15px 5px" })
+                    .append($("<button>", { "id": "weatherButton" }).text("Weather")
+                        .on("click", () => {
+                            $("#forecastList").css("display", "none");
+                            $("#weatherTable").css("display", "table");
+                        }))
+                    .append($("<button>", { "id": "forecastButton" }).text("Forecast")
+                        .on("click", () => {
+                            $("#weatherTable").css("display", "none");
+                            $("#forecastList").css("display", "block");
+                        }))
+                    .append($("<table>", { "id": "weatherTable" })
+                        .append($("<tr>")
+                            .append($("<td>", { "id": "weatherImg" }).append($("<img>")))
+                            .append($("<td>", { "id": "weatherTemperature" }))
+                        )
+                        .append($("<tr>")
+                            .append($("<td>", { "id": "windLabel" }))
+                            .append($("<td>", { "id": "wind" }))
+                        )
+                        .append($("<tr>")
+                            .append($("<td>", { "id": "humidityLabel" }))
+                            .append($("<td>", { "id": "humidity" }))
+                        )
+                        .append($("<tr>")
+                            .append($("<td>", { "id": "pressureLabel" }))
+                            .append($("<td>", { "id": "pressure" }))
+                        )
+                    )
+                    .append(forecastList)))
+            .append($("<ul>", { "id": "routeCard" })
+                .append($("<li>").css({ "min-height": "75px", "height": "calc(100% - 30px)", "padding": "15px 5px" })
+                    .append($("<img>", { "class": "routeTravelTypeIcon", "src": "./Resources/car.png" })
+                        .click((evt) => {
+                            this.bicycleType = false; this.carType = true; this.pedestrianType = false;
+                            $(".routeTravelTypeIcon").css({ "box-shadow": "none", "background": "#e8e8e8 " });
+                            $(evt.currentTarget).css({ "box-shadow": "0px 0px 4px 1px rgb(150, 147, 141) ", "background": "rgb(232, 232, 232)" })
+                            if (this.pathPointsGPS) {
+                                this.map.clearPathPoints();
+                                this.map.shiftMap(0, 0);
+                                this.handleFindRouteEvent();
+                            }
+                        }))
+                    .append($("<img>", { "class": "routeTravelTypeIcon", "src": "./Resources/bicycle.png" })
+                        .click((evt) => {
+                            this.bicycleType = true; this.carType = false; this.pedestrianType = false;
+                            $(".routeTravelTypeIcon").css({ "box-shadow": "none", "background": "#e8e8e8 " });
+                            $(evt.currentTarget).css({ "box-shadow": "0px 0px 4px 1px rgb(150, 147, 141) ", "background": "rgb(232, 232, 232)" })
+                            if (this.pathPointsGPS) {
+                                this.map.clearPathPoints();
+                                this.map.shiftMap(0, 0);
+                                this.handleFindRouteEvent();
+                            }
+                        }))
+                    .append($("<img>", { "class": "routeTravelTypeIcon", "src": "./Resources/pedestrian.png" })
+                        .click((evt) => {
+                            this.bicycleType = false; this.carType = false; this.pedestrianType = true;
+                            $(".routeTravelTypeIcon").css({ "box-shadow": "none", "background": "#e8e8e8 " });
+                            $(evt.currentTarget).css({ "box-shadow": "0px 0px 4px 1px rgb(150, 147, 141) ", "background": "rgb(232, 232, 232)" })
+                            if (this.pathPointsGPS) {
+                                this.map.clearPathPoints();
+                                this.map.shiftMap(0, 0);
+                                this.handleFindRouteEvent();
+                            }
+                        }))
+                    .append($("<ul>", { "id": "routePointsList" })
+                        .append($("<datalist>", { "id": "routePointDatalist" })))
+                    .append($("<div>", { "class": "routeDetailInfo" }))
+                    .append($("<button>", { "class": "routeButton" }).text("Add Point")
+                        .click(() => {
+                            this.addPathPoint();
+                        }))
+                    .append($("<button>", { "class": "routeButton" }).text("Find route")
+                        .click(() => {
+                            this.map.clearPathPoints();
+                            this.map.shiftMap(0, 0);
+                            // If any route point input is empty, highlight it to user
+                            var inputs = $(".routePointInput");
+                            var notEmptyCount = 0;
+                            for (var i = 0; i < inputs.length; i++) {
+                                if ($(inputs).eq(i).val() == '') {
+                                    $(inputs).eq(i).css("animation", "routePoint-highlight 2s")
+                                        .on("webkitAnimationEnd oanimationend msAnimationEnd animationend", (evt) => {
+                                            $(evt.currentTarget).css("animation", "none");
+                                        })
+                                }
+                                else {
+                                    notEmptyCount++;
+                                }
+                            }
+                            if (notEmptyCount == inputs.length) {
+                                this.handleFindRouteEvent();
+                            }
+                        }))));
 
-        // Forecast
+        // Fill forecast data
         for (var i = 0; i < 4; i++) {
             $(forecastList).append($("<table>")
                 .append($("<tr>")
@@ -113,7 +188,6 @@
                         .append($("<div>"))
                         .append($("<div>")))
                     .append($("<td>", { "class": "forecastDescription" }))
-
                 )
                 .append($("<tr>")
                     .append($("<td>", { "class": "forecastWind" }))
@@ -121,12 +195,89 @@
                     .append($("<td>", { "class": "forecastPressure" }))
                 ));
         }
+     
+        // Initial route point for route tab
+        // FIRST ROUTE POINT
+        var pathPointItemFirst =
+            $("<li>", { "class": "routePoint" })
+                .append($("<img>", { "class": "routePointIcon", "src": "./Resources/point.png" }))
+                .append($("<input>", { "class": "routePointInput", "autocomplete": "on", "list": "routePointDatalist" })
+                    .on("keyup", (evt) => {
+                        var text = $(evt.currentTarget).val();
+                        var coords = this.map.getCoordinatesAtCenter();
+                        this.fetchSuggestions(text, coords.latitude, coords.longitude)
+                            .then((suggestions) => {
+                                this.setSuggestions(suggestions, $("#routePointDatalist"));
+                            });
+                    })
+                    .focusin((evt) => {
+                        if ($(".routePoint").length <= 2) {
+                            return;
+                        }
+                        $(evt.currentTarget).siblings(".deletePointIcon").fadeIn(100);
+                    })
+                    .focusout((evt) => {
+                        $(evt.currentTarget).siblings(".deletePointIcon").fadeOut(100);
+                    })
+                    .focus())
+                .append($("<img>", { "class": "deletePointIcon", "src": "./Resources/delete.png" })
+                    .click((evt) => {
+                        var selectedPoint = $(evt.currentTarget).parents(".routePoint");
+                        if ($(".routePoint").length == $(selectedPoint).index()) {
+                            $("#routePointsList > .routePoint").eq($(selectedPoint).index() - 2).children(".routePointDots").remove();
+                        }
+                        $(evt.currentTarget).parents(".routePoint").remove();
+                    }))
+                .append($("<img>", { "class": "routePointDots", "src": "./Resources/point_dots.png" }));
 
-        this.root
-            .append(placeDiv)
-            .append(detailedInfo);
+        // SECOND ROUTE POINT
+        var pathPointItemSecond =
+            $("<li>", { "class": "routePoint" })
+                .append($("<img>", { "class": "routePointIcon", "src": "./Resources/point.png" }))
+                .append($("<input>", { "class": "routePointInput", "autocomplete": "on", "list": "routePointDatalist" })
+                    .on("keyup", (evt) => {
+                        var text = $(evt.currentTarget).val();
+                        var coords = this.map.getCoordinatesAtCenter();
+                        this.fetchSuggestions(text, coords.latitude, coords.longitude)
+                            .then((suggestions) => {
+                                this.setSuggestions(suggestions, $("#routePointDatalist"));
+                            });
+                    })
+                    .focusin((evt) => {
+                        if ($(".routePoint").length <= 2) {
+                            return;
+                        }
+                        $(evt.currentTarget).siblings(".deletePointIcon").fadeIn(100);
+                    })
+                    .focusout((evt) => {
+                        $(evt.currentTarget).siblings(".deletePointIcon").fadeOut(100);
+                    })
+                    .focus())
+                .append($("<img>", { "class": "deletePointIcon", "src": "./Resources/delete.png" })
+                    .click((evt) => {
+                        var selectedPoint = $(evt.currentTarget).parents(".routePoint");
+                        if ($(".routePoint").length == $(selectedPoint).index()) {
+                            $("#routePointsList > .routePoint").eq($(selectedPoint).index() - 2).children(".routePointDots").remove();
+                        }
+                        $(evt.currentTarget).parents(".routePoint").remove();
+                    }));
 
-        $(".detailedInfoSegment").fadeOut(1);
+        // After creating routepoints, remove delete marks by focusout event
+        $(pathPointItemFirst).children(".routePointInput").focusout();
+        $(pathPointItemSecond).children(".routePointInput").focusout();
+        $(detailedInfoPart).find("#routeCard > li > #routePointsList")
+            .append(pathPointItemFirst)
+            .append(pathPointItemSecond);
+
+
+        $(this.root)
+            .append($("<ul>", { "class": "mapPanelContent" })
+                .append(searchInputPart)
+                .append(detailedInfoPart)
+        );
+        $("#InfoCardButton").click();
+        $("#weatherButton").click();
+        $(".routeTravelTypeIcon").eq(0).click();
     }
 
     public throttle(fn: Function, delay: number) {
@@ -233,7 +384,7 @@
 
     private setForecast(forecast: any) {
         for (var i = 0; i < forecast.list.length; i += 8) {
-            var table = $("#list-forecast").find("table:eq(" + i / 8 + ")");
+            var table = $("#forecastList").find("table:eq(" + i / 8 + ")");
             table.find(".forecastImg > img").attr("src", "./Resources/forecast/" + forecast.list[i].weather[0].icon + ".png");
             table.find(".forecastTempExtremes> div:eq(0)").text(forecast.list[i].main.temp_max.toFixed(1) + "°C");
             table.find(".forecastTempExtremes > div:eq(1)").text(forecast.list[i].main.temp_min.toFixed(1) + "°C");
@@ -245,64 +396,206 @@
         }
     }
 
-    private setSuggestions(suggestions: any) {
+    private setSuggestions(suggestions: any, list: any) {
         // Refreshing suggestion list
-        $("#suggestionList").empty();
+        $(list).empty();
         for (var i = 0; i < suggestions.features.length; i++) {
             if (suggestions.features[i].properties.label != undefined) {
-                $("#suggestionList").append($("<option>", { "value": suggestions.features[i].properties.label }))
+                $(list).append($("<option>", { "value": suggestions.features[i].properties.label }))
             }
         }
     }
 
     private handleSearchSubmit() {
         var text = $("#placeInput").val();
-        var coords = this.map.getCoordinatesAtCenter();
         // Search for entered place
         this.searchLocationByName(text)
             .then((locations) => {
-                this.map.displayPlace(locations.features[0].geometry.coordinates[1], locations.features[0].geometry.coordinates[0], 14, 1007);
-                $(".detailedInfoSegment:eq(0)").fadeIn(1000);
-                $("#PlaceName").html(locations.features[0].properties.name);
-                $("#PlaceRegionCountry").html(locations.features[0].properties.region + ", " + locations.features[0].properties.country);
-                $("#PlaceGPS").html("GPS: [" + locations.features[0].geometry.coordinates[1].toFixed(2) + ", " + locations.features[0].geometry.coordinates[0].toFixed(2) + "]");
+                if (locations.features.length > 0) {
+                    this.map.displayPlace(locations.features[0].geometry.coordinates[1], locations.features[0].geometry.coordinates[0], 14, 1007);
+                    $("#detailedInfoCard > li:eq(0)").fadeIn(1000);
+                    $("#placeName").html(locations.features[0].properties.name);
+                    $("#placeRegionCountry").html(locations.features[0].properties.region + ", " + locations.features[0].properties.country);
+                    $("#placeGPS").html("GPS: [" + locations.features[0].geometry.coordinates[1].toFixed(4) + ", " + locations.features[0].geometry.coordinates[0].toFixed(4) + "]");
 
-                this.fetchWeather(locations.features[0].properties.name, locations.features[0].properties.country)
-                    .then((weather) => {
-                        this.setWeather(weather);
-                        $(".detailedInfoSegment:eq(1)").fadeIn(1500);
-                    });
-                this.fetchForecast(locations.features[0].properties.name, locations.features[0].properties.country)
-                    .then((forecast) => {
-                        this.setForecast(forecast);
-                        $(".detailedInfoSegment:eq(1)").fadeIn(1500);
-                    })
+                    this.fetchWeather(locations.features[0].properties.name, locations.features[0].properties.country)
+                        .then((weather) => {
+                            this.setWeather(weather);
+                            $("#detailedInfoCard > li:eq(1)").fadeIn(1500);
+                        });
+                    this.fetchForecast(locations.features[0].properties.name, locations.features[0].properties.country)
+                        .then((forecast) => {
+                            this.setForecast(forecast);
+                            $("#detailedInfoCard > li:eq(1)").fadeIn(1500);
+                        })
+                }
             });
             
+    }
+
+    private handlePathPointSearch(evt: any) {
+        var text = $("#placeInput").val();
+        // Search for entered place
+        this.searchLocationByName(text)
+            .then((locations) => {
+                if (locations.features.length > 0) {
+                    this.map.displayPlace(locations.features[0].geometry.coordinates[1], locations.features[0].geometry.coordinates[0], 14, 1007);
+                    $("#detailedInfoCard > li:eq(0)").fadeIn(1000);
+                    $("#placeName").html(locations.features[0].properties.name);
+                    $("#placeRegionCountry").html(locations.features[0].properties.region + ", " + locations.features[0].properties.country);
+                    $("#placeGPS").html("GPS: [" + locations.features[0].geometry.coordinates[1].toFixed(4) + ", " + locations.features[0].geometry.coordinates[0].toFixed(4) + "]");
+
+                    this.fetchWeather(locations.features[0].properties.name, locations.features[0].properties.country)
+                        .then((weather) => {
+                            this.setWeather(weather);
+                            $("#detailedInfoCard > li:eq(1)").fadeIn(1500);
+                        });
+                    this.fetchForecast(locations.features[0].properties.name, locations.features[0].properties.country)
+                        .then((forecast) => {
+                            this.setForecast(forecast);
+                            $("#detailedInfoCard > li:eq(1)").fadeIn(1500);
+                        })
+                }
+            });
+
     }
 
     public displayMarkedPointInfo(lat: number, lon: number) {
         this.searchLocationByCoords(lat, lon)
             .then((locations) => {
-                $(".detailedInfoSegment:eq(0)").fadeIn(400);
-                $("#PlaceName").html(locations.features[0].properties.name);
-                $("#PlaceRegionCountry").html(locations.features[0].properties.region + ", " + locations.features[0].properties.country);
-                $("#PlaceGPS").html("GPS: [" + locations.features[0].geometry.coordinates[1].toFixed(2) + ", " + locations.features[0].geometry.coordinates[0].toFixed(2) + "]");
+                if (locations.features.length > 0) {
+                    $("#InfoCardButton").click();
+                    $("#detailedInfoCard > li:eq(0)").fadeIn(400);
+                    $("#placeName").html(locations.features[0].properties.name);
+                    $("#placeRegionCountry").html(locations.features[0].properties.region + ", " + locations.features[0].properties.country);
+                    $("#placeGPS").html("GPS: [" + locations.features[0].geometry.coordinates[1].toFixed(4) + ", " + locations.features[0].geometry.coordinates[0].toFixed(4) + "]");
 
-                this.fetchWeather(locations.features[0].properties.name, locations.features[0].properties.country)
-                    .then((weather) => {
-                        this.setWeather(weather);
-                        $(".detailedInfoSegment:eq(1)").fadeIn(400);
-                    });
-                this.fetchForecast(locations.features[0].properties.name, locations.features[0].properties.country)
-                    .then((forecast) => {
-                        this.setForecast(forecast);
-                        $(".detailedInfoSegment:eq(1)").fadeIn(400);
-                    })
+                    this.fetchWeather(locations.features[0].properties.name, locations.features[0].properties.country)
+                        .then((weather) => {
+                            this.setWeather(weather);
+                            $("#detailedInfoCard > li:eq(1)").fadeIn(400);
+                        });
+                    this.fetchForecast(locations.features[0].properties.name, locations.features[0].properties.country)
+                        .then((forecast) => {
+                            this.setForecast(forecast);
+                            $("#detailedInfoCard > li:eq(1)").fadeIn(400);
+                        })
+                }
             });
     }
 
     public hideMarkedPointInfo() {
-        $("#detailedInfo > .detailedInfoSegment").fadeOut(250);
+        $("#detailedInfoCard > li").fadeOut(250);
+    }
+
+    public addPathPoint() {
+        var routePointCount = $("#routePointsList").children(".routePoint").length;
+        if (routePointCount > 0) {
+            $("#routePointsList").children(".routePoint").eq(routePointCount - 1)
+                    .append($("<img>", { "class": "routePointDots", "src": "./Resources/point_dots.png" }))
+        }
+        var pathPointItem =
+            $("<li>", { "class": "routePoint" })
+                .append($("<img>", { "class": "routePointIcon", "src": "./Resources/point.png" }))
+                .append($("<input>", { "class": "routePointInput", "autocomplete": "on", "list": "routePointDatalist" })
+                    .on("keyup", (evt) => {
+                        var text = $(evt.currentTarget).val();
+                        var coords = this.map.getCoordinatesAtCenter();
+                        this.fetchSuggestions(text, coords.latitude, coords.longitude)
+                            .then((suggestions) => {
+                                this.setSuggestions(suggestions, $("#routePointDatalist"));
+                            });
+                    })
+                    .focusin((evt) => {
+                        if ($(".routePoint").length <= 2) {
+                            return;
+                        }
+                        $(evt.currentTarget).siblings(".deletePointIcon").fadeIn(100);
+                    })
+                    .focusout((evt) => { $(evt.currentTarget).siblings(".deletePointIcon").fadeOut(100); })
+                    .focus())
+                .append($("<img>", { "class": "deletePointIcon", "src": "./Resources/delete.png" })
+                    .click((evt) => {
+                        var selectedPoint = $(evt.currentTarget).parents(".routePoint");
+                        if ($(".routePoint").length == $(selectedPoint).index()) {
+                            $("#routePointsList > .routePoint").eq($(selectedPoint).index() - 2).children(".routePointDots").remove();  
+                        }
+                        $(evt.currentTarget).parents(".routePoint").remove();
+                    }));
+
+        $(pathPointItem).children(".routePointInput").focusout();
+        $("#routePointsList")
+            .append(pathPointItem);
+            
+    }
+
+    private handleFindRouteEvent() {
+        this.map.clearPathPoints();
+        var pathPoints = $(".routePointInput");
+        this.pathPointsGPS = new Array();
+        for (var i = 0; i < pathPoints.length; i++) {
+            this.searchLocationByName(pathPoints.eq(i).val())
+                .then((locations) => {
+                    this.pathPointsGPS.push({
+                        label: locations.features[0].properties.label,
+                        lat: locations.features[0].geometry.coordinates[1],
+                        lon: locations.features[0].geometry.coordinates[0]
+                    })
+                    this.map.markPathPointByGPS(locations.features[0].geometry.coordinates[1], locations.features[0].geometry.coordinates[0]);
+
+                    if (pathPoints.length == this.pathPointsGPS.length) {
+                        if (this.carType) { this.map.fetchRoute(this.pathPointsGPS, "auto"); }
+                        else if (this.bicycleType) { this.map.fetchRoute(this.pathPointsGPS, "bicycle"); }
+                        else { this.map.fetchRoute(this.pathPointsGPS, "pedestrian"); }
+                        $("#RouteCardButton").click();
+                    }
+                });
+        }
+    }
+
+
+    private handleNavigateMeButtonEvent() {
+        navigator.geolocation.getCurrentPosition((userLocation) => {
+            var currentMapGPS = this.map.getCoordinatesAtCenter();
+            // Zoom out if route isnt visible on map as whole
+            for (var i = this.map.currentZoom; i > 1; i--) {
+                if (this.map.areGPSonScreen(userLocation.coords.latitude, userLocation.coords.longitude)) {
+                    if (i != this.map.currentZoom) { this.map.displayPlace(currentMapGPS.latitude, currentMapGPS.longitude, i, this.map.currentLayers); }
+                    break;
+                }
+                else { this.map.displayPlace(currentMapGPS.latitude, currentMapGPS.longitude, i, this.map.currentLayers); }
+            }
+
+            var placeMarkLocation = this.map.getPlaceMarkGPS();
+            this.pathPointsGPS = new Array();
+            this.pathPointsGPS.push({ lat: userLocation.coords.latitude, lon: userLocation.coords.longitude });
+            this.pathPointsGPS.push({ lat: placeMarkLocation.lat, lon: placeMarkLocation.lon });
+
+            // Fetch location name to fill routePoints inputs
+            this.searchLocationByCoords(userLocation.coords.latitude, userLocation.coords.longitude)
+                .then((locationName) => {
+                    if (locationName.features[0]) {
+                        $(".routePoint").eq(0).children(".routePointInput").val(locationName.features[0].properties.label);
+                    }
+                });
+            this.searchLocationByCoords(placeMarkLocation.lat, placeMarkLocation.lon)
+                .then((locationName) => {
+                    if (locationName.features[0]) {
+                        $(".routePoint").eq(1).children(".routePointInput").val(locationName.features[0].properties.label);
+                    }
+                });
+
+            this.map.clearPathPoints();
+            this.map.clearPlaceMark();
+            this.map.shiftMap(0, 0);
+            this.map.markPathPointByGPS(userLocation.coords.latitude, userLocation.coords.longitude);
+            this.map.markPathPointByGPS(placeMarkLocation.lat, placeMarkLocation.lon);
+
+            if (this.carType) { this.map.fetchRoute(this.pathPointsGPS, "auto"); }
+            else if (this.bicycleType) { this.map.fetchRoute(this.pathPointsGPS, "bicycle"); }
+            else { this.map.fetchRoute(this.pathPointsGPS, "pedestrian"); }
+
+            $("#RouteCardButton").click();
+        })
     }
 }
