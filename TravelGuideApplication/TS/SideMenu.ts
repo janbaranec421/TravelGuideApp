@@ -142,6 +142,10 @@
         
         this.isAnimationFinished = true;
         this.isOpen = false;
+        // Initially set first project as selected
+        $.getJSON("./Resources/Projects/projects.json", (data) => {
+            this.loadProjectFromJSON(data.projects[0].id);
+        });
     }
 
     public loadProjectFromJSON(ID: number) {

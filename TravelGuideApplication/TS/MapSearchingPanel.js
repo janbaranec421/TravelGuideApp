@@ -105,7 +105,23 @@ var MapSearchingPanel = (function () {
             if (_this.pathPointsGPS) {
                 _this.map.clearPathPoints();
                 _this.map.shiftMap(0, 0);
-                _this.handleFindRouteEvent();
+                // If any route point input is empty, highlight it to user
+                var inputs = $(".routePointInput");
+                var notEmptyCount = 0;
+                for (var i = 0; i < inputs.length; i++) {
+                    if ($(inputs).eq(i).val() == '') {
+                        $(inputs).eq(i).css("animation", "routePoint-highlight 2s")
+                            .on("webkitAnimationEnd oanimationend msAnimationEnd animationend", function (evt) {
+                            $(evt.currentTarget).css("animation", "none");
+                        });
+                    }
+                    else {
+                        notEmptyCount++;
+                    }
+                }
+                if (notEmptyCount == inputs.length) {
+                    _this.handleFindRouteEvent();
+                }
             }
         }))
             .append($("<img>", { "class": "routeTravelTypeIcon", "src": "./Resources/bicycle.png" })
@@ -118,7 +134,23 @@ var MapSearchingPanel = (function () {
             if (_this.pathPointsGPS) {
                 _this.map.clearPathPoints();
                 _this.map.shiftMap(0, 0);
-                _this.handleFindRouteEvent();
+                // If any route point input is empty, highlight it to user
+                var inputs = $(".routePointInput");
+                var notEmptyCount = 0;
+                for (var i = 0; i < inputs.length; i++) {
+                    if ($(inputs).eq(i).val() == '') {
+                        $(inputs).eq(i).css("animation", "routePoint-highlight 2s")
+                            .on("webkitAnimationEnd oanimationend msAnimationEnd animationend", function (evt) {
+                            $(evt.currentTarget).css("animation", "none");
+                        });
+                    }
+                    else {
+                        notEmptyCount++;
+                    }
+                }
+                if (notEmptyCount == inputs.length) {
+                    _this.handleFindRouteEvent();
+                }
             }
         }))
             .append($("<img>", { "class": "routeTravelTypeIcon", "src": "./Resources/pedestrian.png" })
@@ -131,7 +163,23 @@ var MapSearchingPanel = (function () {
             if (_this.pathPointsGPS) {
                 _this.map.clearPathPoints();
                 _this.map.shiftMap(0, 0);
-                _this.handleFindRouteEvent();
+                // If any route point input is empty, highlight it to user
+                var inputs = $(".routePointInput");
+                var notEmptyCount = 0;
+                for (var i = 0; i < inputs.length; i++) {
+                    if ($(inputs).eq(i).val() == '') {
+                        $(inputs).eq(i).css("animation", "routePoint-highlight 2s")
+                            .on("webkitAnimationEnd oanimationend msAnimationEnd animationend", function (evt) {
+                            $(evt.currentTarget).css("animation", "none");
+                        });
+                    }
+                    else {
+                        notEmptyCount++;
+                    }
+                }
+                if (notEmptyCount == inputs.length) {
+                    _this.handleFindRouteEvent();
+                }
             }
         }))
             .append($("<ul>", { "id": "routePointsList" })
@@ -268,9 +316,13 @@ var MapSearchingPanel = (function () {
             }
         };
     };
-    MapSearchingPanel.prototype.searchLocationByName = function (place) {
+    MapSearchingPanel.prototype.searchLocationByName = function (place, focusLat, focusLon) {
+        if (focusLat === void 0) { focusLat = null; }
+        if (focusLon === void 0) { focusLon = null; }
         var fetchURL = "https://search.mapzen.com/v1/search?" + "api_key=mapzen-eES7bmW&text=" + place + "&size=1";
-        ;
+        if (focusLat & focusLon) {
+            fetchURL += "&focus.point.lat=" + focusLat + "&focus.point.lon=" + focusLon;
+        }
         return new Promise(function (resolve, reject) {
             $.getJSON(fetchURL, function (locations) {
                 if (locations) {
@@ -376,10 +428,12 @@ var MapSearchingPanel = (function () {
         var _this = this;
         var text = $("#placeInput").val();
         // Search for entered place
-        this.searchLocationByName(text)
+        this.searchLocationByName(text, this.map.getCoordinatesAtCenter().latitude, this.map.getCoordinatesAtCenter().longitude)
             .then(function (locations) {
             if (locations.features.length > 0) {
                 _this.map.displayPlace(locations.features[0].geometry.coordinates[1], locations.features[0].geometry.coordinates[0], 14, 1007);
+                _this.map.clearPlaceMark();
+                _this.map.markPlaceByGPS(locations.features[0].geometry.coordinates[1], locations.features[0].geometry.coordinates[0]);
                 $("#detailedInfoCard > li:eq(0)").fadeIn(1000);
                 $("#placeName").html(locations.features[0].properties.name);
                 $("#placeRegionCountry").html(locations.features[0].properties.region + ", " + locations.features[0].properties.country);
@@ -489,18 +543,40 @@ var MapSearchingPanel = (function () {
     MapSearchingPanel.prototype.handleFindRouteEvent = function () {
         var _this = this;
         this.map.clearPathPoints();
+        var searchedPointsCount = 0;
+        // Fill with empty data, so we can put value returned from async search into right index (to keep items in right order).
         var pathPoints = $(".routePointInput");
         this.pathPointsGPS = new Array();
         for (var i = 0; i < pathPoints.length; i++) {
+            this.pathPointsGPS.push({ lat: null, lon: null });
+        }
+        // Labels are initialy put into array so we can check order of route points in async function bellow
+        for (var i = 0; i < pathPoints.length; i++) {
             this.searchLocationByName(pathPoints.eq(i).val())
                 .then(function (locations) {
-                _this.pathPointsGPS.push({
-                    label: locations.features[0].properties.label,
-                    lat: locations.features[0].geometry.coordinates[1],
-                    lon: locations.features[0].geometry.coordinates[0]
-                });
-                _this.map.markPathPointByGPS(locations.features[0].geometry.coordinates[1], locations.features[0].geometry.coordinates[0]);
-                if (pathPoints.length == _this.pathPointsGPS.length) {
+                searchedPointsCount++;
+                for (var j = 0; j < pathPoints.length; j++) {
+                    if (locations.geocoding.query.text == $(pathPoints[j]).val()) {
+                        _this.pathPointsGPS.splice(j, 1, ({
+                            lat: locations.features[0].geometry.coordinates[1],
+                            lon: locations.features[0].geometry.coordinates[0]
+                        }));
+                    }
+                }
+                // Checks if route will be visible on map, if not, zooms out
+                var currentMapGPS = _this.map.getCoordinatesAtCenter();
+                for (var j = _this.map.currentZoom; j > 1; j--) {
+                    if (_this.map.areGPSonScreen(locations.features[0].geometry.coordinates[1], locations.features[0].geometry.coordinates[0])) {
+                        break;
+                    }
+                    else {
+                        _this.map.displayPlace(currentMapGPS.latitude, currentMapGPS.longitude, j, _this.map.currentLayers);
+                    }
+                }
+                if (pathPoints.length == searchedPointsCount) {
+                    for (var j = 0; j < _this.pathPointsGPS.length; j++) {
+                        _this.map.markPathPointByGPS(_this.pathPointsGPS[j].lat, _this.pathPointsGPS[j].lon);
+                    }
                     if (_this.carType) {
                         _this.map.fetchRoute(_this.pathPointsGPS, "auto");
                     }
@@ -522,9 +598,6 @@ var MapSearchingPanel = (function () {
             // Zoom out if route isnt visible on map as whole
             for (var i = _this.map.currentZoom; i > 1; i--) {
                 if (_this.map.areGPSonScreen(userLocation.coords.latitude, userLocation.coords.longitude)) {
-                    if (i != _this.map.currentZoom) {
-                        _this.map.displayPlace(currentMapGPS.latitude, currentMapGPS.longitude, i, _this.map.currentLayers);
-                    }
                     break;
                 }
                 else {

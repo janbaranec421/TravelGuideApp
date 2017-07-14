@@ -131,6 +131,21 @@ var Converter = (function () {
         var date = a.getDate();
         return date + ' ' + month + ' ' + year;
     };
+    Converter.date_YYYYMMDDHHMM_to_HHMMDDMMYYYY = function (date) {
+        var monthsByWord = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        var monthsByNumber = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"];
+        var year = date.substr(0, 4);
+        var month = date.substr(5, 2);
+        var day = date.substr(8, 2);
+        var hoursMinutes = date.charAt(11) == "0" ? date.substr(12) : date.substr(11);
+        for (var i = 1; i <= monthsByWord.length; i++) {
+            if (month == monthsByNumber[i]) {
+                month = monthsByWord[i];
+                break;
+            }
+        }
+        return hoursMinutes + "  &nbsp-&nbsp  " + day + " " + month + " " + year;
+    };
     return Converter;
 })();
 //# sourceMappingURL=Converter.js.map

@@ -276,6 +276,13 @@ var MapStyler = (function () {
         ctx.lineWidth = 0.35;
         ctx.fillStyle = this.toneColor(ctx.strokeStyle, 115);
         ctx.fill();
+        /*
+        if (shape.geometry.type = "Point" || shape.geometry.type == "MultiPoint") {
+            if (zoomLvL >= 20) {
+                ctx.fillStyle = "red";
+                ctx.fillText(shape.properties.addr_street, posX, posY);
+            }
+        }*/
     };
     MapStyler.prototype.styleEarthContext = function (shape, ctx, zoomLvL, posX, posY) {
         if (zoomLvL === void 0) { zoomLvL = 0; }

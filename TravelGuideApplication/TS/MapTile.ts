@@ -60,7 +60,16 @@
 
     public longitude: number;
     public latitude: number;
-    public zoom: number;
+    private _zoom: number;
+
+    get zoom(): any {
+        return this._zoom;
+    }
+    set zoom(zoom: any) {
+        if (zoom > 20) { this._zoom = 20; }
+        else if (zoom < 2) { this._zoom = 2 }
+        else { this._zoom = zoom; }
+    }
 
     public positionX: number;
     public positionY: number;
@@ -77,9 +86,9 @@
         this._tileWidth = tileWidth;
         this._tileHeight = tileHeight;
 
-        this.longitude = Converter.Xtile2long(tileX, zoom);
-        this.latitude = Converter.Ytile2lat(tileY, zoom);
-        this.boundingBox = Converter.tile2boundingBox(tileX, tileY, zoom);
+        this.longitude = Converter.Xtile2long(tileX, this.zoom);
+        this.latitude = Converter.Ytile2lat(tileY, this.zoom);
+        this.boundingBox = Converter.tile2boundingBox(tileX, tileY, this.zoom);
 
         this.xScale = this.tileWidth / Math.abs(this.boundingBox.xMax - this.boundingBox.xMin);
         this.yScale = this.tileHeight / Math.abs(this.boundingBox.yMax - this.boundingBox.yMin);

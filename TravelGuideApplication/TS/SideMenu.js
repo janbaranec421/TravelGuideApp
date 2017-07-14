@@ -124,6 +124,10 @@ var SideMenu = (function () {
         }
         this.isAnimationFinished = true;
         this.isOpen = false;
+        // Initially set first project as selected
+        $.getJSON("./Resources/Projects/projects.json", function (data) {
+            _this.loadProjectFromJSON(data.projects[0].id);
+        });
     }
     SideMenu.prototype.loadProjectFromJSON = function (ID) {
         $.getJSON("./Resources/Projects/project-" + ID + ".json", function (projectData) {

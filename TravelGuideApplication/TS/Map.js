@@ -40,12 +40,12 @@ var Map = (function () {
             .append($("<img>", { "id": "mapPlusButton", "src": "./Resources/plus.png" })
             .on("click", function (evt) {
             var coords = _this.getCoordinatesAtCenter();
-            _this.displayPlace(coords.latitude, coords.longitude, _this.currentZoom + 1, _this.currentLayers);
+            _this.displayPlace(coords.latitude, coords.longitude, (_this.currentZoom += 1), _this.currentLayers);
         }))
             .append($("<img>", { "id": "mapMinusButton", "src": "./Resources/minus.png" })
             .on("click", function (evt) {
             var coords = _this.getCoordinatesAtCenter();
-            _this.displayPlace(coords.latitude, coords.longitude, _this.currentZoom - 1, _this.currentLayers);
+            _this.displayPlace(coords.latitude, coords.longitude, (_this.currentZoom -= 1), _this.currentLayers);
         }));
         this.canvas = document.getElementById('mapCanvas');
         this.context = this.canvas.getContext('2d');
@@ -58,6 +58,25 @@ var Map = (function () {
         this.tileHeight = tileHeight;
         this.makeReturnOnItemButton();
     }
+    Object.defineProperty(Map.prototype, "currentZoom", {
+        get: function () {
+            return this._currentZoom;
+        },
+        set: function (zoom) {
+            if (zoom > 20) {
+                this._currentZoom = 20;
+            }
+            else if (zoom < 2) {
+                this._currentZoom = 2;
+            }
+            else {
+                this._currentZoom = zoom;
+            }
+        },
+        enumerable: true,
+        configurable: true
+    });
+    ;
     Map.prototype.setMapDimensions = function (mapWidth, mapHeight) {
         this.mapWidth = mapWidth;
         this.mapHeight = mapHeight;
@@ -70,11 +89,11 @@ var Map = (function () {
         this.clearCanvas();
         this.mapData = [];
         // [X,Y] Position in map tiles scope
-        this.currentTileX = Converter.long2tileX(longitude, zoom);
-        this.currentTileY = Converter.lat2tileY(latitude, zoom);
+        this.currentZoom = zoom;
+        this.currentTileX = Converter.long2tileX(longitude, this.currentZoom);
+        this.currentTileY = Converter.lat2tileY(latitude, this.currentZoom);
         this.currentLatitude = latitude;
         this.currentLongitude = longitude;
-        this.currentZoom = zoom;
         this.currentLayers = layers;
         // Variables to calculate centerX, centerY
         var boundingBox = Converter.tile2boundingBox(this.currentTileX, this.currentTileY, this.currentZoom);
@@ -92,7 +111,7 @@ var Map = (function () {
         this.initialDrawTileNumber = 0;
         for (var x = box.negativeBoundX - 1; x <= box.positiveBoundX + 1; x++) {
             for (var y = box.negativeBoundY - 1; y <= box.positiveBoundY + 1; y++) {
-                var MapTileData = new MapTile(null, this.currentTileX + x, this.currentTileY + y, zoom, layers, centerX - (this.tileWidth * (-1 * x)), centerY - (this.tileHeight * (-1 * y)), this.tileWidth, this.tileHeight);
+                var MapTileData = new MapTile(null, this.currentTileX + x, this.currentTileY + y, this.currentZoom, layers, centerX - (this.tileWidth * (-1 * x)), centerY - (this.tileHeight * (-1 * y)), this.tileWidth, this.tileHeight);
                 this.mapData.push(MapTileData);
                 // Outer ring is not filled with data, due to dynamic loading mechanism
                 if (!(x == box.positiveBoundX + 1 || x == box.negativeBoundX - 1 || y == box.positiveBoundY + 1 || y == box.negativeBoundY - 1)) {
@@ -177,11 +196,10 @@ var Map = (function () {
             for (var i = 0; i < _this.mapData.length; i++) {
                 if (_this.mapData[i].rawData == null && _this.mapData[i].tileX == tileToFill.tileX && _this.mapData[i].tileY == tileToFill.tileY) {
                     if (tileFromDB != undefined) {
-                        var x = tileFromDB;
-                        tileFromDB = new MapTile(x._rawData, x.tileX, x.tileY, x.zoom, x.layers, _this.mapData[i].positionX, _this.mapData[i].positionY, _this.mapData[i].tileWidth, _this.mapData[i].tileHeight);
+                        var MapTileWithData = new MapTile(tileFromDB._rawData, _this.mapData[i].tileX, _this.mapData[i].tileY, _this.mapData[i].zoom, _this.mapData[i].layers, _this.mapData[i].positionX, _this.mapData[i].positionY, _this.mapData[i].tileWidth, _this.mapData[i].tileHeight);
                         // Replace and draw
-                        _this.mapData.splice(i, 1, tileFromDB);
-                        _this.drawTile(tileFromDB);
+                        _this.mapData.splice(i, 1, MapTileWithData);
+                        _this.drawTile(MapTileWithData);
                         _this.drawPath(_this.currentRoute);
                         _this.redrawAllMarks();
                     }
@@ -193,12 +211,12 @@ var Map = (function () {
                             for (var j = 0; j < _this.mapData.length; j++) {
                                 if (_this.mapData[j].rawData == null && _this.mapData[j].tileX == argX && _this.mapData[j].tileY == argY) {
                                     var x = _this.mapData[j];
-                                    var MapTileData = new MapTile(data, x.tileX, x.tileY, _this.currentZoom, _this.currentLayers, x.positionX, x.positionY, x.tileWidth, x.tileHeight);
+                                    var MapTileWithData = new MapTile(data, x.tileX, x.tileY, _this.currentZoom, _this.currentLayers, x.positionX, x.positionY, x.tileWidth, x.tileHeight);
                                     // Add to DB before draw (drawin creates html nodes which cannot be added into IndexedDB)
-                                    _this.database.addTile(MapTileData).catch(function () { });
+                                    _this.database.addTile(MapTileWithData).catch(function () { });
                                     // Replace and draw
-                                    _this.mapData.splice(j, 1, MapTileData);
-                                    _this.drawTile(MapTileData);
+                                    _this.mapData.splice(j, 1, MapTileWithData);
+                                    _this.drawTile(MapTileWithData);
                                     _this.drawPath(_this.currentRoute);
                                     _this.redrawAllMarks();
                                 }
@@ -281,7 +299,7 @@ var Map = (function () {
         };
     };
     Map.prototype.fetchTile = function (x, y, z, argX, argY, callback) {
-        var fetchURL = "http://tile.mapzen.com/mapzen/vector/v1/all/" + z + "/" + x + "/" + y + ".json?api_key=mapzen-eES7bmW";
+        var fetchURL = "https://tile.mapzen.com/mapzen/vector/v1/all/" + z + "/" + x + "/" + y + ".json?api_key=mapzen-eES7bmW";
         $.getJSON(fetchURL)
             .done(function (data) {
             callback(argX, argY, data);
@@ -293,16 +311,15 @@ var Map = (function () {
     Map.prototype.fetchRoute = function (points, travelType) {
         var _this = this;
         if (travelType === void 0) { travelType = "auto"; }
-        var fetchURL = "http://matrix.mapzen.com/optimized_route?json={\"locations\":[";
+        var fetchURL = "https://matrix.mapzen.com/optimized_route?json={\"locations\":[";
         // Add endpoints to URL
         for (var i = 0; i < points.length; i++) {
             fetchURL += "{\"lat\":" + points[i].lat + ", " + "\"lon\":" + points[i].lon + "}";
             (i + 1 == points.length) ? fetchURL += "]," : fetchURL += ",";
         }
-        fetchURL += "\"costing\":\"auto\", \"units\":\"mi\"}&api_key=mapzen-eES7bmW";
+        fetchURL += "\"costing\":\"" + travelType + "\", \"units\":\"mi\"}&api_key=mapzen-eES7bmW";
         $.getJSON(fetchURL)
             .then(function (routeObject) {
-            console.log(routeObject);
             if (points.length - 1 == routeObject.trip.legs.length) {
                 var route = new Array();
                 for (var i = 0; i < routeObject.trip.legs.length; i++) {
@@ -319,6 +336,9 @@ var Map = (function () {
             var units = routeObject.trip.units == "kilometers" ? "Km" : "m";
             $(".routeDetailInfo").text("Distance: " + routeObject.trip.summary.length.toFixed(1) + " " + units + ", " + "Time: " + timeString);
             _this.drawPath(route);
+        })
+            .fail(function (fail) {
+            $(".routeDetailInfo").text("Path length limit is 200km");
         });
     };
     Map.prototype.drawTile = function (mapTile) {
@@ -636,7 +656,7 @@ var Map = (function () {
             var bot = this.mapData[i].positionY + this.tileHeight;
             var left = this.mapData[i].positionX;
             var right = this.mapData[i].positionX + this.tileWidth;
-            // if touch is in this tile...
+            // If coordinates are in center of this tile...
             if (left <= x && x <= right && top <= y && y <= bot) {
                 tileAtCenter = this.mapData[i];
             }
@@ -869,7 +889,7 @@ var Map = (function () {
             newMark.x += markedTile.positionX;
             newMark.y += markedTile.positionY;
             // If placeMark exists, check if needs to be removed
-            if (Math.abs(this.placeMark.positionX - newMark.x) <= this.placeMark.touchRadius && Math.abs((this.placeMark.positionY - (this.placeMark.height / 3)) - newMark.y) <= this.placeMark.touchRadius) {
+            if (this.placeMark && Math.abs(this.placeMark.positionX - newMark.x) <= this.placeMark.touchRadius && Math.abs((this.placeMark.positionY - (this.placeMark.height / 3)) - newMark.y) <= this.placeMark.touchRadius) {
                 this.placeMark = null;
                 this.mapPanel.hideMarkedPointInfo();
                 this.shiftMap(0, 0);

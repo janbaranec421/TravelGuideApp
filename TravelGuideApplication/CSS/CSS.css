@@ -243,7 +243,8 @@ li.placesListItem {
     vertical-align: top;
     text-align: left;
     margin: 15px;
-    max-width: 450px;
+    max-width: 420px;
+    min-width: 300px;
     width: 90%;
     box-shadow: 0 6px 10px 0 rgba(0,0,0,0.14), 0 1px 18px 0 rgba(0,0,0,0.12), 0 3px 5px -1px rgba(0,0,0,0.3);
 }
@@ -254,35 +255,58 @@ li.placesListItem {
 }
 
 #scheduleListItemFirstRow > td {
-    background: #a7b1c1;
-    height: 65px;
+    background: #868d98;
     text-align: left;
-    padding: 5px 10px;
+    padding: 20px 10px 0px;
     font-weight: bold;
     font-size: x-large;
-    border-bottom: 0.5px solid #cecece;
 }
 
 #scheduleListItemSecondRow > td {
-    background: #f3f3f3;
-    font-size: medium;
-    padding: 1% 2% 1% 2%;
-    border-bottom: 0.5px solid #cecece;
+    padding: 0px 35px 10px;
+    background: rgb(134, 141, 152);
+    font-style: italic;
 }
 
 #scheduleListItemThirdRow > td{
     background: #f3f3f3;
     font-size: medium;
-    padding: 1% 2% 1% 2%;
+    padding: 2px 20px;
     border-bottom: 0.5px solid #cecece;
+    font-style: italic;
 }
 
 #scheduleListItemFourthRow > td {
+    background: #f3f3f3;
+    font-size: medium;
+    padding: 2px 20px;
+    border-bottom: 0.5px solid #cecece;
+    font-style: italic;
+}
+
+#scheduleListItemFifthRow > td{
     text-align: left;
-    padding: 3% 2%;
+    padding: 10px 15px;
     vertical-align: text-top;
     font-size: large;
-    background: #fbfbfb;
+    background: #fbfbfb; 
+}
+#scheduleListItemSixthRow > td{
+    text-align: right;
+    padding: 3px 10px 7px;
+    background: #f3f3f3;
+    border-top: 1px solid #cecece;
+}
+
+#scheduleListItemSixthRow > td > button {
+    display: inline-block;
+    background: #f3f3f3;
+    height: 34px;
+    padding: 6px 8px;
+    border-radius: 2px;
+    border: 1px solid #bbbbbb;
+    font-style: italic;
+    box-shadow: 0 2px 2px 0 rgba(0,0,0,0.14), 0 1px 5px 0 rgba(0,0,0,0.12), 0 3px 1px -2px rgba(0,0,0,0.2);
 }
 
 div#selectedProject {
@@ -387,7 +411,7 @@ div.detailedInfoSegment {
         text-align: center;
     }
 
-@media (max-width: 750px ), (max-height: 385px) {
+@media (max-width: 750px ), (max-height: 410px) {
     #map, #mapCanvasLabels{
         width: 100% !important;
     }
@@ -786,7 +810,7 @@ div.detailedInfoSegment {
     margin: 10px 1% 0px;
     min-height: 90px;
     border: 1px solid #d2d2d2;
-    max-height: calc(100% - 140px);
+    max-height: calc(100% - 160px);
     overflow-y: scroll;
     height: 100%;
 }
@@ -840,7 +864,7 @@ div.detailedInfoSegment {
     display: inline;
     margin: 7px 8px;
     max-width: 150px;
-    width: 43%;
+    width: 40%;
     height: 30px;
     border: none;
     box-shadow: 0px 0px 2px 1px #6f6e6e;
@@ -851,10 +875,11 @@ div.detailedInfoSegment {
 
 .routeDetailInfo {
     margin: 15px auto 10px;
-    width: 85%;
+    width: 95%;
     font-size: 15px;
     text-align: center;
     font-weight: bold;
+    min-height: 40px;
 }
 
 .routeTravelTypeIcon {

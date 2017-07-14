@@ -130,6 +130,13 @@
         ctx.lineWidth = 0.35;
         ctx.fillStyle = this.toneColor(ctx.strokeStyle, 115);
         ctx.fill();
+        /*
+        if (shape.geometry.type = "Point" || shape.geometry.type == "MultiPoint") {
+            if (zoomLvL >= 20) { 
+                ctx.fillStyle = "red";
+                ctx.fillText(shape.properties.addr_street, posX, posY);
+            }
+        }*/
     }
 
     private styleEarthContext(shape: any, ctx: any, zoomLvL: number = 0, posX: number = 0, posY: number = 0): void {

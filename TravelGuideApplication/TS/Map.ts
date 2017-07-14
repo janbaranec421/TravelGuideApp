@@ -27,9 +27,18 @@
     public currentTileY: number;
 
     public currentRoute: any;
-    public currentZoom: number;
+    private _currentZoom: number;
     public currentLayers: Layer;
 
+    get currentZoom(): number {
+        return this._currentZoom;
+    };
+
+    set currentZoom(zoom: number) {
+        if (zoom > 20) { this._currentZoom = 20; }
+        else if (zoom < 2) { this._currentZoom = 2 }
+        else { this._currentZoom = zoom; }
+    }
 
 
     constructor(tileWidth: number = 200, tileHeight: number = 200, mapWidth: number = 700, mapHeight = 700) {
@@ -68,12 +77,12 @@
             .append($("<img>", { "id": "mapPlusButton", "src": "./Resources/plus.png" })
                 .on("click", (evt) => {
                     var coords = this.getCoordinatesAtCenter();
-                    this.displayPlace(coords.latitude, coords.longitude, this.currentZoom + 1, this.currentLayers);
+                    this.displayPlace(coords.latitude, coords.longitude, (this.currentZoom += 1), this.currentLayers);
                 }))
             .append($("<img>", { "id": "mapMinusButton", "src": "./Resources/minus.png" })
                 .on("click", (evt) => {
                     var coords = this.getCoordinatesAtCenter();
-                    this.displayPlace(coords.latitude, coords.longitude, this.currentZoom - 1, this.currentLayers);
+                    this.displayPlace(coords.latitude, coords.longitude, (this.currentZoom -= 1), this.currentLayers);
                 }));
 
         this.canvas = <HTMLCanvasElement>document.getElementById('mapCanvas');
@@ -105,11 +114,11 @@
         this.mapData = [];
 
         // [X,Y] Position in map tiles scope
-        this.currentTileX = Converter.long2tileX(longitude, zoom);
-        this.currentTileY = Converter.lat2tileY(latitude, zoom);
+        this.currentZoom = zoom;
+        this.currentTileX = Converter.long2tileX(longitude, this.currentZoom);
+        this.currentTileY = Converter.lat2tileY(latitude, this.currentZoom);
         this.currentLatitude = latitude;
         this.currentLongitude = longitude;
-        this.currentZoom = zoom;
         this.currentLayers = layers;
 
         // Variables to calculate centerX, centerY
@@ -129,7 +138,7 @@
         this.initialDrawTileNumber = 0;
         for (var x = box.negativeBoundX - 1; x <= box.positiveBoundX + 1; x++) {
             for (var y = box.negativeBoundY - 1; y <= box.positiveBoundY + 1; y++) {
-                var MapTileData = new MapTile(null, this.currentTileX + x, this.currentTileY + y, zoom, layers, centerX - (this.tileWidth * (-1 * x)), centerY - (this.tileHeight * (-1 * y)), this.tileWidth, this.tileHeight);
+                var MapTileData = new MapTile(null, this.currentTileX + x, this.currentTileY + y, this.currentZoom, layers, centerX - (this.tileWidth * (-1 * x)), centerY - (this.tileHeight * (-1 * y)), this.tileWidth, this.tileHeight);
                 this.mapData.push(MapTileData);
                 // Outer ring is not filled with data, due to dynamic loading mechanism
                 if (!(x == box.positiveBoundX + 1 || x == box.negativeBoundX - 1 || y == box.positiveBoundY + 1 || y == box.negativeBoundY - 1)) {
@@ -208,11 +217,10 @@
                 for (var i = 0; i < this.mapData.length; i++) {
                     if (this.mapData[i].rawData == null && this.mapData[i].tileX == tileToFill.tileX && this.mapData[i].tileY == tileToFill.tileY) {
                         if (tileFromDB != undefined) {
-                            var x = tileFromDB;
-                            tileFromDB = new MapTile(x._rawData, x.tileX, x.tileY, x.zoom, x.layers, this.mapData[i].positionX, this.mapData[i].positionY, this.mapData[i].tileWidth, this.mapData[i].tileHeight);
+                            var MapTileWithData = new MapTile(tileFromDB._rawData, this.mapData[i].tileX, this.mapData[i].tileY, this.mapData[i].zoom, this.mapData[i].layers, this.mapData[i].positionX, this.mapData[i].positionY, this.mapData[i].tileWidth, this.mapData[i].tileHeight);
                             // Replace and draw
-                            this.mapData.splice(i, 1, tileFromDB);
-                            this.drawTile(tileFromDB);
+                            this.mapData.splice(i, 1, MapTileWithData);
+                            this.drawTile(MapTileWithData);
                             this.drawPath(this.currentRoute);
                             this.redrawAllMarks();
                         }
@@ -224,12 +232,12 @@
                                 for (var j = 0; j < this.mapData.length; j++) {
                                     if (this.mapData[j].rawData == null && this.mapData[j].tileX == argX && this.mapData[j].tileY == argY) {
                                         var x = this.mapData[j];
-                                        var MapTileData = new MapTile(data, x.tileX, x.tileY, this.currentZoom, this.currentLayers, x.positionX, x.positionY, x.tileWidth, x.tileHeight);
+                                        var MapTileWithData = new MapTile(data, x.tileX, x.tileY, this.currentZoom, this.currentLayers, x.positionX, x.positionY, x.tileWidth, x.tileHeight);
                                         // Add to DB before draw (drawin creates html nodes which cannot be added into IndexedDB)
-                                        this.database.addTile(MapTileData).catch(() => { });
+                                        this.database.addTile(MapTileWithData).catch(() => { });
                                         // Replace and draw
-                                        this.mapData.splice(j, 1, MapTileData);
-                                        this.drawTile(MapTileData);
+                                        this.mapData.splice(j, 1, MapTileWithData);
+                                        this.drawTile(MapTileWithData);
                                         this.drawPath(this.currentRoute);
                                         this.redrawAllMarks();
                                     }
@@ -305,7 +313,7 @@
     }
 
     private fetchTile(x: number, y: number, z: number, argX: number, argY: number, callback: Function): void {
-        var fetchURL = "http://tile.mapzen.com/mapzen/vector/v1/all/" + z + "/" + x + "/" + y + ".json?api_key=mapzen-eES7bmW";
+        var fetchURL = "https://tile.mapzen.com/mapzen/vector/v1/all/" + z + "/" + x + "/" + y + ".json?api_key=mapzen-eES7bmW";
 
         $.getJSON(fetchURL)
             .done((data) => {
@@ -317,17 +325,16 @@
     }
 
     public fetchRoute(points: Array<{ lat: number, lon: number }>, travelType: string = "auto") {
-        var fetchURL = "http://matrix.mapzen.com/optimized_route?json={\"locations\":[";
+        var fetchURL = "https://matrix.mapzen.com/optimized_route?json={\"locations\":[";
         // Add endpoints to URL
         for (var i = 0; i < points.length; i++) {
             fetchURL += "{\"lat\":" + points[i].lat + ", " + "\"lon\":" + points[i].lon + "}";
             (i + 1 == points.length) ? fetchURL += "]," : fetchURL += ",";
         }
-        fetchURL += "\"costing\":\"auto\", \"units\":\"mi\"}&api_key=mapzen-eES7bmW";
+        fetchURL += "\"costing\":\"" + travelType + "\", \"units\":\"mi\"}&api_key=mapzen-eES7bmW";
 
         $.getJSON(fetchURL)
             .then((routeObject) => {
-                console.log(routeObject);
                 if (points.length - 1 == routeObject.trip.legs.length) {
                     var route = new Array();
                     for (var i = 0; i < routeObject.trip.legs.length; i++) {
@@ -344,6 +351,9 @@
                 var units = routeObject.trip.units == "kilometers" ? "Km" : "m";
                 $(".routeDetailInfo").text("Distance: " + routeObject.trip.summary.length.toFixed(1) + " " + units + ", " + "Time: " + timeString);
                 this.drawPath(route);
+            })
+            .fail((fail) => {
+                $(".routeDetailInfo").text("Path length limit is 200km");
             })
     }
 
@@ -692,7 +702,7 @@
             var left = this.mapData[i].positionX;
             var right = this.mapData[i].positionX + this.tileWidth;
 
-            // if touch is in this tile...
+            // If coordinates are in center of this tile...
             if (left <= x && x <= right && top <= y && y <= bot) {
                 tileAtCenter = this.mapData[i];
             }
@@ -946,7 +956,7 @@
             newMark.y += markedTile.positionY;
 
             // If placeMark exists, check if needs to be removed
-            if (Math.abs(this.placeMark.positionX - newMark.x) <= this.placeMark.touchRadius && Math.abs((this.placeMark.positionY - (this.placeMark.height / 3)) - newMark.y) <= this.placeMark.touchRadius) {
+            if (this.placeMark && Math.abs(this.placeMark.positionX - newMark.x) <= this.placeMark.touchRadius && Math.abs((this.placeMark.positionY - (this.placeMark.height / 3)) - newMark.y) <= this.placeMark.touchRadius) {
                 this.placeMark = null;
                 this.mapPanel.hideMarkedPointInfo();
                 this.shiftMap(0, 0);

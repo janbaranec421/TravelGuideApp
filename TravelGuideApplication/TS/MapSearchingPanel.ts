@@ -120,7 +120,23 @@
                             if (this.pathPointsGPS) {
                                 this.map.clearPathPoints();
                                 this.map.shiftMap(0, 0);
-                                this.handleFindRouteEvent();
+                                // If any route point input is empty, highlight it to user
+                                var inputs = $(".routePointInput");
+                                var notEmptyCount = 0;
+                                for (var i = 0; i < inputs.length; i++) {
+                                    if ($(inputs).eq(i).val() == '') {
+                                        $(inputs).eq(i).css("animation", "routePoint-highlight 2s")
+                                            .on("webkitAnimationEnd oanimationend msAnimationEnd animationend", (evt) => {
+                                                $(evt.currentTarget).css("animation", "none");
+                                            })
+                                    }
+                                    else {
+                                        notEmptyCount++;
+                                    }
+                                }
+                                if (notEmptyCount == inputs.length) {
+                                    this.handleFindRouteEvent();
+                                }
                             }
                         }))
                     .append($("<img>", { "class": "routeTravelTypeIcon", "src": "./Resources/bicycle.png" })
@@ -131,7 +147,23 @@
                             if (this.pathPointsGPS) {
                                 this.map.clearPathPoints();
                                 this.map.shiftMap(0, 0);
-                                this.handleFindRouteEvent();
+                                // If any route point input is empty, highlight it to user
+                                var inputs = $(".routePointInput");
+                                var notEmptyCount = 0;
+                                for (var i = 0; i < inputs.length; i++) {
+                                    if ($(inputs).eq(i).val() == '') {
+                                        $(inputs).eq(i).css("animation", "routePoint-highlight 2s")
+                                            .on("webkitAnimationEnd oanimationend msAnimationEnd animationend", (evt) => {
+                                                $(evt.currentTarget).css("animation", "none");
+                                            })
+                                    }
+                                    else {
+                                        notEmptyCount++;
+                                    }
+                                }
+                                if (notEmptyCount == inputs.length) {
+                                    this.handleFindRouteEvent();
+                                }
                             }
                         }))
                     .append($("<img>", { "class": "routeTravelTypeIcon", "src": "./Resources/pedestrian.png" })
@@ -142,7 +174,23 @@
                             if (this.pathPointsGPS) {
                                 this.map.clearPathPoints();
                                 this.map.shiftMap(0, 0);
-                                this.handleFindRouteEvent();
+                                // If any route point input is empty, highlight it to user
+                                var inputs = $(".routePointInput");
+                                var notEmptyCount = 0;
+                                for (var i = 0; i < inputs.length; i++) {
+                                    if ($(inputs).eq(i).val() == '') {
+                                        $(inputs).eq(i).css("animation", "routePoint-highlight 2s")
+                                            .on("webkitAnimationEnd oanimationend msAnimationEnd animationend", (evt) => {
+                                                $(evt.currentTarget).css("animation", "none");
+                                            })
+                                    }
+                                    else {
+                                        notEmptyCount++;
+                                    }
+                                }
+                                if (notEmptyCount == inputs.length) {
+                                    this.handleFindRouteEvent();
+                                }
                             }
                         }))
                     .append($("<ul>", { "id": "routePointsList" })
@@ -293,8 +341,11 @@
         }
     }
 
-    public searchLocationByName(place: string): Promise<any> {
-        var fetchURL = "https://search.mapzen.com/v1/search?" + "api_key=mapzen-eES7bmW&text=" + place + "&size=1";;
+    public searchLocationByName(place: string, focusLat: number = null, focusLon: number = null): Promise<any> {
+        var fetchURL = "https://search.mapzen.com/v1/search?" + "api_key=mapzen-eES7bmW&text=" + place + "&size=1";
+        if (focusLat & focusLon) {
+            fetchURL += "&focus.point.lat=" + focusLat + "&focus.point.lon=" + focusLon;
+        }
 
         return new Promise((resolve, reject) => {
             $.getJSON(fetchURL, (locations) => {
@@ -409,10 +460,12 @@
     private handleSearchSubmit() {
         var text = $("#placeInput").val();
         // Search for entered place
-        this.searchLocationByName(text)
+        this.searchLocationByName(text, this.map.getCoordinatesAtCenter().latitude, this.map.getCoordinatesAtCenter().longitude)
             .then((locations) => {
                 if (locations.features.length > 0) {
                     this.map.displayPlace(locations.features[0].geometry.coordinates[1], locations.features[0].geometry.coordinates[0], 14, 1007);
+                    this.map.clearPlaceMark();
+                    this.map.markPlaceByGPS(locations.features[0].geometry.coordinates[1], locations.features[0].geometry.coordinates[0]);
                     $("#detailedInfoCard > li:eq(0)").fadeIn(1000);
                     $("#placeName").html(locations.features[0].properties.name);
                     $("#placeRegionCountry").html(locations.features[0].properties.region + ", " + locations.features[0].properties.country);
@@ -531,28 +584,51 @@
 
     private handleFindRouteEvent() {
         this.map.clearPathPoints();
+        var searchedPointsCount = 0;
+
+        // Fill with empty data, so we can put value returned from async search into right index (to keep items in right order).
         var pathPoints = $(".routePointInput");
         this.pathPointsGPS = new Array();
         for (var i = 0; i < pathPoints.length; i++) {
+            this.pathPointsGPS.push({ lat: null, lon: null });
+        }
+        // Labels are initialy put into array so we can check order of route points in async function bellow
+        for (var i = 0; i < pathPoints.length; i++) {
             this.searchLocationByName(pathPoints.eq(i).val())
                 .then((locations) => {
-                    this.pathPointsGPS.push({
-                        label: locations.features[0].properties.label,
-                        lat: locations.features[0].geometry.coordinates[1],
-                        lon: locations.features[0].geometry.coordinates[0]
-                    })
-                    this.map.markPathPointByGPS(locations.features[0].geometry.coordinates[1], locations.features[0].geometry.coordinates[0]);
+                    searchedPointsCount++;
+                    for (var j = 0; j < pathPoints.length; j++) {
+                        if (locations.geocoding.query.text == $(pathPoints[j]).val()) {
+                            this.pathPointsGPS.splice(j,1,({
+                                lat: locations.features[0].geometry.coordinates[1],
+                                lon: locations.features[0].geometry.coordinates[0]
+                            }));
+                        }
+                    }
 
-                    if (pathPoints.length == this.pathPointsGPS.length) {
+                    // Checks if route will be visible on map, if not, zooms out
+                    var currentMapGPS = this.map.getCoordinatesAtCenter();
+                    for (var j = this.map.currentZoom; j > 1; j--)
+                    {
+                        if (this.map.areGPSonScreen(locations.features[0].geometry.coordinates[1], locations.features[0].geometry.coordinates[0])) {
+                            break;
+                        }
+                        else { this.map.displayPlace(currentMapGPS.latitude, currentMapGPS.longitude, j, this.map.currentLayers); }
+                    }
+
+                    if (pathPoints.length == searchedPointsCount)
+                    {
+                        for (var j = 0; j < this.pathPointsGPS.length; j++) {
+                            this.map.markPathPointByGPS(this.pathPointsGPS[j].lat, this.pathPointsGPS[j].lon);
+                        }
                         if (this.carType) { this.map.fetchRoute(this.pathPointsGPS, "auto"); }
                         else if (this.bicycleType) { this.map.fetchRoute(this.pathPointsGPS, "bicycle"); }
                         else { this.map.fetchRoute(this.pathPointsGPS, "pedestrian"); }
                         $("#RouteCardButton").click();
                     }
-                });
+                })
         }
     }
-
 
     private handleNavigateMeButtonEvent() {
         navigator.geolocation.getCurrentPosition((userLocation) => {
@@ -560,7 +636,6 @@
             // Zoom out if route isnt visible on map as whole
             for (var i = this.map.currentZoom; i > 1; i--) {
                 if (this.map.areGPSonScreen(userLocation.coords.latitude, userLocation.coords.longitude)) {
-                    if (i != this.map.currentZoom) { this.map.displayPlace(currentMapGPS.latitude, currentMapGPS.longitude, i, this.map.currentLayers); }
                     break;
                 }
                 else { this.map.displayPlace(currentMapGPS.latitude, currentMapGPS.longitude, i, this.map.currentLayers); }

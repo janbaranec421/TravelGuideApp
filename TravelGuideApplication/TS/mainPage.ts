@@ -31,7 +31,17 @@ class MainPage {
 
     public latitude: number;
     public longitude: number;
-    public zoomLvl: number = 15;
+    public _zoomLvl: number = 15;
+
+    get zoomLvl(): any {
+        return this._zoomLvl;
+    }
+    set zoomLvl(zoom: any) {
+        if (zoom > 20) { this._zoomLvl = 20; }
+        else if (zoom < 2) { this._zoomLvl = 2 }
+        else { this._zoomLvl = zoom; }
+    }
+
     public layers: Layer = Layer.Boundaries | Layer.Roads | Layer.Buildings | Layer.Earth | Layer.Landuse | Layer.Water | Layer.Places | Layer.Pois;
 
     constructor() {
@@ -190,38 +200,38 @@ class MainPage {
             // Horizontal double swipe
             if (Math.abs(xDiff) > Math.abs(yDiff) && Math.abs(xDiff_second) > Math.abs(yDiff_second)) {
                 if (xDiff > this.swipe_threshold && xDiff_second < -this.swipe_threshold && this.touchXstart < this.touchXstart_second) {
-                    this.map.displayPlace(coords.latitude, coords.longitude, --this.zoomLvl, this.layers);
+                    this.map.displayPlace(coords.latitude, coords.longitude, (this.zoomLvl -= 1), this.layers);
                     this.isSwipeFired = true;
                 }
                 if (xDiff < -this.swipe_threshold && xDiff_second > this.swipe_threshold && this.touchXstart > this.touchXstart_second) {
-                    this.map.displayPlace(coords.latitude, coords.longitude, --this.zoomLvl, this.layers);
+                    this.map.displayPlace(coords.latitude, coords.longitude, (this.zoomLvl -= 1), this.layers);
                     this.isSwipeFired = true;
                 }
                 if (xDiff < -this.swipe_threshold && xDiff_second > this.swipe_threshold && this.touchXstart < this.touchXstart_second) {
-                    this.map.displayPlace(coords.latitude, coords.longitude, ++this.zoomLvl, this.layers);
+                    this.map.displayPlace(coords.latitude, coords.longitude, (this.zoomLvl += 1), this.layers);
                     this.isSwipeFired = true;
                 }
                 if (xDiff > this.swipe_threshold && xDiff_second < -this.swipe_threshold && this.touchXstart > this.touchXstart_second) {
-                    this.map.displayPlace(coords.latitude, coords.longitude, ++this.zoomLvl, this.layers);
+                    this.map.displayPlace(coords.latitude, coords.longitude, (this.zoomLvl += 1), this.layers);
                     this.isSwipeFired = true;
                 }
             }
             // Vertical double swipe
             else if (Math.abs(yDiff) > Math.abs(xDiff) && Math.abs(yDiff_second) > Math.abs(xDiff_second)) {
                 if (yDiff > this.swipe_threshold && yDiff_second < -this.swipe_threshold && this.touchYstart < this.touchYstart_second) {
-                    this.map.displayPlace(coords.latitude, coords.longitude, --this.zoomLvl, this.layers);
+                    this.map.displayPlace(coords.latitude, coords.longitude, (this.zoomLvl -= 1), this.layers);
                     this.isSwipeFired = true;
                 }
                 if (yDiff < -this.swipe_threshold && yDiff_second > this.swipe_threshold && this.touchYstart > this.touchYstart_second) {
-                    this.map.displayPlace(coords.latitude, coords.longitude, --this.zoomLvl, this.layers);
+                    this.map.displayPlace(coords.latitude, coords.longitude, (this.zoomLvl -= 1), this.layers);
                     this.isSwipeFired = true;
                 }
                 if (yDiff < -this.swipe_threshold && yDiff_second > this.swipe_threshold && this.touchYstart < this.touchYstart_second) {
-                    this.map.displayPlace(coords.latitude, coords.longitude, ++this.zoomLvl, this.layers);
+                    this.map.displayPlace(coords.latitude, coords.longitude, (this.zoomLvl += 1), this.layers);
                     this.isSwipeFired = true;
                 }
                 if (yDiff > this.swipe_threshold && yDiff_second < -this.swipe_threshold && this.touchYstart > this.touchYstart_second) {
-                    this.map.displayPlace(coords.latitude, coords.longitude, ++this.zoomLvl, this.layers);
+                    this.map.displayPlace(coords.latitude, coords.longitude, (this.zoomLvl += 1), this.layers);
                     this.isSwipeFired = true;
                 }
             }
@@ -259,9 +269,9 @@ class MainPage {
         this.longitude = coords.longitude;
         this.zoomLvl = this.map.currentZoom;
         if (evt.deltaY > 0)
-            this.map.displayPlace(coords.latitude, coords.longitude, --this.zoomLvl, this.layers);
+            this.map.displayPlace(coords.latitude, coords.longitude, (this.zoomLvl -= 1), this.layers);
         else
-            this.map.displayPlace(coords.latitude, coords.longitude, ++this.zoomLvl, this.layers);
+            this.map.displayPlace(coords.latitude, coords.longitude, (this.zoomLvl += 1), this.layers);
     }
 
     private adjustMapToViewport() {
