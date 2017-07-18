@@ -1,14 +1,16 @@
 ﻿class PlacesList {
-    private root: JQuery
+    private root: JQuery;
+    public mainPage: MainPage;
 
-    constructor() {
+    constructor(page: MainPage) {
         this.root = $("#placesList")
             .append($("<ul>"));
+        this.mainPage = page;
     }
 
     public displayPlacesWithTagName(tagName: string) {
-        var ID = window.sessionStorage.getItem("currentProjectID");
-
+        var ID = this.mainPage.sideMenu.currentProjectID;
+        
         $.getJSON("./Resources/Projects/project-" + ID + ".json",(projectData) => {
             this.clearList();
             var tagID = this.getTagIDbyTagName(tagName, projectData);
@@ -20,24 +22,12 @@
                     var tags = this.getTagCollectionOfPlace(placesCollection[i].name, projectData);
                     this.createPlacesListItem(placesCollection[i], tags);
                 }
-            })
-
-            $(this.root).fadeIn(1000, () => {
-                if (window.sessionStorage.getItem("placeItemCoordinates")) {
-                    var placeItemCoords = JSON.parse(window.sessionStorage.getItem("placeItemCoordinates"));
-                    if (placeItemCoords.returnButton) {
-                        placeItemCoords.returnButton = false;
-                        window.sessionStorage.setItem("placeItemCoordinates", JSON.stringify(placeItemCoords));
-                        window.sessionStorage.removeItem("placeItemCoordinates");
-                        this.findShowedPlaceByGPS(placeItemCoords.lat, placeItemCoords.lon);
-                    }
-                }
-            });
+            }).fadeIn(750);
          });  
     }
 
     public displayPlacesWithCollectionName(collectionName: string) {
-        var ID = window.sessionStorage.getItem("currentProjectID");
+        var ID = this.mainPage.sideMenu.currentProjectID;
 
         $.getJSON("./Resources/Projects/project-" + ID + ".json", (projectData) => {
             this.clearList();
@@ -49,24 +39,12 @@
                     var tags = this.getTagCollectionOfPlace(placesCollection[i].name, projectData);
                     this.createPlacesListItem(placesCollection[i], tags);
                 }
-            })
-
-            $(this.root).fadeIn(1000, () => {
-                if (window.sessionStorage.getItem("placeItemCoordinates")) {
-                    var placeItemCoords = JSON.parse(window.sessionStorage.getItem("placeItemCoordinates"));
-                    if (placeItemCoords.returnButton) {
-                        placeItemCoords.returnButton = false;
-                        window.sessionStorage.setItem("placeItemCoordinates", JSON.stringify(placeItemCoords));
-                        window.sessionStorage.removeItem("placeItemCoordinates");
-                        this.findShowedPlaceByGPS(placeItemCoords.lat, placeItemCoords.lon);
-                    }
-                }
-            });
+            }).fadeIn(750);
         });
     }
 
     public displayPlacesWithScheduleName(scheduleName: string) {
-        var ID = window.sessionStorage.getItem("currentProjectID");
+        var ID = this.mainPage.sideMenu.currentProjectID;
 
         $.getJSON("./Resources/Projects/project-" + ID + ".json", (projectData) => {
             this.clearList();
@@ -78,23 +56,11 @@
                     var tags = this.getTagCollectionOfPlace(placesCollection[i].name, projectData);
                     this.createPlacesListItem(placesCollection[i], tags);
                 }
-            })
-
-            $(this.root).fadeIn(1000, () => {
-                if (window.sessionStorage.getItem("placeItemCoordinates")) {
-                    var placeItemCoords = JSON.parse(window.sessionStorage.getItem("placeItemCoordinates"));
-                    if (placeItemCoords.returnButton) {
-                        placeItemCoords.returnButton = false;
-                        window.sessionStorage.setItem("placeItemCoordinates", JSON.stringify(placeItemCoords));
-                        window.sessionStorage.removeItem("placeItemCoordinates");
-                        this.findShowedPlaceByGPS(placeItemCoords.lat, placeItemCoords.lon);
-                    }
-                }
-            });
+            }).fadeIn(750);
         });
     }
 
-    private createPlacesListItem(place: any, tags: Array<any>) {
+    private createPlacesListItem(place: any, hashTags: Array<any>) {
         var listItem = $("<li>", { "class": "placesListItem" });
         var carousel = $("<div>", { "class": "slickContainer" })
         // Insert images to carousel
@@ -180,29 +146,21 @@
                     .append($("<div>", { "class": "ShowOnMapButton" }).text("Show on Map")
                         .click((evt) => {
                             var text = $(evt.currentTarget).find("~ span").text().replace("[", "").replace("]", "").replace(" ", "").split(",");
-                            var obj = {
-                                lat: text[0],
-                                lon: text[1],
-                                returnButton: false
-                            }
-                            window.sessionStorage.setItem("placeItemCoordinates", JSON.stringify(obj));
-                            window.location.href = "index.html";
+                            window.sessionStorage.removeItem("lastVisitedList");
+                            this.mainPage.showMap(parseFloat(text[0]), parseFloat(text[1]));
+                            this.mainPage.map.makeReturnOnItemButton(text[0], text[1]);
                         }))
                     .append($("<span>").text("[" + place.gps.lat.toFixed(3) + ", " + place.gps.lng.toFixed(3) + "]"))))
                 .append($("<div>", { "class": "InfoDescription" }).html(place.desc))
                 .append($("<div>", { "class": "InfoTags" }));
 
-        if (tags != null) {
-            for (var k = 0; k < tags.length; k++) {
+        if (hashTags != null) {
+            for (var k = 0; k < hashTags.length; k++) {
                 $(infoTab).find(".InfoTags")
-                    .append($("<a>", { "html": " #" + tags[k].name }).css({ "text-decoration": "underline", "margin": "0px 3px" })
+                    .append($("<a>", { "html": " #" + hashTags[k].name }).css({ "text-decoration": "underline", "margin": "0px 3px" })
                         .click((evt) => {
-                            var selectionObject = JSON.parse(window.sessionStorage.getItem("selections"));
-                            selectionObject.currentCollection = null;
-                            selectionObject.currentTag = $(evt.target).html().replace("#", '').trim();
-                            selectionObject.currentSchedule = null;
-                            window.sessionStorage.setItem("selections", JSON.stringify(selectionObject));
-                            window.location.href = "places.html";
+                            var hash = $(evt.target).html().replace("#", '').trim();
+                            this.mainPage.showPlacesByTag(hash);
                         }));
             }
         }
@@ -395,7 +353,7 @@
     }
 
     public searchLocationByCoords(latitude: number, longitude: number): Promise<any> {
-        var fetchURL = "https://search.mapzen.com/v1/reverse?" + "api_key=mapzen-eES7bmW&point.lat=" + latitude + "&point.lon=" + longitude + "&size=1";
+        var fetchURL = "https://search.mapzen.com/v1/reverse?" + "api_key=" + MainPage.mapzen_API_key +"&point.lat=" + latitude + "&point.lon=" + longitude + "&size=1";
 
         return new Promise((resolve, reject) => {
             $.getJSON(fetchURL, (locations) => {
@@ -414,7 +372,8 @@
         if (country) {
             fetchURL += "," + country;
         }
-        fetchURL += "&units=metric&appid=57cf72874229f081c28596f80a572323";
+        fetchURL += "&units=metric&appid=" + MainPage.openweather_API_key;
+        fetchURL = './proxy.php?' + "url=" + encodeURIComponent(fetchURL);
 
         return new Promise((resolve, reject) => {
             $.getJSON(fetchURL, (locations) => {
@@ -447,8 +406,11 @@
         for (var i = 0; i < InfoGPS.length; i++) {
             if ($(InfoGPS[i]).text().search(lat) > 0 && $(InfoGPS[i]).text().search(lon)) {
                 var item = $(InfoGPS[i]).parentsUntil("ul > li.placesListItem").parent(":eq(4)");
-                $(document.body).animate({ 'scrollTop': $(item).offset().top - 60 }, 1500, () => {
-                    $(item).addClass("blink-item-highlight");
+                $(document.body).animate({ 'scrollTop': $(item).offset().top - 60 }, 1250, () => {
+                    $(item).css("animation", "box-highlight 1.5s")
+                        .on("webkitAnimationEnd oanimationend msAnimationEnd animationend", (evt) => {
+                            $(evt.currentTarget).css("animation", "none");
+                        });
                 });
             }
         }

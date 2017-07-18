@@ -88,6 +88,7 @@
     private styleRoadsContext(shape: any, ctx: any, zoomLvL: number): void {
         ctx.lineWidth = 1.5;
         ctx.strokeStyle = "#ffffff";
+
         switch (shape.properties.kind) {
             case "aerialway": { ctx.strokeStyle = "#dedcd9"; break; };
             case "aeroway": { ctx.strokeStyle = "#dedcd9"; ctx.lineWidth = 2; break; };
@@ -115,14 +116,13 @@
             if (zoomLvL == 19) { ctx.lineWidth += 2; }
         }
 
-            ctx.lineWidth = ctx.lineWidth + 1;
-            ctx.strokeStyle = this.toneColor(ctx.strokeStyle, -70);
-            ctx.stroke();
-            ctx.setLineDash([0, 0]);
-            ctx.lineWidth = ctx.lineWidth - 1;
-            ctx.strokeStyle = this.toneColor(ctx.strokeStyle, 70);
-            ctx.stroke();
-        
+        ctx.lineWidth = ctx.lineWidth + 1;
+        ctx.strokeStyle = this.toneColor(ctx.strokeStyle, -70);
+        ctx.stroke();
+        ctx.setLineDash([0, 0]);
+        ctx.lineWidth = ctx.lineWidth - 1;
+        ctx.strokeStyle = this.toneColor(ctx.strokeStyle, 70);
+        ctx.stroke();
     }
 
     private styleBuildingContext(shape: any, ctx: any, zoomLvL: number = 0, posX: number = 0, posY: number = 0): void {
@@ -355,7 +355,7 @@
     }
 
     private stylePlacesContext(shape: any, ctx: any, zoomLvL: number, posX: number, posY: number): void {
-        ctx.fillStyle = '#333333';
+        ctx.fillStyle = '#414141';
         ctx.textAlign = "center";
         ctx.lineWidth = 1;
         
@@ -368,19 +368,24 @@
                     ctx.fillText(shape.properties.name, posX, posY);
                 }
                 if (13 <= zoomLvL && shape.properties.kind_detail == "village") {
-                    if (zoomLvL == 14) { ctx.font = "bolder 10px Arial"; }
-                    if (zoomLvL == 15) { ctx.font = "bolder 9px Arial"; }
+                    if (zoomLvL == 14) { ctx.font = "bold 10px Arial"; }
+                    if (zoomLvL == 15) { ctx.font = "bold 9px Arial"; }
                     else { ctx.font = "bolder 11px Arial"; }
                     ctx.fillText(shape.properties.name, posX, posY);
                 }
                 if (12 <= zoomLvL && zoomLvL <= 14 && shape.properties.kind_detail == "town") {
-                    if (zoomLvL == 10) { ctx.font = "bolder 9px Arial"; }
+                    if (zoomLvL == 10) { ctx.font = "bold 9px Arial"; }
                     else if (zoomLvL == 12) { ctx.font = "bolder 11px Arial"; }
                     else { ctx.font = "bolder 12px Arial"; }
                     ctx.fillText(shape.properties.name, posX, posY);
                 }
                 if (13 <= zoomLvL && shape.properties.kind_detail == "hamlet") {
-                    ctx.font = "bolder 11px Arial";
+                    if (zoomLvL == 13) { ctx.font = "bolder 9px Arial"; } 
+                    else if (zoomLvL == 14) { ctx.font = "bolder 10px Arial"; } 
+                    else if (zoomLvL == 15) { ctx.font = "bolder 11px Arial"; } 
+                    else {
+                        ctx.font = "bolder 12px Arial"; 
+                    }
                     ctx.fillText(shape.properties.name, posX, posY);
                 }
                 if (8 <= zoomLvL && zoomLvL <= 16 && shape.properties.kind_detail == "city") {

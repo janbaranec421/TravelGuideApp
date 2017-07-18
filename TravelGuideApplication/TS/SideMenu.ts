@@ -2,12 +2,27 @@
     public root: JQuery;
     public isAnimationFinished: boolean;
     public isOpen: boolean;
+    public mainPage: MainPage;
 
-    constructor() {
+    private _lastChoosenCollectionName: string;
+    get lastChoosenCollectionName(): string {
+        return this._lastChoosenCollectionName;
+    }
+
+    private _currentProjectID: number;
+    get currentProjectID(): number {
+        return this._currentProjectID;
+    }
+
+
+    constructor(page: MainPage) {
+        this.mainPage = page;
         this.root = $("#sideMenu").attr("left", "-250px");
 
         if (this.root == null)
-            console.log("Failure: Element with ID \"sideMenu\" not found!")  
+            console.log("Failure: Element with ID \"sideMenu\" not found!")
+
+        this._currentProjectID = parseInt(window.localStorage.getItem("lastChoosenProjectID"));
 
         // Selected project
         $(this.root).append($("<div>").css({
@@ -74,15 +89,9 @@
                         {
                             if (data.projects[j].name == name) {
                                 this.loadProjectFromJSON(data.projects[j].id);
+                                this._currentProjectID = data.projects[j].id;
                                 $("#projectsSubMenu").stop(true, true).slideUp(300);
                                 $("#projects-more-icon").fadeIn(100);
-
-                                let selectionObject = JSON.parse(window.sessionStorage.getItem("selections"));
-                                selectionObject.currentProjectID = data.projects[j].id;
-                                window.sessionStorage.setItem("selections", JSON.stringify(selectionObject));
-                                if (!(window.location.href.indexOf("index.html") >= -1)) {
-                                    window.location.reload(false);
-                                }
                             }
                         }
                     }));
@@ -91,12 +100,10 @@
 
         $(".sideMenuButton > a:contains('Map')").parent()
             .on('click', () => {
-            window.location.href = "index.html";
-        })
-        $(".sideMenuButton > a:contains('Schedules')").parent()
-            .on('click', () => {
-            window.location.href = "schedules.html";
-        })
+                this.showMenu(false);
+                this.mainPage.showMap()
+                window.sessionStorage.removeItem("lastVisitedList");
+            })
 
         // Hide button's SubMenu + More marker on button click
         $(".sideMenuButton > a:contains('Projects')").parent()
@@ -117,40 +124,44 @@
         });
         $(".sideMenuButton > a:contains('Tags')").parent().on('click', () => {
             $("#tagsSubMenu").stop(true, true).slideToggle(300, () => {
-                $("#tagsSubMenu").css("display") == "none" && $("#tagsSubMenu").children().length > 0?
+                $("#tagsSubMenu").css("display") == "none" && $("#tagsSubMenu").children().length > 0 ?
                     $("#tags-more-icon").stop(true, true).fadeIn(100)
                     : $("#tags-more-icon").stop(true, true).fadeOut(100);
             });
         });
 
-        if (window.sessionStorage.getItem("selections") != null) {
-            let selectionObject = JSON.parse(window.sessionStorage.getItem("selections"));
-            if (selectionObject.currentProjectID != null) {
-                this.loadProjectFromJSON(selectionObject.currentProjectID);
-            }
-        }
-
-        if (window.sessionStorage.getItem("selections") == null) {
-            let selectionObject = {
-                currentProjectID: null,
-                currentTag: null,
-                currentCollection: null,
-                currentSchedule: null
-            }
-            window.sessionStorage.setItem("selections", JSON.stringify(selectionObject));
-        }
-        
         this.isAnimationFinished = true;
         this.isOpen = false;
         // Initially set first project as selected
         $.getJSON("./Resources/Projects/projects.json", (data) => {
-            this.loadProjectFromJSON(data.projects[0].id);
+            var ID = parseInt(window.localStorage.getItem("lastChoosenProjectID"));
+            if (ID) {
+                this._currentProjectID = ID;
+                this.loadProjectFromJSON(ID);
+            }
+            else {
+                this._currentProjectID = data.projects[0].id;
+                this.loadProjectFromJSON(data.projects[0].id);
+            }
+
+            $(".sideMenuButton > a:contains('Schedules')").parent()
+                .on('click', () => {
+                    this.showMenu(false);
+                    this.mainPage.showSchedules();
+                    var obj = {
+                        ID: this._currentProjectID,
+                        selectorType: "schedule",
+                        selectorValue: null
+                    }
+                    window.sessionStorage.setItem("lastVisitedList", JSON.stringify(obj));
+                })
         });
     }
 
     public loadProjectFromJSON(ID: number) {
         $.getJSON("./Resources/Projects/project-" + ID + ".json", (projectData) => {
-            window.sessionStorage.setItem("currentProjectID", ID.toString());
+            this._currentProjectID = ID;
+            window.localStorage.setItem("lastChoosenProjectID", ID.toString());
 
             $("#selectedProject").fadeOut(300, () => {
                 $("#selectedProject").html(projectData.name).fadeIn(300);
@@ -166,12 +177,17 @@
                             .html(projectData.collections[j].name)
                             .on("click", (evt: JQueryEventObject) => {
                                 evt.preventDefault();
-                                var selectionObject = JSON.parse(window.sessionStorage.getItem("selections"));
-                                selectionObject.currentCollection = (<HTMLElement>evt.currentTarget).innerHTML;
-                                selectionObject.currentTag = null;
-                                selectionObject.currentSchedule = null;
-                                window.sessionStorage.setItem("selections", JSON.stringify(selectionObject));
-                                window.location.href = "places.html";
+                                var collectionName = $(evt.currentTarget).text();
+                                if (collectionName) {
+                                    this.showMenu(false);
+                                    this.mainPage.showPlacesByCollection(collectionName);
+                                    var obj = {
+                                        ID: ID,
+                                        selectorType: "collection",
+                                        selectorValue: collectionName
+                                    }
+                                    window.sessionStorage.setItem("lastVisitedList", JSON.stringify(obj));
+                                }
                             }));
                     }
                     $("#collectionsSubMenu").slideDown(300, () => {
@@ -194,12 +210,17 @@
                             .html(projectData.labels[j].name)
                             .on("click", (evt) => {
                                 evt.preventDefault();
-                                var selectionObject = JSON.parse(window.sessionStorage.getItem("selections"));
-                                selectionObject.currentCollection = null;
-                                selectionObject.currentSchedule = null;
-                                selectionObject.currentTag = (<HTMLElement>evt.currentTarget).innerHTML;
-                                window.sessionStorage.setItem("selections", JSON.stringify(selectionObject));
-                                window.location.href = "places.html";
+                                var tag = $(evt.currentTarget).text();
+                                if (tag) {
+                                    this.showMenu(false);
+                                    this.mainPage.showPlacesByTag(tag);
+                                    var obj = {
+                                        ID: ID,
+                                        selectorType: "tag",
+                                        selectorValue: tag
+                                    }
+                                    window.sessionStorage.setItem("lastVisitedList", JSON.stringify(obj));
+                                }
                             }));
                     }
                     $("#tagsSubMenu").slideDown(300, () => {

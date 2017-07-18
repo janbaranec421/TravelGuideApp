@@ -8,6 +8,10 @@ class MainPage {
     public map: Map;
     public searchPanel: MapSearchingPanel;
     public db: Database;
+    public scheduleList: ScheduleList;
+    public placesList: PlacesList;
+
+    public crumbsLocation: string[];
 
     public touchXstart: number;
     public touchYstart: number;
@@ -21,6 +25,9 @@ class MainPage {
     public lastTouchPositionX: number = 0;
     public lastTouchPositionY: number = 0;
 
+    static mapzen_API_key = "mapzen-eES7bmW";
+    static openweather_API_key = "57cf72874229f081c28596f80a572323";
+
     // Ostrava - Poruba
     // 49.828526
     // 18.173270
@@ -29,8 +36,8 @@ class MainPage {
     // 48.1492400
     // 17.1070000
 
-    public latitude: number;
-    public longitude: number;
+    public latitude: number = 49.833683;
+    public longitude: number = 18.163609;
     public _zoomLvl: number = 15;
 
     get zoomLvl(): any {
@@ -45,45 +52,40 @@ class MainPage {
     public layers: Layer = Layer.Boundaries | Layer.Roads | Layer.Buildings | Layer.Earth | Layer.Landuse | Layer.Water | Layer.Places | Layer.Pois;
 
     constructor() {
-        this.sideMenu = new SideMenu();
-        this.topMenu = new TopMenu(this.sideMenu);
-        this.map = new Map();
+        this.sideMenu = new SideMenu(this);
+        this.topMenu = new TopMenu(this, this.sideMenu);
+        this.scheduleList = new ScheduleList(this);
+        this.placesList = new PlacesList(this);
+        this.map = new Map(this);
         this.searchPanel = new MapSearchingPanel(this.map);
         this.map.setMapSearchingPanel(this.searchPanel);
 
-        this.topMenu.setNavigationPath([
-            { txt: "Home", href: "index.html" }
-        ]);
+        this.crumbsLocation = ["Home"];
+        this.topMenu.setNavigationPath(this.crumbsLocation);
+
 
         this.db = new Database();
         this.db.initializeDB()
             .then((value) => {
                 this.map.database = this.db;
 
-                if (window.sessionStorage.getItem("lastMapCoords")){
-                    var coords = JSON.parse(window.sessionStorage.getItem("lastMapCoords"));
-                    this.latitude = parseFloat(coords.latitude);
-                    this.longitude = parseFloat(coords.longitude);
-                    this.zoomLvl = parseInt(coords.zoom);
+                var lastMapCoords = JSON.parse(window.sessionStorage.getItem("lastMapCoords"));
+                if (lastMapCoords) {
+                    this.latitude = lastMapCoords.latitude;
+                    this.longitude = lastMapCoords.longitude;
+                    this.zoomLvl = lastMapCoords.zoom;
                 }
-                if (window.sessionStorage.getItem("placeItemCoordinates")) {
-                    var placeItemCoords = JSON.parse(window.sessionStorage.getItem("placeItemCoordinates"));
-                    this.latitude = parseFloat(placeItemCoords.lat);
-                    this.longitude = parseFloat(placeItemCoords.lon);
-                    this.zoomLvl = 15;
-                    this.map.makeReturnOnItemButton();
-                }
-                else {
-                    this.map.removeReturnOnItemButton();
-                }
-                if (!this.latitude && !this.longitude) {
-                    this.latitude = 49.833683;
-                    this.longitude = 18.163609;
-                    this.zoomLvl = 15;
-                }
+
                 this.map.displayPlace(this.latitude, this.longitude, this.zoomLvl, this.layers, true);
                 window.addEventListener('resize', this.adjustMapToViewport.bind(this), false);
                 this.adjustMapToViewport();
+
+                var lastVisitedList = JSON.parse(window.sessionStorage.getItem("lastVisitedList"));
+                if (lastVisitedList) {
+                    if (lastVisitedList.selectorType == "collection") { this.showPlacesByCollection(lastVisitedList.selectorValue); }
+                    if (lastVisitedList.selectorType == "schedule") { this.showSchedules(); }
+                    if (lastVisitedList.selectorType == "tag") { this.showPlacesByTag(lastVisitedList.selectorValue); }
+                }
             })
             .catch((err) => {
                 console.log(err);
@@ -100,7 +102,7 @@ class MainPage {
         pageContent.addEventListener('touchstart', this.HandleTouchStart.bind(this), false);
         pageContent.addEventListener('touchend', this.HandleTouchEnd.bind(this), false);
 
-        $(window).bind('beforeunload', () => {
+        $(window).on("beforeunload ", () => {
             var obj = this.map.getCoordinatesAtCenter();
             this.zoomLvl = this.map.currentZoom;
             var item = {
@@ -110,6 +112,70 @@ class MainPage {
             }
             window.sessionStorage.setItem("lastMapCoords", JSON.stringify(item));
         });
+    }
+
+    public showMap(lat: number = null, lon: number = null) {
+        $("#mapContent").css({ "display": "block" });
+        $("#scheduleList").css({ "display": "none" });
+        $("#placesList").css({ "display": "none" });
+
+        this.crumbsLocation = ["Home"];
+        this.topMenu.setNavigationPath(this.crumbsLocation);
+        this.adjustMapToViewport();
+
+        if (lat && lon) {
+            this.latitude = lat;
+            this.longitude = lon;
+            this.zoomLvl = 15;
+            this.map.clearPlaceMark();
+            this.map.displayPlace(this.latitude, this.longitude, this.zoomLvl, this.layers, true);
+        }
+    }
+
+    public showSchedules() {
+        $("#mapContent").css({ "display": "none" });
+        $("#scheduleList").css({ "display": "block" });
+        $("#placesList").css({ "display": "none" });
+
+        this.crumbsLocation = ["Home", "Schedules"];
+        this.topMenu.setNavigationPath(this.crumbsLocation);
+        this.scheduleList.displaySchedulesByProjectID(this.sideMenu.currentProjectID);
+    }
+
+    public showPlaces() {
+        $("#mapContent").css({ "display": "none" });
+        $("#scheduleList").css({ "display": "none" });
+        $("#placesList").css({ "display": "block" });
+    }
+
+    public showPlacesByCollection(collection: string) {
+        $("#mapContent").css({ "display": "none" });
+        $("#scheduleList").css({ "display": "none" });
+        $("#placesList").css({ "display": "block" });
+
+        this.crumbsLocation = ["Home", "Collection (" + collection + ")"];
+        this.topMenu.setNavigationPath(this.crumbsLocation);
+        this.placesList.displayPlacesWithCollectionName(collection);
+    }
+
+    public showPlacesByTag(tag: string) {
+        $("#mapContent").css({ "display": "none" });
+        $("#scheduleList").css({ "display": "none" });
+        $("#placesList").css({ "display": "block" });
+
+        this.crumbsLocation = ["Home", "Tag (" + tag + ")"];
+        this.topMenu.setNavigationPath(this.crumbsLocation);
+        this.placesList.displayPlacesWithTagName(tag);
+    }
+
+    public showPlacesBySchedule(schedule: string) {
+        $("#mapContent").css({ "display": "none" });
+        $("#scheduleList").css({ "display": "none" });
+        $("#placesList").css({ "display": "block" });
+
+        this.crumbsLocation = ["Home", "Schedules", schedule ];
+        this.topMenu.setNavigationPath(this.crumbsLocation);
+        this.placesList.displayPlacesWithScheduleName(schedule);
     }
 
     private HandleTouchStart(evt): void {

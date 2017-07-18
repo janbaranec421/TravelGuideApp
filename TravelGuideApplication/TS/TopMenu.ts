@@ -1,8 +1,10 @@
 ﻿class TopMenu {
     private root: JQuery;
+    private mainPage: MainPage;
 
-    constructor(sideMenu: SideMenu) {
+    constructor(page: MainPage, sideMenu: SideMenu) {
         this.root = $("#topMenu");
+        this.mainPage = page;
 
         $(this.root)
             .append($("<ul>", { "class": "topMenuList" })
@@ -30,8 +32,27 @@
 
         for (var i = 0; i < nodes.length; i++)
         {
-            (nodes[i].href != null)  ? crumbList.append($("<a>", { "class": "breadcrumbListItem", "href": nodes[i].href }).text(nodes[i].txt))
-                                     : crumbList.append($("<a>", { "class": "breadcrumbListItem" }).text(nodes[i].txt));
+            var item = $("<a>", { "class": "breadcrumbListItem" }).text(nodes[i]);
+            // If node isnt last in trail and it also isnt single one
+            // then add click event to go back in crumb trail
+            if (!(i == (nodes.length - 1)) || nodes.length == 1) {
+                item.click((evt) => {
+                    if ($(evt.currentTarget).text().search("Home") >= 0) {
+                        this.mainPage.showMap();
+                    }
+                    else if ($(evt.currentTarget).text().search("Collections") >= 0) {
+                        this.mainPage.showPlaces();
+                    }
+                    else if ($(evt.currentTarget).text().search("Tags") >= 0) {
+                        this.mainPage.showPlaces();
+                    }
+                    else if ($(evt.currentTarget).text().search("Schedules") >= 0) {
+                        this.mainPage.showSchedules();
+                    }
+                }).css({ "text-decoration": "underline" });
+            }
+            crumbList.append(item);
+
             if (i < (nodes.length - 1)) {
                 crumbList.append($("<span>").text(">"))
             }

@@ -1,18 +1,20 @@
 ﻿class ScheduleList {
     private root: JQuery
+    public mainPage: MainPage;
 
-    constructor() {
+    constructor(page: MainPage) {
+        this.mainPage = page;
         this.root = $("#scheduleList")
             .append($("<ul>"));
     }
 
-    public addSchedules() {
-        var ID = window.sessionStorage.getItem("currentProjectID");
+    public displaySchedulesByProjectID(projectID: number) {
+        var ID = this.mainPage.sideMenu.currentProjectID;
 
         $.getJSON("./Resources/Projects/project-" + ID + ".json", (projectData) => {
-            $("#scheduleListHeader-project").html("Project: " + projectData.name);
+            this.clearScheduleList();
 
-            $(this.root).children().fadeOut(700, () =>
+            $(this.root).children().fadeOut(10, () =>
             {
                 if (projectData.schedule != null)
                 {
@@ -57,13 +59,8 @@
                                 .append($("<td>")
                                     .append($("<button>").text("Detailed Info")
                                         .click((evt) => {
-                                            var value = $(evt.currentTarget).parent().parent().siblings("#scheduleListItemFirstRow").children("td").children("div").text();
-                                            var selections = JSON.parse(window.sessionStorage.getItem("selections"));
-                                            selections.currentSchedule = value;
-                                            selections.currentTag = null;
-                                            selections.currentCollection = null;
-                                            window.sessionStorage.setItem("selections", JSON.stringify(selections));
-                                            window.location.href = "places.html";
+                                            var scheduleName = $(evt.currentTarget).parent().parent().siblings("#scheduleListItemFirstRow").children("td").children("div").text();
+                                            this.mainPage.showPlacesBySchedule(scheduleName);
                                         })));
 
                             // Put all row into Card
@@ -83,8 +80,12 @@
                     $("#scheduleListHeader > ul")
                         .append($("<li>", { "class": "emptyList" }).html("< There aren't any schedules yet >"));
                 }
-                $(this.root).children().fadeIn(1000);
+                $(this.root).children().fadeIn(500);
             })
         })
+    }
+
+    public clearScheduleList() {
+        $(".scheduleListItem").remove();
     }
 }

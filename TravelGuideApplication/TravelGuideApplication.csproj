@@ -24,13 +24,14 @@
   <ItemGroup>
     <Content Include="CSS\CSS.css" />
     <Content Include="index.html" />
-    <Content Include="places.html" />
     <Content Include="packages.config" />
+    <Content Include="readme.txt" />
     <Content Include="Resources\bicycle.png" />
     <Content Include="Resources\car.png" />
     <Content Include="Resources\clock.png" />
     <Content Include="Resources\collections.png" />
     <Content Include="Resources\delete.png" />
+    <Content Include="Resources\favicon.png" />
     <Content Include="Resources\forecast\01d.png" />
     <Content Include="Resources\forecast\01n.png" />
     <Content Include="Resources\forecast\02d.png" />
@@ -62,7 +63,6 @@
     <Content Include="Resources\schedules.png" />
     <Content Include="Resources\search.png" />
     <Content Include="Resources\tags.png" />
-    <Content Include="schedules.html" />
     <Content Include="Resources\fonts\Roboto\Roboto-Light.ttf" />
     <Content Include="Resources\fonts\Roboto\Roboto-LightItalic.ttf" />
     <Content Include="Resources\fonts\Roboto\Roboto-Regular.ttf" />
@@ -91,15 +91,16 @@
     <TypeScriptCompile Include="TS\MapStyler.ts" />
     <TypeScriptCompile Include="TS\MapTile.ts" />
     <TypeScriptCompile Include="TS\PlacesList.ts" />
-    <TypeScriptCompile Include="TS\PlacesPage.ts" />
     <TypeScriptCompile Include="TS\ScheduleList.ts" />
-    <TypeScriptCompile Include="TS\SchedulePage.ts" />
     <TypeScriptCompile Include="TS\SideMenu.ts" />
     <TypeScriptCompile Include="TS\TopMenu.ts" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Scripts\jquery-3.1.1.slim.min.map" />
     <Content Include="Scripts\jquery-3.1.1.min.map" />
+    <Content Include="proxy.php">
+      <SubType>Designer</SubType>
+    </Content>
     <None Include="web.Debug.config">
       <DependentUpon>web.config</DependentUpon>
     </None>

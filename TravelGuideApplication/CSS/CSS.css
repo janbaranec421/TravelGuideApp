@@ -730,7 +730,7 @@ div.detailedInfoSegment {
     margin: 1px 1%;
     overflow: hidden;
     overflow-y: scroll;
-    max-height: calc(100% - 25px);
+    max-height: calc(100% - 50px);
 }
 #forecastList > table {
     width: 100%;
@@ -903,12 +903,15 @@ div.detailedInfoSegment {
     top: calc(100% - 45px);
     left: calc(50% - 65px);
     outline: 0px solid #FF9800;
-    animation: returnButton-highlight 5s;
+    animation: returnButton-highlight 1.75s;
 }
 @keyframes returnButton-highlight {
-    0%  { box-shadow: 0px 0px 3px 1px #FF9507; }
-    50%  { box-shadow: 0px 0px 3px 1px #A59666; }
-    100% { box-shadow: 0px 0px 3px 1px #827c7c; } 
+    0%  { box-shadow: 0px 0px 5px 3px #FFC507; }
+    20%  { box-shadow: 0px 0px 4px 3px #827c7c; }
+    40%  { box-shadow: 0px 0px 4px 3px #FFC507; }
+    60%  { box-shadow: 0px 0px 4px 3px #827c7c; }
+    80%  { box-shadow: 0px 0px 4px 3px #FFC507; }
+    100% { box-shadow: 0px 0px 3px 2px #827c7c; } 
 }
 
 @keyframes box-highlight {
@@ -917,11 +920,17 @@ div.detailedInfoSegment {
     100% { box-shadow: 0 5px 5px -3px rgba(0,0,0,0.14), 0 3px 14px 2px rgba(0,0,0,0.12), 0 5px 5px -3px rgba(0,0,0,0.3); } 
 }
 
-
 @keyframes routePoint-highlight {
     0% { background: #f1f1f1}
     40% { background: #E4BDC0; }
     100% { background: #f1f1f1}
+}
+
+@keyframes routeLimit-highlight {
+    0% { color: black}
+    20% { color: red}
+    80% { color: red}
+    100% { color: black}
 }
 
 .blink-item-highlight {
@@ -930,4 +939,17 @@ div.detailedInfoSegment {
 
 .routePoint-highlight {
     animation: routePoint-highlight 2s;
+}
+
+.routeLimit-highlight {
+    animation: routeLimit-highlight 2s;
+}
+
+#weatherLocalityTitle {
+    width: 95%;
+    padding: 0px 5px;
+    margin-bottom: 10px;
+    font-size: large;
+    display: block;
+    border-bottom: 1px solid #bcc0c3;
 }

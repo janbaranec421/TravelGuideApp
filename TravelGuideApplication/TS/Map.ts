@@ -3,6 +3,7 @@
     private canvas: HTMLCanvasElement;
     private context: CanvasRenderingContext2D;
 
+    public mainPage: MainPage;
     public database: Database;
     private mapStyler: MapStyler;
     private mapPanel: MapSearchingPanel;
@@ -41,7 +42,8 @@
     }
 
 
-    constructor(tileWidth: number = 200, tileHeight: number = 200, mapWidth: number = 700, mapHeight = 700) {
+    constructor(page: MainPage, tileWidth: number = 200, tileHeight: number = 200, mapWidth: number = 700, mapHeight = 700) {
+        this.mainPage = page;
         this.root = $("#map");
 
         if (this.root == null)
@@ -96,8 +98,6 @@
         this.mapHeight = mapHeight;
         this.tileWidth = tileWidth;
         this.tileHeight = tileHeight;
-
-        this.makeReturnOnItemButton();
     }
 
     public setMapDimensions(mapWidth: number, mapHeight: number) {
@@ -164,10 +164,10 @@
         }
         this.drawPath(this.currentRoute);
         this.redrawAllMarks();
-        this.updateMap();
+        this.updateTiles();
     }
 
-    private updateMap() {
+    private updateTiles() {
         // Loop collection to find placeholders
         for (var i = 0; i < this.mapData.length; i++) {
             // If tile is placeholder
@@ -313,7 +313,7 @@
     }
 
     private fetchTile(x: number, y: number, z: number, argX: number, argY: number, callback: Function): void {
-        var fetchURL = "https://tile.mapzen.com/mapzen/vector/v1/all/" + z + "/" + x + "/" + y + ".json?api_key=mapzen-eES7bmW";
+        var fetchURL = "https://tile.mapzen.com/mapzen/vector/v1/all/" + z + "/" + x + "/" + y + ".json?api_key=" + MainPage.mapzen_API_key;
 
         $.getJSON(fetchURL)
             .done((data) => {
@@ -331,7 +331,7 @@
             fetchURL += "{\"lat\":" + points[i].lat + ", " + "\"lon\":" + points[i].lon + "}";
             (i + 1 == points.length) ? fetchURL += "]," : fetchURL += ",";
         }
-        fetchURL += "\"costing\":\"" + travelType + "\", \"units\":\"mi\"}&api_key=mapzen-eES7bmW";
+        fetchURL += "\"costing\":\"" + travelType + "\", \"units\":\"mi\"}&api_key=" + MainPage.mapzen_API_key;
 
         $.getJSON(fetchURL)
             .then((routeObject) => {
@@ -352,8 +352,12 @@
                 $(".routeDetailInfo").text("Distance: " + routeObject.trip.summary.length.toFixed(1) + " " + units + ", " + "Time: " + timeString);
                 this.drawPath(route);
             })
-            .fail((fail) => {
-                $(".routeDetailInfo").text("Path length limit is 200km");
+            .fail((fail, textStatus, error) => {
+                var txt = (error == "Bad Request" ? "Path length limit exceeded" : "Too many requests in short period");
+                $(".routeDetailInfo").text(txt).css("animation", "routeLimit-highlight 2s")
+                    .on("webkitAnimationEnd oanimationend msAnimationEnd animationend", (evt) => {
+                        $(evt.currentTarget).css("animation", "none");
+                    });
             })
     }
 
@@ -677,7 +681,7 @@
                 }
             }
         }
-        context.strokeStyle = '#ff0000';
+        context.strokeStyle = '#FF4949';
         context.lineWidth = 3;
         context.stroke();
         context.lineWidth = 2;
@@ -1152,16 +1156,13 @@
         return false;
     }
 
-    public makeReturnOnItemButton() {
+    public makeReturnOnItemButton(lat: string, lon: string) {
         $(this.root)
             .append($("<button>", { "id": "returnOnItemButton" }).text("Return to project")
                 .click((evt) => {
-                    if (window.sessionStorage.getItem("placeItemCoordinates")) {
-                        var obj = JSON.parse(window.sessionStorage.getItem("placeItemCoordinates"));
-                        obj.returnButton = true;
-                        window.sessionStorage.setItem("placeItemCoordinates", JSON.stringify(obj));
-                        window.location.href = "places.html";
-                    }
+                    this.removeReturnOnItemButton();
+                    this.mainPage.showPlaces();
+                    this.mainPage.placesList.findShowedPlaceByGPS(lat, lon);
                 }).addClass("returnButton-highlight"));
     }
 

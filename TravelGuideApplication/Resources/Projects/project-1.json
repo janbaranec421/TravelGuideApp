@@ -33,7 +33,7 @@
       "photos": [
         "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/2014_Ostrawa%2C_Nowy_Ratusz_10.jpg/800px-2014_Ostrawa%2C_Nowy_Ratusz_10.jpg",
         "http://itras.cz/fotogalerie/nova-radnice-ostrava/velke/nova-radnice-ostrava-ilona-hromadkova-001.jpg",
-        "http://orig09.deviantart.net/a1e3/f/2012/356/1/3/chrostmas_in_ostrava_by_dorcadion-d5orwbu.jpg"
+        "https://orig09.deviantart.net/a1e3/f/2012/356/1/3/chrostmas_in_ostrava_by_dorcadion-d5orwbu.jpg"
       ],
       "labels": [ 3 ],
       "requiredTime": 45,
@@ -50,7 +50,7 @@
       },
       "photos": [
         "http://2015.ostravskamuzejninoc.cz/wp-content/uploads/2015/05/01_dov.jpg",
-        "http://cdn.i0.cz/src/public-data/ac/bd/de9925de3c8bb6475a8ddf6db402_base_optimal.jpg"
+        "https://cdn.i0.cz/src/public-data/ac/bd/de9925de3c8bb6475a8ddf6db402_base_optimal.jpg"
       ],
       "labels": [ 3 ],
       "requiredTime": 75,
@@ -61,8 +61,8 @@
       "name": "Stodolní Street",
       "desc": "Ulica v centre Ostravy. Je preslávená nočným životom. Obsahuje desiatky barov, reštaurácií a klubov.",
       "gps": {
-        "lat": 49.818701,
-        "lng": 18.279491
+        "lat": 49.835526,
+        "lng": 18.283680
       },
       "photos": [
         "http://www.tomwal.borec.cz/stodol2.jpg",
@@ -133,7 +133,7 @@
       },
       "photos": [
         "https://media.novinky.cz/312/163123-top_foto1-6trgo.jpg?1271835001",
-        "http://1gr.cz/fotky/idnes/11/033/cl6/JB39ef6f_profimedia_0000696122.jpg",
+        "https://1gr.cz/fotky/idnes/11/033/cl6/JB39ef6f_profimedia_0000696122.jpg",
         "http://www.joutrip.com/i/p/prague-astronomical-clock-2.jpg"
       ],
       "labels": [ 3, 4 ],

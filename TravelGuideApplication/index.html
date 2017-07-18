@@ -2,22 +2,32 @@
 <html>
 <head>
     <title> Travel Guide Application </title>
-	<meta charset="utf-8" />
+    <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
+    <link rel="icon" type="image/png" href="Resources/favicon.png" >
     <link rel="stylesheet" href="CSS/CSS.css" />
+    <link rel="stylesheet" type="text/css" href="Scripts/Slick/Slick/slick.css" />
+    <link rel="stylesheet" type="text/css" href="Scripts/Slick/Slick/slick-theme.css" />
+
+    <?PHP include 'proxy.php' ?>
+
     <script type="text/javascript" src="Scripts/promise-7.0.4.min.js"></script>
     <script type="text/javascript" src="Scripts/jquery-3.1.1.js"></script>
+    <script type="text/javascript" src="Scripts/Slick/slick.min.js"></script>
     <script type="text/javascript" src="TS/Converter.js"></script>
     <script type="text/javascript" src="TS/Layer.js"></script>
     <script type="text/javascript" src="TS/SideMenu.js"></script>
     <script type="text/javascript" src="TS/TopMenu.js"></script>
+    <script type="text/javascript" src="TS/ScheduleList.js"></script>
+    <script type="text/javascript" src="TS/PlacesList.js"></script>
     <script type="text/javascript" src="TS/Database.js"></script>
     <script type="text/javascript" src="TS/MapSearchingPanel.js"></script>
     <script type="text/javascript" src="TS/MapTile.js"></script>
     <script type="text/javascript" src="TS/MapStyler.js"></script>
     <script type="text/javascript" src="TS/Map.js"></script>
-    <script type="text/javascript" src="TS/MainPage.js"></script>
+    <script type="text/javascript" src="TS/MainPage.js"></script> 
+
 </head>
 <body>
     <div id="topMenu"></div>
@@ -27,6 +37,8 @@
             <div id="map"></div>
             <div id="mapPanel"></div>
         </div>
+        <div id="scheduleList"></div>
+        <div id="placesList"></div>
     </div>
 </body>
 </html>

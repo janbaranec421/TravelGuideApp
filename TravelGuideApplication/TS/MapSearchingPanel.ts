@@ -38,7 +38,7 @@
                             "width": "20px",
                             "vertical-align": "middle"
                         }))
-            ))
+                ))
 
         var forecastList = ($("<ul>", { "id": "forecastList" }));
         var detailedInfoPart = $("<li>", { "class": "mapPanelContentItem" }).css({ "height": "calc(100% - 46px)" })
@@ -81,6 +81,7 @@
                         }))))
             .append($("<ul>", { "id": "weatherCard" })
                 .append($("<li>").css({ "height": "calc(100% - 30px)", "margin": "0% 2%", "padding": "15px 5px" })
+                    .append($("<span>", { "id": "weatherLocalityTitle" }))
                     .append($("<button>", { "id": "weatherButton" }).text("Weather")
                         .on("click", () => {
                             $("#forecastList").css("display", "none");
@@ -342,7 +343,7 @@
     }
 
     public searchLocationByName(place: string, focusLat: number = null, focusLon: number = null): Promise<any> {
-        var fetchURL = "https://search.mapzen.com/v1/search?" + "api_key=mapzen-eES7bmW&text=" + place + "&size=1";
+        var fetchURL = "https://search.mapzen.com/v1/search?" + "api_key=" + MainPage.mapzen_API_key + "&text=" + place + "&size=1";
         if (focusLat & focusLon) {
             fetchURL += "&focus.point.lat=" + focusLat + "&focus.point.lon=" + focusLon;
         }
@@ -360,7 +361,7 @@
     }
 
     public searchLocationByCoords(latitude: number, longitude: number): Promise<any> {
-        var fetchURL = "https://search.mapzen.com/v1/reverse?" + "api_key=mapzen-eES7bmW&point.lat=" + latitude + "&point.lon=" + longitude + "&size=1";
+        var fetchURL = "https://search.mapzen.com/v1/reverse?" + "api_key=" + MainPage.mapzen_API_key + "&point.lat=" + latitude + "&point.lon=" + longitude + "&size=1";
 
         return new Promise((resolve, reject) => {
             $.getJSON(fetchURL, (locations) => {
@@ -375,7 +376,7 @@
     }
 
     private fetchSuggestions(place: string, focusLat: number = 0, focusLon: number = 0): Promise<any> {
-        var fetchURL = "https://search.mapzen.com/v1/autocomplete?api_key=mapzen-eES7bmW&layers=locality&";
+        var fetchURL = "https://search.mapzen.com/v1/autocomplete?api_key=" + MainPage.mapzen_API_key + "&layers=locality&";
 
         if (focusLat > 0 && focusLon > 0) {
             fetchURL += "focus.point.lat=" + focusLat.toFixed(3) + "&focus.point.lon=" + focusLon.toFixed(3);
@@ -399,7 +400,8 @@
         if (country) {
             fetchURL += "," + country;
         }
-        fetchURL += "&units=metric&appid=57cf72874229f081c28596f80a572323";
+        fetchURL += "&units=metric&appid=" + MainPage.openweather_API_key;
+        fetchURL = './proxy.php?' + "url=" + encodeURIComponent(fetchURL);
 
         return new Promise((resolve, reject) => {
             $.getJSON(fetchURL, (locations) => {
@@ -413,7 +415,8 @@
         if (country) {
             fetchURL += "," + country;
         }
-        fetchURL += "&units=metric&appid=57cf72874229f081c28596f80a572323";
+        fetchURL += "&units=metric&appid=" + MainPage.openweather_API_key;
+        fetchURL = './proxy.php?' + "url=" + encodeURIComponent(fetchURL);
 
         return new Promise((resolve, reject) => {
             $.getJSON(fetchURL, (locations) => {
@@ -423,6 +426,7 @@
     }
 
     private setWeather(weather: any) {
+        $("#weatherLocalityTitle").text(weather.name);
         $("#weatherImg > img").attr("src", "./Resources/forecast/" + weather.weather[0].icon + ".png");
         $("#weatherTemperature").text(weather.main.temp.toFixed(0) + "°C");
         $("#windLabel").text("Wind: ");
@@ -592,9 +596,10 @@
         for (var i = 0; i < pathPoints.length; i++) {
             this.pathPointsGPS.push({ lat: null, lon: null });
         }
+        var focus = this.map.getCoordinatesAtCenter();
         // Labels are initialy put into array so we can check order of route points in async function bellow
         for (var i = 0; i < pathPoints.length; i++) {
-            this.searchLocationByName(pathPoints.eq(i).val())
+            this.searchLocationByName(pathPoints.eq(i).val(), focus.latitude, focus.longitude)
                 .then((locations) => {
                     searchedPointsCount++;
                     for (var j = 0; j < pathPoints.length; j++) {
